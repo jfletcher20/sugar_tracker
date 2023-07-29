@@ -11,7 +11,7 @@ class DB {
           "CREATE TABLE food_category (id INTEGER PRIMARY KEY, name TEXT, picture TEXT, notes TEXT)";
       // table variables should be oneline for readability
       String foodTable =
-          "CREATE TABLE food (id INTEGER PRIMARY KEY, name TEXT, food_category_id INTEGER, carbs REAL, weight REAL, picture TEXT, notes TEXT)";
+          "CREATE TABLE food (id INTEGER PRIMARY KEY, name TEXT, food_category_id INTEGER, carbs REAL, weight REAL, picture TEXT, notes TEXT, amount INTEGER)";
       String sugarTable =
           "CREATE TABLE sugar (id INTEGER PRIMARY KEY, sugar REAL, insulin REAL, date TEXT, notes TEXT)";
       String mealTable =
@@ -76,6 +76,7 @@ class DB {
         "weight": 100,
         "picture": "${rootPicturePath}apple.png",
         "notes": "1 medium apple",
+        "amount": 0,
       });
 
       database.insert("food", {
@@ -85,6 +86,7 @@ class DB {
         "weight": 100,
         "picture": "${rootPicturePath}banana.png",
         "notes": "1 medium banana",
+        "amount": 0,
       });
 
       database.insert("food", {
@@ -94,6 +96,7 @@ class DB {
         "weight": 100,
         "picture": "${rootPicturePath}grapes.png",
         "notes": "1 cup grapes",
+        "amount": 0,
       });
 
       database.insert("food", {
@@ -103,6 +106,7 @@ class DB {
         "weight": 100,
         "picture": "${rootPicturePath}orange.png",
         "notes": "1 medium orange",
+        "amount": 0,
       });
 
       // insert sugar entries with database.insert

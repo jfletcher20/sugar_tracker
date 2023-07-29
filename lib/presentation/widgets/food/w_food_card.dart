@@ -14,49 +14,120 @@ class FoodCard extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            img(),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  food.name ?? "Unknown",
-                  style:
-                      Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "Carbs per 100g: ${food.carbs}g\n"
-                  "Expected weight: ${food.weight}g",
-                ),
-                const SizedBox(height: 8),
-                if (food.notes != null)
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
                   Text(
-                    "${food.notes}",
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    food.name ?? "Unknown",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-              ],
-            ),
-          ],
+                  const SizedBox(height: 16),
+                  Stack(
+                    children: [
+                      img(),
+                      // if amount is not 0, show amount
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.redAccent,
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: Text(
+                            "${food.amount}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // datatable with columns "Carbs" and "Expected weight"
+                  data(food),
+                  const SizedBox(height: 8),
+                  if (food.notes != null) notes(food.notes, context),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget img() {
+  Widget notes(String? notes, BuildContext context) {
     return SizedBox(
-      height: 64 - 8,
-      width: 64 - 8,
-      child: Center(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [image(food)],
+      width: MediaQuery.of(context).size.width - 96 - 24,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Text(
+          "${food.notes}",
+          style: const TextStyle(
+            fontSize: 12,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ),
+    );
+  }
+
+  DataTable data(Food food) {
+    return DataTable(
+      horizontalMargin: 10,
+      columnSpacing: 25,
+      showBottomBorder: true,
+      columns: const [
+        DataColumn(label: Center(child: Text("Carbs"))),
+        DataColumn(label: Center(child: Text("Average weight"))),
+        DataColumn(label: Center(child: Text("Category"))),
+      ],
+      rows: [
+        DataRow(cells: [
+          DataCell(Center(child: Text("${food.carbs}g"))),
+          DataCell(Center(child: Text("${food.weight}g"))),
+          DataCell(Center(child: Text("${food.category}"))),
+        ]),
+      ],
+    );
+  }
+
+  Widget img() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: Colors.redAccent),
+        color: Colors.white,
+      ),
+      padding: const EdgeInsets.all(4),
+      child: SizedBox(
+        height: 64 - 8,
+        width: 64 - 8,
+        child: Center(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [image(food)],
+          ),
         ),
       ),
     );

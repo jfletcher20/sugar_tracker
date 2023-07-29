@@ -37,4 +37,9 @@ class FoodCategory {
       "notes": notes,
     };
   }
+
+  @override
+  String toString() {
+    return name ?? "Unknown";
+  }
 }

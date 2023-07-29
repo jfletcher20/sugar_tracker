@@ -10,11 +10,7 @@ class DetailsDialogs {
       context: context,
       builder: (context) => ListView(
         children: [
-          for (int i = 0; i < foods.length; i++)
-            InkWell(
-              onTap: () => DetailsDialogs.foodDetails(context, foods[i]),
-              child: FoodCard(food: foods[i]),
-            )
+          for (int i = 0; i < foods.length; i++) FoodCard(food: foods[i]),
         ],
       ),
     );

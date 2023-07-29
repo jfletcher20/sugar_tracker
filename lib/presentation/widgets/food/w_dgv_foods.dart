@@ -24,14 +24,8 @@ class FoodsGridView extends StatelessWidget {
           children: foods.map((food) {
             return InkWell(
               onTap: () => DetailsDialogs.mealDetails(context, foods),
-              onLongPress: () => DetailsDialogs.foodDetails(context, food),
               child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(children: [
-                    img(food),
-                  ]),
-                ),
+                child: Column(children: [img(food)]),
               ),
             );
           }).toList(),
@@ -41,16 +35,24 @@ class FoodsGridView extends StatelessWidget {
   }
 
   Widget img(Food food) {
-    return SizedBox(
-      height: 48,
-      width: 48,
-      child: Center(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            image(food),
-            label(food),
-          ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: Colors.redAccent),
+        color: Colors.white,
+      ),
+      padding: const EdgeInsets.all(4),
+      child: SizedBox(
+        height: 48 + 4,
+        width: 48 + 4,
+        child: Center(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              image(food),
+              label(food),
+            ],
+          ),
         ),
       ),
     );

@@ -7,6 +7,7 @@
           "weight REAL,"
           "picture TEXT,"
           "notes TEXT,"
+          "amount INTEGER"
           ")"; */
 
 import 'package:sugar_tracker/data/api/u_api_food.dart';
@@ -20,8 +21,17 @@ class Food {
   double? weight;
   String? picture;
   String? notes;
+  int amount = 0;
 
-  Food({this.id, this.name, this.category, this.carbs, this.weight, this.picture, this.notes});
+  Food(
+      {this.id,
+      this.name,
+      this.category,
+      this.carbs,
+      this.weight,
+      this.picture,
+      this.notes,
+      this.amount = 0});
 
   Food.fromMap(Map<String, dynamic> map) {
     id = map["id"];
@@ -30,6 +40,7 @@ class Food {
     weight = map["weight"];
     picture = map["picture"];
     notes = map["notes"];
+    amount = map["amount"] ?? 0;
   }
 
   Future<void> fromId(int id) async {
@@ -41,6 +52,7 @@ class Food {
     weight = food.weight;
     picture = food.picture;
     notes = food.notes;
+    amount = food.amount;
   }
 
   Map<String, dynamic> toMap() {
@@ -52,6 +64,7 @@ class Food {
       "weight": weight,
       "picture": picture,
       "notes": notes,
+      "amount": amount,
     };
   }
 }
