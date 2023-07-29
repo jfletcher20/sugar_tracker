@@ -10,13 +10,15 @@ class FoodCategory {
   int? id;
   String? name;
   String? picture;
+  String? notes;
 
-  FoodCategory({this.id, required this.name, this.picture});
+  FoodCategory({this.id, this.name, this.picture, this.notes});
 
   FoodCategory.fromMap(Map<String, dynamic> map) {
     id = map["id"];
     name = map["name"];
     picture = map["picture"];
+    notes = map["notes"];
   }
 
   Future<void> fromId(int id) async {
@@ -24,6 +26,7 @@ class FoodCategory {
     this.id = category.id;
     name = category.name;
     picture = category.picture;
+    notes = category.notes;
   }
 
   Map<String, dynamic> toMap() {
@@ -31,6 +34,7 @@ class FoodCategory {
       "id": id,
       "name": name,
       "picture": picture,
+      "notes": notes,
     };
   }
 }

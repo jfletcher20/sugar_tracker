@@ -2,9 +2,8 @@
       String mealTable = "CREATE TABLE meal("
           "id INTEGER PRIMARY KEY AUTOINCREMENT,"
           "sugar_id INTEGER,"
-          "food_id INTEGER,"
-          "FOREIGN KEY(sugar_id) REFERENCES sugar(id),"
-          "FOREIGN KEY(food_id) REFERENCES food(id)"
+          "insulin REAL,"
+          "food_ids TEXT,"
           ")"; */
 
 import 'package:sugar_tracker/data/models/m_food.dart';
@@ -13,24 +12,34 @@ import 'package:sugar_tracker/data/models/m_sugar.dart';
 class Meal {
   int? id;
   Sugar? sugar;
-  Food? food;
+  double insulin = 0;
+  List<Food> food = <Food>[];
+  String? notes;
 
-  Meal({this.id, this.sugar, this.food});
+  Meal({this.id, this.sugar, required this.food, this.insulin = 0, this.notes});
 
   Meal.fromMap(Map<String, dynamic> map) {
     id = map["id"];
+    insulin = map["insulin"];
+    notes = map["notes"];
   }
 
   Map<String, dynamic> toMap() {
     return {
       "id": id,
-      "sugar_id": sugar?.toMap(),
-      "food_id": food?.toMap(),
+      "insulin": insulin,
+      "sugar_id": sugar?.id,
+      "food_ids": foodToCsv(),
+      "notes": notes,
     };
+  }
+
+  String foodToCsv() {
+    return food.map((e) => e.id.toString()).join(",");
   }
 
   @override
   String toString() {
-    return "Meal(id: $id, sugar: $sugar, food: $food)";
+    return "Meal(id: $id, insulin: $insulin, sugar: $sugar, food: $food)";
   }
 }

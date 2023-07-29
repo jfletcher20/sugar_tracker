@@ -17,36 +17,18 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
       builder: (builder, snapshot) {
         if (snapshot.hasData) {
           List<Meal> meals = snapshot.data as List<Meal>;
-          Map<int, List<Meal>> mealsBySugarId = {};
-          for (Meal meal in meals) {
-            if (mealsBySugarId.containsKey(meal.sugar!.id)) {
-              mealsBySugarId[meal.sugar!.id]!.add(meal);
-            } else {
-              mealsBySugarId[meal.sugar!.id!] = [meal];
-            }
-          }
-          return DataTable(
-            columns: const [
-              DataColumn(label: Text("Meal")),
-              DataColumn(label: Text("Sugar level")),
-              DataColumn(label: Text("Insulin give")),
-              DataColumn(label: Text("Total carbs")),
-            ],
-            rows: mealsBySugarId
-                .map((key, value) {
-                  return MapEntry(
-                    key,
-                    DataRow(
-                      cells: [
-                        DataCell(Text(value.map((e) => e.food!.name).join(", "))),
-                        DataCell(Text(key.toString())),
-                        DataCell(Text(value.map((e) => e.food!.id.toString()).join(", "))),
-                      ],
-                    ),
-                  );
-                })
-                .values
-                .toList(),
+          return Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: ListView(
+              children: [
+                for (int i = 0; i < meals.length; i++)
+                  ListTile(
+                    title: Text(meals[i].food.map((e) => e.name).join(", ")),
+                    subtitle: Text(meals[i].sugar?.sugar.toString() ?? "Unknown"),
+                  ),
+              ],
+            ),
           );
         } else {
           return const Center(child: CircularProgressIndicator());

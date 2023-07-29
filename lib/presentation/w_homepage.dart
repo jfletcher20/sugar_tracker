@@ -51,6 +51,14 @@ class _HomepageState extends State<Homepage> {
                     },
                     child: const Text("Clear"),
                   ),
+                  TextButton(
+                    onPressed: () {
+                      // raw query drop table
+                      DB.db.rawDelete("DROP TABLE ${tableName.text}");
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Drop table"),
+                  ),
                   // create textbutton that shows dialog to insert data into db
                   TextButton(
                     onPressed: () {
@@ -248,37 +256,37 @@ class _HomepageState extends State<Homepage> {
 
     DB.db.insert("meal", {
       "sugar_id": 1,
-      "food_id": 1,
+      "food_ids": 1,
     });
 
     DB.db.insert("meal", {
       "sugar_id": 1,
-      "food_id": 2,
+      "food_ids": 2,
     });
 
     DB.db.insert("meal", {
       "sugar_id": 1,
-      "food_id": 3,
+      "food_ids": 3,
     });
 
     DB.db.insert("meal", {
       "sugar_id": 1,
-      "food_id": 4,
+      "food_ids": 4,
     });
 
     DB.db.insert("meal", {
       "sugar_id": 2,
-      "food_id": 1,
+      "food_ids": 1,
     });
 
     DB.db.insert("meal", {
       "sugar_id": 2,
-      "food_id": 2,
+      "food_ids": 2,
     });
 
     DB.db.insert("meal", {
       "sugar_id": 2,
-      "food_id": 3,
+      "food_ids": 3,
     });
 
     setState(() {});
@@ -288,36 +296,36 @@ class _HomepageState extends State<Homepage> {
 void _meals() {
   DB.db.insert("meal", {
     "sugar_id": 1,
-    "food_id": 1,
+    "food_ids": 1,
   });
 
   DB.db.insert("meal", {
     "sugar_id": 1,
-    "food_id": 2,
+    "food_ids": 2,
   });
 
   DB.db.insert("meal", {
     "sugar_id": 1,
-    "food_id": 3,
+    "food_ids": 3,
   });
 
   DB.db.insert("meal", {
     "sugar_id": 1,
-    "food_id": 4,
+    "food_ids": 4,
   });
 
   DB.db.insert("meal", {
     "sugar_id": 2,
-    "food_id": 1,
+    "food_ids": 1,
   });
 
   DB.db.insert("meal", {
     "sugar_id": 2,
-    "food_id": 2,
+    "food_ids": 2,
   });
 
   DB.db.insert("meal", {
     "sugar_id": 2,
-    "food_id": 3,
+    "food_ids": 3,
   });
 }

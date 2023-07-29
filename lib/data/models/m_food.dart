@@ -1,7 +1,7 @@
 // create model based on sql command:
 
 /* "CREATE TABLE food("
-          "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+          "id INTEGER PRIMARY KEY,"
           "name TEXT,"
           "carbs REAL,"
           "weight REAL,"
@@ -33,14 +33,14 @@ class Food {
   }
 
   Future<void> fromId(int id) async {
-    Food category = await FoodAPI.selectById(id) ?? Food(name: "Unknown");
-    this.id = category.id;
-    this.category = category.category;
-    name = category.name;
-    carbs = category.carbs;
-    weight = category.weight;
-    picture = category.picture;
-    notes = category.notes;
+    Food food = await FoodAPI.selectById(id) ?? Food(name: "Unknown");
+    this.id = food.id;
+    category = food.category;
+    name = food.name;
+    carbs = food.carbs;
+    weight = food.weight;
+    picture = food.picture;
+    notes = food.notes;
   }
 
   Map<String, dynamic> toMap() {

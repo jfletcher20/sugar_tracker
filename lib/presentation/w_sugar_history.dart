@@ -24,7 +24,6 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
                         cells: [
                           DataCell(Text(e.id.toString())),
                           DataCell(Text(e.sugar.toString())),
-                          DataCell(Text(e.insulin.toString())),
                           DataCell(Text(e.date.toString())),
                           DataCell(Text(e.notes.toString())),
                         ],

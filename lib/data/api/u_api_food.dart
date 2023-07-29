@@ -38,4 +38,13 @@ class FoodAPI {
     }
     return null;
   }
+
+  static Future<List<Food>> selectByIds(List<int> ids) async {
+    // for each id in ids store result from selectById function
+    List<Food> results = List.empty(growable: true);
+    for (int id in ids) {
+      results.add(await selectById(id) ?? Food());
+    }
+    return results;
+  }
 }

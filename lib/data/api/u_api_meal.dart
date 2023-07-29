@@ -9,43 +9,91 @@ import 'package:sugar_tracker/data/models/m_sugar.dart';
 
 class MealAPI {
   // insert meal entry into db
-  static Future<int> insert(int sugarId, int foodId) async {
-    return await DB.db
-        .rawInsert("INSERT INTO meal(sugar_id, food_id) VALUES(?, ?)", [sugarId, foodId]);
+  static Future<int> insert(Meal meal) async {
+    return await DB.insert("meal", meal.toMap());
   }
 
   // update meal entry in db
-  static Future<int> update(int sugarId, int foodId) async {
-    return await DB.db.rawUpdate(
-        "UPDATE meal SET sugar_id = ?, food_id = ? WHERE sugar_id = ? AND food_id = ?",
-        [sugarId, foodId, sugarId, foodId]);
+  static Future<int> update(Meal meal) async {
+    return await DB.update("meal", meal.toMap());
   }
 
   // delete meal entry from db
-  static Future<int> delete(int sugarId, int foodId) async {
-    return await DB.db
-        .rawDelete("DELETE FROM meal WHERE sugar_id = ? AND food_id = ?", [sugarId, foodId]);
+  static Future<int> delete(Meal meal) async {
+    return await DB.delete("meal", meal.id ?? -1);
   }
 
   // select all meal entries from db as meals
   static Future<List<Meal>> selectAll() async {
-    List<Meal> result = List.empty(growable: true);
     // get all meals, and for each meal, get the sugar and food
-    List<Map<String, dynamic>> meals = await DB.db.rawQuery("SELECT * FROM meal");
+    List<Meal> result = List.empty(growable: true);
+    List<Map<String, dynamic>> meals = await DB.select("meal");
+
     for (Map<String, dynamic> meal in meals) {
       Sugar? sugar = await SugarAPI.selectById(meal["sugar_id"]);
-      Food? food = await FoodAPI.selectById(meal["food_id"]);
-      result.add(Meal.fromMap(meal)
-        ..sugar = sugar
-        ..food = food);
+      if (meal["food_ids"] is String) {
+        String ids = meal["food_ids"];
+        List<String> notparsed = ids.split(",");
+        List<int> foodIds = [];
+        for (String id in notparsed) {
+          foodIds.add(int.parse(id));
+        }
+        List<Food> food = await FoodAPI.selectByIds(foodIds);
+        result.add(Meal.fromMap(meal)
+          ..sugar = sugar
+          ..food = food);
+      } else {
+        List<Food> food = [await FoodAPI.selectById(meal["food_ids"]) ?? Food()];
+        result.add(Meal.fromMap(meal)
+          ..sugar = sugar
+          ..food = food);
+      }
     }
+
     return result;
   }
 
   // select meal entry from db by id
-  static Future<Meal> selectById(int sugarId, int foodId) async {
-    List<Map<String, dynamic>> results = await DB.db
-        .rawQuery("SELECT * FROM meal WHERE sugar_id = ? AND food_id = ?", [sugarId, foodId]);
-    return Meal.fromMap(results[0]);
+  static Future<Meal> selectByFoodId(int foodId) async {
+    Map<String, dynamic> result =
+        (await DB.db.rawQuery("SELECT * FROM meal WHERE food_ids = ?", [foodId.toString()])).first;
+
+    Sugar? sugar = await SugarAPI.selectById(result["sugar_id"]);
+    List<Food> food = await FoodAPI.selectByIds(
+      result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
+    );
+
+    return Meal.fromMap(result)
+      ..sugar = sugar
+      ..food = food;
+  }
+
+  // select meal entries from db by sugar id
+  static Future<Meal> selectBySugarId(int sugarId) async {
+    Map<String, dynamic> result =
+        (await DB.db.rawQuery("SELECT * FROM meal WHERE sugar_id = ?", [sugarId])).first;
+
+    Sugar? sugar = await SugarAPI.selectById(result["sugar_id"]);
+    List<Food> food = await FoodAPI.selectByIds(
+      result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
+    );
+
+    return Meal.fromMap(result)
+      ..sugar = sugar
+      ..food = food;
+  }
+
+  static Future<Meal> selectById(int id) async {
+    Map<String, dynamic> result =
+        (await DB.db.rawQuery("SELECT * FROM meal WHERE id = ?", [id])).first;
+
+    Sugar? sugar = await SugarAPI.selectById(result["sugar_id"]);
+    List<Food> food = await FoodAPI.selectByIds(
+      result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
+    );
+
+    return Meal.fromMap(result)
+      ..sugar = sugar
+      ..food = food;
   }
 }
