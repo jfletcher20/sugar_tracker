@@ -3,6 +3,7 @@ import 'package:sugar_tracker/data/models/m_meal.dart';
 
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
 
 class MealHistoryWidget extends StatefulWidget {
   const MealHistoryWidget({super.key});
@@ -28,7 +29,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
                   Card(
                     child: Row(children: [
                       FoodsGridView(foods: meals[i].food),
-                      Text(meals[i].sugar?.sugar.toString() ?? "Unknown"),
+                      MealDataWidget(meal: meals[i]),
                     ]),
                   ),
               ],

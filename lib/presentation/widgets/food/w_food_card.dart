@@ -32,38 +32,13 @@ class FoodCard extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  Stack(
-                    children: [
-                      img(),
-                      // if amount is not 0, show amount
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.redAccent,
-                          ),
-                          padding: const EdgeInsets.all(4),
-                          child: Text(
-                            "${food.amount}",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  imageWithCounter(food),
                 ],
               ),
               const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // datatable with columns "Carbs" and "Expected weight"
                   data(food),
                   const SizedBox(height: 8),
                   if (food.notes != null) notes(food.notes, context),
@@ -76,17 +51,42 @@ class FoodCard extends StatelessWidget {
     );
   }
 
-  Widget notes(String? notes, BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width - 96 - 24,
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Text(
-          "${food.notes}",
-          style: const TextStyle(
-            fontSize: 12,
-            fontStyle: FontStyle.italic,
+  Widget imageWithCounter(Food food) {
+    return Stack(
+      children: [
+        img(),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Colors.redAccent,
+            ),
+            padding: const EdgeInsets.all(4),
+            child: Text(
+              "${food.amount}",
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget notes(String? notes, BuildContext context) {
+    return Positioned(
+      bottom: 0,
+      right: 0,
+      child: Text(
+        "${food.notes}",
+        style: const TextStyle(
+          fontSize: 12,
+          fontStyle: FontStyle.italic,
         ),
       ),
     );

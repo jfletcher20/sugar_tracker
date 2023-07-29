@@ -34,6 +34,6 @@ class Sugar {
 
   @override
   String toString() {
-    return "Sugar(id: $id, sugar: $sugar, date: $date, notes: $notes)";
+    return "$sugar";
   }
 }

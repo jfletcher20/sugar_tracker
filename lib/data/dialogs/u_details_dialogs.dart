@@ -1,7 +1,7 @@
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:flutter/material.dart';
 
-import '../food/w_food_card.dart';
+import '../../presentation/widgets/food/w_food_card.dart';
 
 class DetailsDialogs {
   static void mealDetails(BuildContext context, List<Food> foods) async {
