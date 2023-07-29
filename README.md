@@ -1,3 +1,3 @@
 # sugar_tracker
 
-A new Flutter project.
+For tracking sugar levels and insulin given per meal.

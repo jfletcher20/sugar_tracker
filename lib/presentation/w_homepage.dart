@@ -1,8 +1,8 @@
 // ignore_for_file: avoid_print
 
 import 'package:sugar_tracker/data/api/u_db.dart';
-import 'package:sugar_tracker/presentation/w_meal_history.dart';
-import 'package:sugar_tracker/presentation/w_sugar_history.dart';
+import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
+import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
 import 'package:flutter/material.dart';
 
 class Homepage extends StatefulWidget {
@@ -102,10 +102,7 @@ class _HomepageState extends State<Homepage> {
       ]),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: child,
-        ),
+        child: child,
       ),
     );
   }
