@@ -1,9 +1,9 @@
+import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
+import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 
 import 'package:flutter/material.dart';
-import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
-import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
 
 class MealHistoryWidget extends StatefulWidget {
   const MealHistoryWidget({super.key});
@@ -27,10 +27,17 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
               children: [
                 for (int i = 0; i < meals.length; i++)
                   Card(
-                    child: Row(children: [
-                      FoodsGridView(foods: meals[i].food),
-                      MealDataWidget(meal: meals[i]),
-                    ]),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    borderOnForeground: true,
+                    child: Stack(
+                      children: [
+                        Row(children: [
+                          FoodsGridView(foods: meals[i].food),
+                          MealDataWidget(meal: meals[i]),
+                        ]),
+                        category(meals[i].category!),
+                      ],
+                    ),
                   ),
               ],
             ),
@@ -44,6 +51,34 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
         }
       },
       future: MealAPI.selectAll(),
+    );
+  }
+
+  Color switchColor(MealCategory category) {
+    // fancy dart short switch statemenet
+    return {
+      MealCategory.breakfast: Colors.blue,
+      MealCategory.lunch: Colors.green,
+      MealCategory.dinner: Colors.orange,
+      MealCategory.snack: Colors.purple,
+      MealCategory.other: Colors.yellow,
+    }[category]!;
+  }
+
+  Widget category(MealCategory category) {
+    return Positioned(
+      right: 0,
+      child: Container(
+        width: 8,
+        height: 60,
+        decoration: BoxDecoration(
+          color: switchColor(category),
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(16),
+            bottomLeft: Radius.circular(16),
+          ),
+        ),
+      ),
     );
   }
 }

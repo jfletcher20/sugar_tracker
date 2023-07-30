@@ -15,6 +15,22 @@ class ThemeManager {
       primary: Colors.black,
       secondary: Colors.black,
     ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.redAccent,
+        textStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        minimumSize: const Size(300, 56),
+        padding: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+    ),
     // dataTableTheme: DataTableThemeData(
     //   dataRowColor: const MaterialStatePropertyAll(Color.fromARGB(255, 255, 192, 181)),
     //   dataTextStyle: const TextStyle(color: Colors.black, fontSize: 18),

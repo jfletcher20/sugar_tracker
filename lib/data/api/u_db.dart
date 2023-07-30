@@ -15,7 +15,7 @@ class DB {
       String sugarTable =
           "CREATE TABLE sugar (id INTEGER PRIMARY KEY, sugar REAL, insulin REAL, date TEXT, notes TEXT)";
       String mealTable =
-          "CREATE TABLE meal (id INTEGER PRIMARY KEY, sugar_id INTEGER, food_ids INTEGER, insulin REAL, notes TEXT)";
+          "CREATE TABLE meal (id INTEGER PRIMARY KEY, sugar_id INTEGER, food_ids INTEGER, insulin REAL, notes TEXT, category INTEGER)";
       // create table called entire_meal which is a join of sugar and meal
       database.execute(foodCategoryTable);
       database.execute(foodTable);
@@ -167,6 +167,7 @@ class DB {
         "food_ids": "1,2,3",
         "insulin": 2,
         "notes": "lunch",
+        "category": 1,
       });
 
       database.insert("meal", {
@@ -174,6 +175,7 @@ class DB {
         "food_ids": "2,4,1",
         "insulin": 10,
         "notes": "dinner",
+        "category": 3,
       });
 
       database.insert("meal", {
@@ -181,6 +183,7 @@ class DB {
         "food_ids": "3,2",
         "insulin": 16,
         "notes": "lunch",
+        "category": 1,
       });
 
       database.insert("meal", {
@@ -188,6 +191,7 @@ class DB {
         "food_ids": "4,1",
         "insulin": 4,
         "notes": "dinner",
+        "category": 3,
       });
 
       database.insert("meal", {
@@ -195,6 +199,7 @@ class DB {
         "food_ids": "1",
         "insulin": 0,
         "notes": "lunch",
+        "category": 1,
       });
     });
   }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
 
 class FoodCard extends StatelessWidget {
   final Food food;
-  const FoodCard({super.key, required this.food});
+  final Set<int> columns;
+  const FoodCard({super.key, required this.food, this.columns = const {0, 1, 2}});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class FoodCard extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  imageWithCounter(food),
+                  FoodCountWidget(food: food),
                 ],
               ),
               const SizedBox(width: 16),
@@ -51,33 +53,6 @@ class FoodCard extends StatelessWidget {
     );
   }
 
-  Widget imageWithCounter(Food food) {
-    return Stack(
-      children: [
-        img(),
-        Positioned(
-          bottom: 0,
-          right: 0,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Colors.redAccent,
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Text(
-              "${food.amount}",
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget notes(String? notes, BuildContext context) {
     return Positioned(
       bottom: 0,
@@ -93,62 +68,22 @@ class FoodCard extends StatelessWidget {
   }
 
   DataTable data(Food food) {
+    List<DataColumn> columns = const <DataColumn>[
+      DataColumn(label: Center(child: Text("Carbs"))),
+      DataColumn(label: Center(child: Text("Average weight"))),
+      DataColumn(label: Center(child: Text("Category"))),
+    ];
+    List<DataCell> cells = [
+      DataCell(Center(child: Text("${(food.carbs! * food.amount).round()}g"))),
+      DataCell(Center(child: Text("${(food.weight! * food.amount).round()}g"))),
+      DataCell(Center(child: Text("${food.category}"))),
+    ];
     return DataTable(
       horizontalMargin: 10,
       columnSpacing: 25,
       showBottomBorder: true,
-      columns: const [
-        DataColumn(label: Center(child: Text("Carbs"))),
-        DataColumn(label: Center(child: Text("Average weight"))),
-        DataColumn(label: Center(child: Text("Category"))),
-      ],
-      rows: [
-        DataRow(cells: [
-          DataCell(Center(child: Text("${food.carbs}g"))),
-          DataCell(Center(child: Text("${food.weight}g"))),
-          DataCell(Center(child: Text("${food.category}"))),
-        ]),
-      ],
-    );
-  }
-
-  Widget img() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: Colors.redAccent),
-        color: Colors.white,
-      ),
-      padding: const EdgeInsets.all(4),
-      child: SizedBox(
-        height: 64 - 8,
-        width: 64 - 8,
-        child: Center(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [image(food)],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Image image(Food food) {
-    return Image.asset(
-      height: 48,
-      width: 48,
-      food.picture ?? "assets/images/food/unknown.png",
-      color: food.picture == null ? Colors.greenAccent : null,
-      errorBuilder: imageNotFound,
-    );
-  }
-
-  Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
-    return Image.asset(
-      "assets/images/food/unknown.png",
-      color: Colors.redAccent,
-      height: 48,
-      width: 48,
+      columns: this.columns.map((e) => columns[e]).toList(),
+      rows: [DataRow(cells: this.columns.map((e) => cells[e]).toList())],
     );
   }
 }

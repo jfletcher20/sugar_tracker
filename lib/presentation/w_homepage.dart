@@ -1,9 +1,11 @@
 // ignore_for_file: avoid_print
 
 import 'package:sugar_tracker/data/api/u_db.dart';
+import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
 import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
 import 'package:flutter/material.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_meals_form.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -29,6 +31,12 @@ class _HomepageState extends State<Homepage> {
             setState(() => child = const SugarHistoryWidget());
           },
           icon: const Icon(Icons.query_stats),
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() => child = MealFormWidget(meal: Meal(food: [])));
+          },
+          icon: const Icon(Icons.add),
         ),
         IconButton(
           onPressed: () {

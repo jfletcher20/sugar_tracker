@@ -1,5 +1,5 @@
 import 'package:sugar_tracker/data/models/m_food.dart';
-import 'package:sugar_tracker/presentation/widgets/meal/d_meals_details.dart';
+import 'package:sugar_tracker/data/dialogs/u_details_dialogs.dart';
 import 'package:flutter/material.dart';
 
 class FoodsGridView extends StatelessWidget {
@@ -60,7 +60,7 @@ class FoodsGridView extends StatelessWidget {
 
   Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
     return Image.asset(
-      "assets/images/food/unknown.png",
+      "assets/images/foods/unknown.png",
       color: Colors.redAccent,
       height: 32,
       width: 32,
@@ -72,7 +72,21 @@ class FoodsGridView extends StatelessWidget {
     if (foods.length > 1) {
       return Align(
         alignment: Alignment.bottomCenter,
-        child: Text("$index/${foods.length}"),
+        child: Text(
+          "$index/${foods.length}",
+          style: /* drop shadow */ const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            shadows: [
+              Shadow(
+                color: Colors.black,
+                offset: Offset(1, 1),
+                blurRadius: 2,
+              ),
+            ],
+          ),
+        ),
       );
     } else {
       return Container();
@@ -83,7 +97,7 @@ class FoodsGridView extends StatelessWidget {
     return Image.asset(
       height: 32,
       width: 32,
-      food.picture ?? "assets/images/food/unknown.png",
+      food.picture ?? "assets/images/foods/unknown.png",
       color: food.picture == null ? Colors.greenAccent : null,
       errorBuilder: imageNotFound,
     );

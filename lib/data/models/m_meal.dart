@@ -9,12 +9,15 @@
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 
+enum MealCategory { breakfast, lunch, dinner, snack, other }
+
 class Meal {
   int? id;
   Sugar? sugar;
   double insulin = 0;
   List<Food> food = <Food>[];
   String? notes;
+  MealCategory? category;
 
   double get carbs {
     double total = 0;
@@ -37,12 +40,13 @@ class Meal {
     return "$hourMinute, ${date.day}.${date.month}.${date.year}";
   }
 
-  Meal({this.id, this.sugar, required this.food, this.insulin = 0, this.notes});
+  Meal({this.id, this.sugar, required this.food, this.insulin = 0, this.category, this.notes});
 
   Meal.fromMap(Map<String, dynamic> map) {
     id = map["id"];
     insulin = map["insulin"];
     notes = map["notes"];
+    category = MealCategory.values[map["category"]];
   }
 
   Map<String, dynamic> toMap() {
@@ -52,6 +56,7 @@ class Meal {
       "sugar_id": sugar?.id,
       "food_ids": foodToCsv(),
       "notes": notes,
+      "category": category?.index,
     };
   }
 
@@ -61,6 +66,6 @@ class Meal {
 
   @override
   String toString() {
-    return "Meal(id: $id, insulin: $insulin, sugar: $sugar, food: $food)";
+    return "Meal(id: $id, insulin: $insulin, sugar: $sugar, food: $food, notes: $notes, category: $category)";
   }
 }
