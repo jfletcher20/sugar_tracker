@@ -52,7 +52,7 @@ class MealDataWidget extends StatelessWidget {
   List<TextSpan> carbsAndDate() {
     return [
       const TextSpan(text: "Carbs: "),
-      TextSpan(text: meal.carbs.toString()),
+      TextSpan(text: meal.carbs.round().toString()),
       const TextSpan(text: "\n"),
       TextSpan(text: meal.date),
     ];

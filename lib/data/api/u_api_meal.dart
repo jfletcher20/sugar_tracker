@@ -39,11 +39,17 @@ class MealAPI {
           foodIds.add(int.parse(id));
         }
         List<Food> food = await FoodAPI.selectByIds(foodIds);
+        meal["food_amounts"].split(",").asMap().forEach((i, amount) {
+          food[i].amount = int.parse(amount);
+        });
         result.add(Meal.fromMap(meal)
           ..sugar = sugar
           ..food = food);
       } else {
         List<Food> food = [await FoodAPI.selectById(meal["food_ids"]) ?? Food()];
+        meal["food_amounts"].split(",").asMap().forEach((i, amount) {
+          food[i].amount = int.parse(amount);
+        });
         result.add(Meal.fromMap(meal)
           ..sugar = sugar
           ..food = food);
@@ -63,6 +69,10 @@ class MealAPI {
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
 
+    result["food_amounts"].split(",").asMap().forEach((i, amount) {
+      food[i].amount = int.parse(amount);
+    });
+
     return Meal.fromMap(result)
       ..sugar = sugar
       ..food = food;
@@ -78,6 +88,10 @@ class MealAPI {
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
 
+    result["food_amounts"].split(",").asMap().forEach((i, amount) {
+      food[i].amount = int.parse(amount);
+    });
+
     return Meal.fromMap(result)
       ..sugar = sugar
       ..food = food;
@@ -91,6 +105,10 @@ class MealAPI {
     List<Food> food = await FoodAPI.selectByIds(
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
+
+    result["food_amounts"].split(",").asMap().forEach((i, amount) {
+      food[i].amount = int.parse(amount);
+    });
 
     return Meal.fromMap(result)
       ..sugar = sugar

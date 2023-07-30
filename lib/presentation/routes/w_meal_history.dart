@@ -1,3 +1,4 @@
+import 'package:sugar_tracker/data/api/u_db.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
@@ -43,6 +44,11 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
             ),
           );
         } else {
+          Future<void> asyncFunc() async {
+            print(await DB.db.query("meal"));
+          }
+
+          asyncFunc();
           return SizedBox(
             height: maxSize.height,
             width: maxSize.width,

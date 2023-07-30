@@ -22,9 +22,9 @@ class Meal {
   double get carbs {
     double total = 0;
     for (Food f in food) {
-      total += f.carbs ?? 0;
+      total += (f.carbs ?? 0) * f.amount;
     }
-    return (total * 100).round() / 100;
+    return total;
   }
 
   String get date {
@@ -55,6 +55,7 @@ class Meal {
       "insulin": insulin,
       "sugar_id": sugar?.id,
       "food_ids": foodToCsv(),
+      "food_amounts": food.map((e) => e.amount.toString()).join(","),
       "notes": notes,
       "category": category?.index,
     };
