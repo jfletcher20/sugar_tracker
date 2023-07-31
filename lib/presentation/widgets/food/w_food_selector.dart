@@ -18,6 +18,8 @@ class _FoodSelectorWidgetState extends State<FoodSelectorWidget> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Food> foods = snapshot.data as List<Food>;
+          foods.sort((a, b) => a.name!.compareTo(b.name!));
+          foods.sort((a, b) => a.category!.name!.compareTo(b.category!.name!));
           return ListView.builder(
             itemCount: foods.length,
             shrinkWrap: true,

@@ -12,7 +12,6 @@ class FoodsGridView extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
-      color: Colors.white.withOpacity(0.3),
       child: SizedBox(
         width: 64 + 8,
         height: 64 + 8,

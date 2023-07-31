@@ -43,16 +43,6 @@ class _MealFormWidgetState extends State<MealFormWidget> {
                 return null;
               },
             ),
-            TextFormField(
-              controller: _notesController,
-              decoration: const InputDecoration(labelText: "Notes"),
-              keyboardType: TextInputType.multiline,
-              maxLines: 3,
-            ),
-            // category needs to be dropdown menu of MealCategory values
-            // date needs to be a date picker with automatic current date
-            // time needs to be a time picker with automatic current time
-            // food needs to be the food selector widget
             DropdownButtonFormField(
               items: [
                 dropdownMenuItem(MealCategory.breakfast, Icons.free_breakfast_rounded),
@@ -64,16 +54,24 @@ class _MealFormWidgetState extends State<MealFormWidget> {
               onChanged: (value) {},
               value: MealCategory.other,
             ),
-            SizedBox(height: 128 + 64, child: const FoodSelectorWidget()),
+            TextFormField(
+              controller: _notesController,
+              decoration: const InputDecoration(labelText: "Notes"),
+              keyboardType: TextInputType.multiline,
+              maxLines: 3,
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                if (Form.of(context)!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Processing Data")),
+                onPressed: () async {
+                  await showModalBottomSheet(
+                    context: context,
+                    builder: (context) => const Scaffold(body: FoodSelectorWidget()),
                   );
-                }
-              },
+                },
+                child: const Text("Add food")),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () => showAboutDialog(context: context),
               child: const Text("Submit"),
             ),
           ],

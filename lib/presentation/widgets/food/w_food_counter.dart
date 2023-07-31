@@ -14,7 +14,6 @@ class _FoodCounterWidgetState extends State<FoodCounterWidget> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.redAccent.withOpacity(0.2),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
@@ -23,32 +22,26 @@ class _FoodCounterWidgetState extends State<FoodCounterWidget> {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
             children: [
               FoodCard(
                 food: widget.food,
                 columns: const {2, 0},
               ),
-              SizedBox(
-                width: 60,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    button(
-                      Icons.arrow_upward,
-                      Colors.blue,
-                      () => setState(() => widget.food.amount++),
-                    ),
-                    const SizedBox(height: 16),
-                    button(
-                      Icons.arrow_downward,
-                      Colors.blue,
-                      () => setState(() => widget.food.amount--),
-                    ),
-                  ],
-                ),
+              const SizedBox(width: 16),
+              Column(
+                children: [
+                  button(
+                    Icons.arrow_upward,
+                    Colors.blue,
+                    () => setState(() => widget.food.amount++),
+                  ),
+                  const SizedBox(height: 16),
+                  button(
+                    Icons.arrow_downward,
+                    Colors.blue,
+                    () => setState(() => widget.food.amount--),
+                  ),
+                ],
               ),
             ],
           ),
@@ -63,6 +56,7 @@ class _FoodCounterWidgetState extends State<FoodCounterWidget> {
         backgroundColor: color,
         shape: const CircleBorder(),
         fixedSize: const Size(20, 20),
+        minimumSize: const Size(48, 48),
       ),
       onPressed: onPressed,
       child: Icon(icon, color: Colors.white),

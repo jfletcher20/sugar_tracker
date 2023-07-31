@@ -10,7 +10,6 @@ class FoodCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.redAccent.withOpacity(0.2),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
@@ -76,7 +75,7 @@ class FoodCard extends StatelessWidget {
     List<DataCell> cells = [
       DataCell(Center(child: Text("${(food.carbs! * food.amount).round()}g"))),
       DataCell(Center(child: Text("${(food.weight! * food.amount).round()}g"))),
-      DataCell(Center(child: Text("${food.category}"))),
+      DataCell(Center(child: Text(food.category?.name ?? "Unassigned"))),
     ];
     return DataTable(
       horizontalMargin: 10,

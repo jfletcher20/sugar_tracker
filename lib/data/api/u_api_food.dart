@@ -24,7 +24,11 @@ class FoodAPI {
   // select all food entries from db
   static Future<List<Food>> selectAll() async {
     List<Map<String, dynamic>> results = await DB.db.query("food");
-    return results.map((map) => Food.fromMap(map)).toList();
+    List<Food> food = results.map((map) => Food.fromMap(map)).toList();
+    for (int i = 0; i < food.length; i++) {
+      food[i].category = await FoodCategoryAPI.selectById(results[i]["food_category_id"]);
+    }
+    return food;
   }
 
   // select food entry from db by id
@@ -41,10 +45,10 @@ class FoodAPI {
 
   static Future<List<Food>> selectByIds(List<int> ids) async {
     // for each id in ids store result from selectById function
-    List<Food> results = List.empty(growable: true);
+    List<Food> food = List.empty(growable: true);
     for (int id in ids) {
-      results.add(await selectById(id) ?? Food());
+      food.add(await selectById(id) ?? Food());
     }
-    return results;
+    return food;
   }
 }

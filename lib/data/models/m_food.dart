@@ -21,7 +21,13 @@ class Food {
   double? weight;
   String? picture;
   String? notes;
-  int amount = 0;
+  int _amount = 0;
+  int get amount => _amount;
+  set amount(int value) {
+    if (value >= 0) {
+      _amount = value;
+    }
+  }
 
   Food(
       {this.id,
@@ -31,7 +37,8 @@ class Food {
       this.weight,
       this.picture,
       this.notes,
-      this.amount = 0});
+      int amount = 0})
+      : _amount = amount;
 
   Food.fromMap(Map<String, dynamic> map) {
     id = map["id"];
