@@ -47,7 +47,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
           child: Column(
             children: [
               title(),
-              const DateTimeSelectorWidget(),
+              DateTimeSelectorWidget(key: dateTimeSelectorKey),
               FutureBuilder(
                   future: loadLatestMealCategory(),
                   builder: (context, snapshot) {
@@ -172,6 +172,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
                 const SnackBar(content: Text("Please select at least one food item.")));
             return;
           }
+          meal.sugarLevel.datetime = dateTimeSelectorKey.currentState!.datetime;
           int sugarId = await SugarAPI.insert(meal.sugarLevel);
           meal.sugarLevel.id = sugarId;
           await MealAPI.insert(meal);
@@ -200,7 +201,15 @@ class _MealFormWidgetState extends State<MealFormWidget> {
           autofocus: true,
           controller: _sugarLevelController,
           keyboardType: TextInputType.number,
-          inputFormatters: [LengthLimitingTextInputFormatter(4)],
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(4),
+            TextInputFormatter.withFunction((oldValue, newValue) {
+              if (newValue.text.contains(",")) {
+                return oldValue;
+              }
+              return newValue;
+            })
+          ],
           validator: (value) {
             if (value == null || value.isEmpty) {
               return "Please enter a value";

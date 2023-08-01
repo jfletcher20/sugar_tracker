@@ -34,18 +34,18 @@ class Meal {
   double get carbs {
     double total = 0;
     for (Food f in food) {
-      total += (f.carbs ?? 0) * f.amount;
+      total += f.amount * ((f.carbs ?? 0) / 100);
     }
     return total;
   }
 
   String get date {
-    DateTime date = sugarLevel.date ?? DateTime.now();
+    DateTime date = sugarLevel.datetime ?? DateTime.now();
     return "${date.day}.${date.month}.${date.year}";
   }
 
   String get time {
-    DateTime date = sugarLevel.date ?? DateTime.now();
+    DateTime date = sugarLevel.datetime ?? DateTime.now();
     String minute = date.minute.toString();
     if (minute.length == 1) {
       minute = "0$minute";

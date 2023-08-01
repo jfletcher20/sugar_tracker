@@ -14,20 +14,12 @@ class FoodCounterWidget extends StatefulWidget {
 class _FoodCounterWidgetState extends State<FoodCounterWidget> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              FoodCard(food: widget.food, columns: const {2, 0}, modifiable: widget.modifiable),
-            ],
-          ),
-        ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          FoodCard(food: widget.food, columns: const {2, 0, 1}, modifiable: widget.modifiable),
+        ],
       ),
     );
   }

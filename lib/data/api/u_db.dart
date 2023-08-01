@@ -13,9 +13,9 @@ class DB {
       String foodTable =
           "CREATE TABLE food (id INTEGER PRIMARY KEY, name TEXT, food_category_id INTEGER, carbs REAL, weight REAL, picture TEXT, notes TEXT, amount INTEGER)";
       String sugarTable =
-          "CREATE TABLE sugar (id INTEGER PRIMARY KEY, sugar REAL, insulin REAL, date TEXT, notes TEXT)";
+          "CREATE TABLE sugar (id INTEGER PRIMARY KEY, sugar REAL, date TEXT, notes TEXT)";
       String mealTable =
-          "CREATE TABLE meal (id INTEGER PRIMARY KEY, sugar_id INTEGER, food_ids TEXT, food_amounts TEXT, insulin REAL, notes TEXT, category INTEGER)";
+          "CREATE TABLE meal (id INTEGER PRIMARY KEY, sugar_id INTEGER, food_ids TEXT, food_amounts TEXT, insulin INTEGER, notes TEXT, category INTEGER)";
       // create table called entire_meal which is a join of sugar and meal
       database.execute(foodCategoryTable);
       database.execute(foodTable);
@@ -23,17 +23,17 @@ class DB {
       database.execute(mealTable);
 
       database.insert("food_category", {
-        "name": "Fruits",
+        "name": "Fruit",
         "picture": "${rootPicturePath}fruits.png",
         "notes": "Fruits are high in carbs",
       });
       database.insert("food_category", {
-        "name": "Vegetables",
+        "name": "Vegetable",
         "picture": "${rootPicturePath}vegetables.png",
         "notes": "Vegetables are low in carbs",
       });
       database.insert("food_category", {
-        "name": "Grains",
+        "name": "Grain",
         "picture": "${rootPicturePath}grains.png",
         "notes": "Grains are high in carbs",
       });
@@ -48,22 +48,17 @@ class DB {
         "notes": "Protein is low in carbs",
       });
       database.insert("food_category", {
-        "name": "Fats",
-        "picture": "${rootPicturePath}fats.png",
-        "notes": "Fats are low in carbs",
-      });
-      database.insert("food_category", {
-        "name": "Sweets",
+        "name": "Dessert",
         "picture": "${rootPicturePath}sweets.png",
         "notes": "Sweets are high in carbs",
       });
       database.insert("food_category", {
-        "name": "Beverages",
+        "name": "Drink",
         "picture": "${rootPicturePath}beverages.png",
         "notes": "Beverages are high in carbs",
       });
       database.insert("food_category", {
-        "name": "Miscellaneous",
+        "name": "Misc",
         "picture": "${rootPicturePath}miscellaneous.png",
         "notes": "Miscellaneous foods.",
       });
@@ -73,7 +68,7 @@ class DB {
         "name": "Apple",
         "food_category_id": 1,
         "carbs": 25.13,
-        "weight": 100,
+        "weight": 180,
         "picture": "${rootPicturePath}apple.png",
         "notes": "1 medium apple",
         "amount": 0,
@@ -125,7 +120,6 @@ class DB {
 
       database.insert("sugar", {
         "sugar": 7.5,
-        "insulin": 0,
         "date": "2021-10-02 12:00:00",
         "notes": "before lunch",
       });
@@ -163,9 +157,18 @@ class DB {
       // insert meals with database.insert
 
       database.insert("meal", {
+        "sugar_id": 7,
+        "food_ids": "1,2",
+        "food_amounts": "100,250",
+        "insulin": 16,
+        "notes": "breakfast",
+        "category": 0,
+      });
+
+      database.insert("meal", {
         "sugar_id": 1,
         "food_ids": "1,2,3",
-        "food_amounts": "1,2,3",
+        "food_amounts": "60,50,50",
         "insulin": 2,
         "notes": "lunch",
         "category": 1,
@@ -174,37 +177,57 @@ class DB {
       database.insert("meal", {
         "sugar_id": 2,
         "food_ids": "2,4,1",
-        "food_amounts": "2,4,5",
+        "food_amounts": "100,200,150",
         "insulin": 10,
         "notes": "dinner",
-        "category": 3,
+        "category": 2,
       });
 
       database.insert("meal", {
         "sugar_id": 3,
         "food_ids": "3,2",
-        "food_amounts": "1,2",
+        "food_amounts": "100,20",
         "insulin": 16,
-        "notes": "lunch",
-        "category": 1,
+        "notes": "breakfast",
+        "category": 0,
       });
 
       database.insert("meal", {
         "sugar_id": 4,
         "food_ids": "4,1",
-        "food_amounts": "3,1",
+        "food_amounts": "50,30",
         "insulin": 4,
         "notes": "dinner",
-        "category": 3,
+        "category": 2,
       });
 
       database.insert("meal", {
         "sugar_id": 5,
         "food_ids": "1",
-        "food_amounts": "2",
+        "food_amounts": "180",
         "insulin": 0,
-        "notes": "lunch",
-        "category": 1,
+        "notes": "A simple treat on the side",
+        "category": 4,
+      });
+
+      // insert snack
+      database.insert("meal", {
+        "sugar_id": 6,
+        "food_ids": "1,2,3,4",
+        "food_amounts": "30,20,40,20",
+        "insulin": 0,
+        "notes": "A fruit bowl with a side of nuts and cheese",
+        "category": 3,
+      });
+
+      // insert snack
+      database.insert("meal", {
+        "sugar_id": 8,
+        "food_ids": "4",
+        "food_amounts": "360",
+        "insulin": 0,
+        "notes": "A couple oranges",
+        "category": 4,
       });
     });
   }

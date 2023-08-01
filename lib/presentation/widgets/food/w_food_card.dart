@@ -82,12 +82,12 @@ class FoodCard extends StatelessWidget {
   DataTable data(Food food) {
     List<DataColumn> columns = const <DataColumn>[
       DataColumn(label: Center(child: Text("Carbs"))),
-      DataColumn(label: Center(child: Text("Weight"))),
+      DataColumn(label: Center(child: Text("Σ Carbs"))),
       DataColumn(label: Center(child: Text("Category"))),
     ];
     List<DataCell> cells = [
-      DataCell(Center(child: Text("${(food.carbs! * food.amount).round()}g"))),
-      DataCell(Center(child: Text("${(food.weight! * food.amount).round()}g"))),
+      DataCell(Center(child: Text("${(food.carbs!).round()}g"))),
+      DataCell(Center(child: Text("${((food.carbs! / 100) * food.amount).round()}g"))),
       DataCell(Center(child: Text(food.category?.name ?? "Unassigned"))),
     ];
     return DataTable(

@@ -20,7 +20,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
       builder: (builder, snapshot) {
         if (snapshot.hasData) {
           List<Meal> meals = snapshot.data as List<Meal>;
-          meals.sort((a, b) => a.sugarLevel.date!.compareTo(b.sugarLevel.date!));
+          meals.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
           return SizedBox(
             height: maxSize.height,
             width: maxSize.width,
@@ -44,6 +44,12 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
             ),
           );
         } else {
+          Future f() async {
+            var val = (await MealAPI.selectAll());
+            val.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
+            print(val.last);
+          }
+
           return SizedBox(
             height: maxSize.height,
             width: maxSize.width,

@@ -24,12 +24,17 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
                         cells: [
                           DataCell(Text(e.id.toString())),
                           DataCell(Text(e.sugar.toString())),
-                          DataCell(Text(e.date.toString())),
+                          DataCell(Text(e.datetime.toString())),
                           DataCell(Text(e.notes.toString())),
                         ],
                       ))
                   .toList());
         } else {
+          Future f() async {
+            var val = (await SugarAPI.selectAll());
+            print(val);
+          }
+
           return const Center(child: CircularProgressIndicator());
         }
       }),
