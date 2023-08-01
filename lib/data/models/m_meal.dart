@@ -9,12 +9,24 @@
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 
+import 'package:flutter/material.dart';
+
 enum MealCategory { breakfast, lunch, dinner, snack, other }
+
+Color mealCategoryColor(MealCategory category) {
+  return {
+    MealCategory.breakfast: Colors.lightBlue,
+    MealCategory.lunch: Colors.green,
+    MealCategory.dinner: Colors.orange,
+    MealCategory.snack: Colors.purpleAccent.withGreen(100),
+    MealCategory.other: Colors.yellow,
+  }[category]!;
+}
 
 class Meal {
   int? id;
-  Sugar? sugar;
-  double insulin = 0;
+  Sugar sugarLevel = Sugar();
+  int insulin = 0;
   List<Food> food = <Food>[];
   String? notes;
   MealCategory? category;
@@ -28,23 +40,35 @@ class Meal {
   }
 
   String get date {
-    // parse sugar date into format hh:mm dd.mm.'yy
-    DateTime date = sugar!.date!;
-    String hourMinute = "${date.hour}:${date.minute}";
-    // if ends with :0 or starts with 0: then append or add another 0
-    if (hourMinute.endsWith(":0")) {
-      hourMinute += "0";
-    } else if (hourMinute.startsWith("0:")) {
-      hourMinute = "0$hourMinute";
-    }
-    return "$hourMinute, ${date.day}.${date.month}.${date.year}";
+    DateTime date = sugarLevel.date ?? DateTime.now();
+    return "${date.day}.${date.month}.${date.year}";
   }
 
-  Meal({this.id, this.sugar, required this.food, this.insulin = 0, this.category, this.notes});
+  String get time {
+    DateTime date = sugarLevel.date ?? DateTime.now();
+    String minute = date.minute.toString();
+    if (minute.length == 1) {
+      minute = "0$minute";
+    }
+    String hour = date.hour.toString();
+    if (hour.length == 1) {
+      hour = "0$hour";
+    }
+    return "$hour:$minute";
+  }
+
+  Meal({
+    this.id,
+    required this.sugarLevel,
+    required this.food,
+    this.insulin = 0,
+    this.category,
+    this.notes,
+  });
 
   Meal.fromMap(Map<String, dynamic> map) {
     id = map["id"];
-    insulin = map["insulin"];
+    insulin = map["insulin"].round();
     notes = map["notes"];
     category = MealCategory.values[map["category"]];
   }
@@ -53,7 +77,7 @@ class Meal {
     return {
       "id": id,
       "insulin": insulin,
-      "sugar_id": sugar?.id,
+      "sugar_id": sugarLevel.id,
       "food_ids": foodToCsv(),
       "food_amounts": food.map((e) => e.amount.toString()).join(","),
       "notes": notes,
@@ -67,6 +91,6 @@ class Meal {
 
   @override
   String toString() {
-    return "Meal(id: $id, insulin: $insulin, sugar: $sugar, food: $food, notes: $notes, category: $category)";
+    return "Meal(id: $id, insulin: $insulin, sugar: $sugarLevel, food: $food, notes: $notes, category: $category)";
   }
 }

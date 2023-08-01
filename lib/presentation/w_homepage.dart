@@ -2,6 +2,7 @@
 
 import 'package:sugar_tracker/data/api/u_db.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
+import 'package:sugar_tracker/data/models/m_sugar.dart';
 import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
 import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class _HomepageState extends State<Homepage> {
         ),
         IconButton(
           onPressed: () {
-            setState(() => child = MealFormWidget(meal: Meal(food: [])));
+            setState(() => child = MealFormWidget(meal: Meal(sugarLevel: Sugar(), food: [])));
           },
           icon: const Icon(Icons.add),
         ),

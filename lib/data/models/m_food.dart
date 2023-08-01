@@ -26,6 +26,8 @@ class Food {
   set amount(int value) {
     if (value >= 0) {
       _amount = value;
+    } else {
+      _amount = 0;
     }
   }
 

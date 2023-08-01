@@ -30,7 +30,7 @@ class MealAPI {
     List<Map<String, dynamic>> meals = await DB.select("meal");
 
     for (Map<String, dynamic> meal in meals) {
-      Sugar? sugar = await SugarAPI.selectById(meal["sugar_id"]);
+      Sugar sugar = await SugarAPI.selectById(meal["sugar_id"]) ?? Sugar(notes: "Unknown");
       if (meal["food_ids"] is String) {
         String ids = meal["food_ids"];
         List<String> notparsed = ids.split(",");
@@ -43,7 +43,7 @@ class MealAPI {
           food[i].amount = int.parse(amount);
         });
         result.add(Meal.fromMap(meal)
-          ..sugar = sugar
+          ..sugarLevel = sugar
           ..food = food);
       } else {
         List<Food> food = [await FoodAPI.selectById(meal["food_ids"]) ?? Food()];
@@ -51,7 +51,7 @@ class MealAPI {
           food[i].amount = int.parse(amount);
         });
         result.add(Meal.fromMap(meal)
-          ..sugar = sugar
+          ..sugarLevel = sugar
           ..food = food);
       }
     }
@@ -64,7 +64,7 @@ class MealAPI {
     Map<String, dynamic> result =
         (await DB.db.rawQuery("SELECT * FROM meal WHERE food_ids = ?", [foodId.toString()])).first;
 
-    Sugar? sugar = await SugarAPI.selectById(result["sugar_id"]);
+    Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
     List<Food> food = await FoodAPI.selectByIds(
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
@@ -74,7 +74,7 @@ class MealAPI {
     });
 
     return Meal.fromMap(result)
-      ..sugar = sugar
+      ..sugarLevel = sugar
       ..food = food;
   }
 
@@ -83,7 +83,7 @@ class MealAPI {
     Map<String, dynamic> result =
         (await DB.db.rawQuery("SELECT * FROM meal WHERE sugar_id = ?", [sugarId])).first;
 
-    Sugar? sugar = await SugarAPI.selectById(result["sugar_id"]);
+    Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
     List<Food> food = await FoodAPI.selectByIds(
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
@@ -93,7 +93,7 @@ class MealAPI {
     });
 
     return Meal.fromMap(result)
-      ..sugar = sugar
+      ..sugarLevel = sugar
       ..food = food;
   }
 
@@ -101,7 +101,7 @@ class MealAPI {
     Map<String, dynamic> result =
         (await DB.db.rawQuery("SELECT * FROM meal WHERE id = ?", [id])).first;
 
-    Sugar? sugar = await SugarAPI.selectById(result["sugar_id"]);
+    Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
     List<Food> food = await FoodAPI.selectByIds(
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
@@ -111,7 +111,7 @@ class MealAPI {
     });
 
     return Meal.fromMap(result)
-      ..sugar = sugar
+      ..sugarLevel = sugar
       ..food = food;
   }
 }

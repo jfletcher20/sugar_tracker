@@ -16,7 +16,7 @@ class SugarAPI {
 
   // delete sugar entry from db
   static Future<int> delete(Sugar sugar) async {
-    return await DB.delete("sugar", sugar.id ?? -1);
+    return await DB.delete("sugar", sugar.id);
   }
 
   // select all sugar entries from db

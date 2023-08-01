@@ -216,7 +216,7 @@ class DB {
 
   // generate update commands
   static Future<int> update(String table, Map<String, dynamic> data) async {
-    return await db.update(table, data);
+    return await db.update(table, data, where: "id = ?", whereArgs: [data["id"]]);
   }
 
   // generate delete commands

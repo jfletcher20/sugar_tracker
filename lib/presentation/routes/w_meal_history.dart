@@ -1,4 +1,3 @@
-import 'package:sugar_tracker/data/api/u_db.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
@@ -33,7 +32,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
                     child: Stack(
                       children: [
                         Row(children: [
-                          FoodsGridView(foods: meals[i].food),
+                          FoodsGridView(foods: meals[i].food, scrollDirection: Axis.horizontal),
                           MealDataWidget(meal: meals[i]),
                         ]),
                         category(meals[i].category!),
@@ -44,11 +43,6 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
             ),
           );
         } else {
-          Future<void> asyncFunc() async {
-            print(await DB.db.query("meal"));
-          }
-
-          asyncFunc();
           return SizedBox(
             height: maxSize.height,
             width: maxSize.width,
@@ -60,17 +54,6 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
     );
   }
 
-  Color switchColor(MealCategory category) {
-    // fancy dart short switch statemenet
-    return {
-      MealCategory.breakfast: Colors.blue,
-      MealCategory.lunch: Colors.green,
-      MealCategory.dinner: Colors.orange,
-      MealCategory.snack: Colors.purple,
-      MealCategory.other: Colors.yellow,
-    }[category]!;
-  }
-
   Widget category(MealCategory category) {
     return Positioned(
       right: 0,
@@ -78,7 +61,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
         width: 8,
         height: 60,
         decoration: BoxDecoration(
-          color: switchColor(category),
+          color: mealCategoryColor(category),
           borderRadius: const BorderRadius.only(
             topRight: Radius.circular(16),
             bottomLeft: Radius.circular(16),

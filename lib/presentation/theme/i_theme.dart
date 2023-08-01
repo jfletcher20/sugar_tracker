@@ -10,6 +10,20 @@ class ThemeManager {
     appBarTheme: const AppBarTheme(
       backgroundColor: Color.fromARGB(255, 183, 0, 0),
     ),
+    textTheme: const TextTheme(
+      bodyMedium: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+      ),
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
+      labelStyle: TextStyle(color: Colors.white),
+      hintStyle: TextStyle(color: Colors.red),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderSide: BorderSide(color: Colors.red, width: 2),
+      ),
+    ),
     scaffoldBackgroundColor: const Color.fromARGB(255, 70, 0, 0),
     colorScheme: const ColorScheme.dark(
       primary: Colors.black,
@@ -24,26 +38,13 @@ class ThemeManager {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        minimumSize: const Size(300, 56),
-        padding: const EdgeInsets.all(12),
+        minimumSize: const Size(300, 32),
+        padding: const EdgeInsets.all(8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
         ),
       ),
     ),
-    // dataTableTheme: DataTableThemeData(
-    //   dataRowColor: const MaterialStatePropertyAll(Color.fromARGB(255, 255, 192, 181)),
-    //   dataTextStyle: const TextStyle(color: Colors.black, fontSize: 18),
-    //   headingRowColor: const MaterialStatePropertyAll(Color.fromARGB(207, 162, 0, 0)),
-    //   decoration: BoxDecoration(
-    //     color: const Color.fromARGB(255, 255, 38, 0),
-    //     border: Border.all(
-    //       color: const Color.fromARGB(185, 177, 27, 0),
-    //     ),
-    //   ),
-    //   columnSpacing: 10,
-    //   dividerThickness: 2,
-    // ),
   );
   static ThemeData lightTheme = ThemeData.light();
 }

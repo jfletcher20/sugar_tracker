@@ -5,7 +5,13 @@ import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
 class FoodCard extends StatelessWidget {
   final Food food;
   final Set<int> columns;
-  const FoodCard({super.key, required this.food, this.columns = const {0, 1, 2}});
+  final bool modifiable;
+  const FoodCard({
+    super.key,
+    required this.food,
+    this.columns = const {0, 1, 2},
+    this.modifiable = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,30 +27,9 @@ class FoodCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    food.name ?? "Unknown",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  FoodCountWidget(food: food),
-                ],
-              ),
+              prefix(context),
               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  data(food),
-                  const SizedBox(height: 8),
-                  if (food.notes != null) notes(food.notes, context),
-                ],
-              ),
+              cardData(context),
             ],
           ),
         ),
@@ -52,10 +37,38 @@ class FoodCard extends StatelessWidget {
     );
   }
 
+  Column prefix(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        title(context),
+        const SizedBox(height: 16),
+        FoodCountWidget(food: food, modifiable: modifiable),
+      ],
+    );
+  }
+
+  Column cardData(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        data(food),
+        const SizedBox(height: 8),
+        if (food.notes != null) notes(food.notes, context),
+      ],
+    );
+  }
+
+  Text title(BuildContext context) {
+    return Text(
+      food.name ?? "Unknown",
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    );
+  }
+
   Widget notes(String? notes, BuildContext context) {
-    return Positioned(
-      bottom: 0,
-      right: 0,
+    return Container(
       child: Text(
         "${food.notes}",
         style: const TextStyle(
@@ -69,7 +82,7 @@ class FoodCard extends StatelessWidget {
   DataTable data(Food food) {
     List<DataColumn> columns = const <DataColumn>[
       DataColumn(label: Center(child: Text("Carbs"))),
-      DataColumn(label: Center(child: Text("Average weight"))),
+      DataColumn(label: Center(child: Text("Weight"))),
       DataColumn(label: Center(child: Text("Category"))),
     ];
     List<DataCell> cells = [

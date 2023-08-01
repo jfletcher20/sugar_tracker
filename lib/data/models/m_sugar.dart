@@ -7,14 +7,14 @@
           ")"; */
 
 class Sugar {
-  int? id;
-  double? sugar;
+  int id = -1;
+  double sugar = 0;
   DateTime? date;
   String? notes;
 
   static List<String> get columns => ["id", "sugar", "date", "notes"];
 
-  Sugar({this.id, this.sugar, this.date, this.notes});
+  Sugar({this.id = -1, this.sugar = 0, this.date, this.notes});
 
   Sugar.fromMap(Map<String, dynamic> map) {
     id = map["id"];
