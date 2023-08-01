@@ -6,7 +6,7 @@ import 'package:sugar_tracker/data/models/m_sugar.dart';
 class SugarAPI {
   // insert sugar entry into db
   static Future<int> insert(Sugar sugar) async {
-    return await DB.db.insert("sugar", sugar.toMap());
+    return await DB.insert("sugar", sugar.toMap());
   }
 
   // update sugar entry in db

@@ -26,30 +26,11 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
             width: maxSize.width,
             child: Column(
               children: [
-                for (int i = 0; i < meals.length; i++)
-                  Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    borderOnForeground: true,
-                    child: Stack(
-                      children: [
-                        Row(children: [
-                          FoodsGridView(foods: meals[i].food, scrollDirection: Axis.horizontal),
-                          MealDataWidget(meal: meals[i]),
-                        ]),
-                        category(meals[i].category),
-                      ],
-                    ),
-                  ),
+                for (int i = 0; i < meals.length; i++) mealCard(context, meals[i]),
               ],
             ),
           );
         } else {
-          Future f() async {
-            var val = (await MealAPI.selectAll());
-            val.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
-            print(val.last);
-          }
-
           return SizedBox(
             height: maxSize.height,
             width: maxSize.width,
@@ -61,18 +42,99 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
     );
   }
 
+  Card mealCard(BuildContext context, Meal meal) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      borderOnForeground: true,
+      child: Stack(
+        children: [
+          category(meal.category),
+          Row(children: [
+            FoodsGridView(foods: meal.food, scrollDirection: Axis.horizontal),
+            MealDataWidget(meal: meal),
+          ]),
+        ],
+      ),
+    );
+  }
+
   Widget category(MealCategory category) {
     return Positioned(
       right: 0,
-      child: Container(
-        width: 8,
-        height: 60,
-        decoration: BoxDecoration(
-          color: mealCategoryColor(category),
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(16),
-            bottomLeft: Radius.circular(16),
-          ),
+      child: InkWell(
+        child: categoryStrip(category),
+        onTap: () {
+          showModalBottomSheet(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
+              ),
+            ),
+            showDragHandle: true,
+            context: context,
+            builder: (context) => SizedBox(
+              height: 64 + 16,
+              child: GridView(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 6,
+                  childAspectRatio: 2,
+                ),
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.food_bank),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.download),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget categoryStrip(MealCategory category) {
+    return Container(
+      width: 8,
+      height: 60,
+      decoration: BoxDecoration(
+        color: mealCategoryColor(category),
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(16),
+          bottomLeft: Radius.circular(16),
         ),
       ),
     );

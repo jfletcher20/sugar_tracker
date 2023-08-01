@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
@@ -19,6 +21,7 @@ class FoodCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
+      shadowColor: Colors.grey.shade200,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: SingleChildScrollView(
@@ -42,7 +45,16 @@ class FoodCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        title(context),
+        SizedBox(
+          width: 64 + 16,
+          child: FractionallySizedBox(
+            widthFactor: 1.5,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: title(context),
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
         FoodCountWidget(food: food, modifiable: modifiable),
       ],
@@ -61,20 +73,31 @@ class FoodCard extends StatelessWidget {
   }
 
   Text title(BuildContext context) {
+    String title = food.name ?? "Unknown";
+    int wrap = 12;
+    if (title.length > wrap) {
+      int i = wrap;
+      while (i < title.length) {
+        title = title.replaceRange(i, i, "\n");
+        i += wrap;
+      }
+    }
+    TextStyle titleLarge = Theme.of(context).textTheme.titleLarge!;
+    titleLarge = titleLarge.copyWith(
+      fontWeight: FontWeight.w500,
+    );
     return Text(
-      food.name ?? "Unknown",
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+      title,
+      style: titleLarge,
     );
   }
 
   Widget notes(String? notes, BuildContext context) {
-    return Container(
-      child: Text(
-        "${food.notes}",
-        style: const TextStyle(
-          fontSize: 12,
-          fontStyle: FontStyle.italic,
-        ),
+    return Text(
+      "${food.notes}",
+      style: const TextStyle(
+        fontSize: 12,
+        fontStyle: FontStyle.italic,
       ),
     );
   }

@@ -59,14 +59,18 @@ class _MealFormWidgetState extends State<MealFormWidget> {
                               ? MealCategory.dinner
                               : meal.category == MealCategory.dinner
                                   ? MealCategory.breakfast
-                                  : MealCategory.snack;
+                                  : MealCategory.breakfast;
                       return _mealCategoryDropdown(meal.category);
                     }
                     return DropdownButtonFormField(
                       items: [
                         dropdownMenuItem(MealCategory.other, Icons.cake_rounded),
                       ],
-                      onChanged: null,
+                      onChanged: (value) {
+                        setState(() {
+                          meal.category = value;
+                        });
+                      },
                     );
                   }),
               _sugarLevelInput(),
@@ -133,8 +137,10 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     return result;
   }
 
+  GlobalKey<FormFieldState> _mealCategoryDropdownKey = GlobalKey();
   DropdownButtonFormField _mealCategoryDropdown(MealCategory category) {
     return DropdownButtonFormField(
+      key: _mealCategoryDropdownKey,
       items: [
         dropdownMenuItem(MealCategory.breakfast, Icons.free_breakfast_rounded),
         dropdownMenuItem(MealCategory.lunch, Icons.lunch_dining_rounded),
@@ -142,7 +148,11 @@ class _MealFormWidgetState extends State<MealFormWidget> {
         dropdownMenuItem(MealCategory.snack, Icons.fastfood_rounded),
         dropdownMenuItem(MealCategory.other, Icons.cake_rounded),
       ],
-      onChanged: (value) => meal.category = value,
+      onChanged: (value) {
+        setState(() {
+          meal.category = value;
+        });
+      },
       value: meal.category,
     );
   }
@@ -173,6 +183,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
             return;
           }
           meal.sugarLevel.datetime = dateTimeSelectorKey.currentState!.datetime;
+          meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
           int sugarId = await SugarAPI.insert(meal.sugarLevel);
           meal.sugarLevel.id = sugarId;
           await MealAPI.insert(meal);
@@ -205,10 +216,31 @@ class _MealFormWidgetState extends State<MealFormWidget> {
             LengthLimitingTextInputFormatter(4),
             TextInputFormatter.withFunction((oldValue, newValue) {
               if (newValue.text.contains(",")) {
+                return TextEditingValue(
+                  text: newValue.text.replaceAll(",", "."),
+                  selection: newValue.selection,
+                );
+              }
+              return newValue;
+            }),
+            TextInputFormatter.withFunction((oldValue, newValue) {
+              if (newValue.text.split(".").length > 2) {
                 return oldValue;
               }
               return newValue;
-            })
+            }),
+            TextInputFormatter.withFunction((oldValue, newValue) {
+              if (newValue.text.contains(".")) {
+                if (newValue.text.split(".")[0].length > 2) {
+                  return oldValue;
+                }
+              } else {
+                if (newValue.text.length > 2) {
+                  return oldValue;
+                }
+              }
+              return newValue;
+            }),
           ],
           validator: (value) {
             if (value == null || value.isEmpty) {

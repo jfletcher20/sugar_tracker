@@ -2,23 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_card.dart';
 
-class FoodCounterWidget extends StatefulWidget {
+class FoodCounterWidget extends StatelessWidget {
   final Food food;
   final bool modifiable;
   const FoodCounterWidget({super.key, required this.food, this.modifiable = false});
 
-  @override
-  State<FoodCounterWidget> createState() => _FoodCounterWidgetState();
-}
-
-class _FoodCounterWidgetState extends State<FoodCounterWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          FoodCard(food: widget.food, columns: const {2, 0, 1}, modifiable: widget.modifiable),
+          FoodCard(food: food, columns: const {2, 0, 1}, modifiable: modifiable),
         ],
       ),
     );

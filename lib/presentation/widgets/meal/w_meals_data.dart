@@ -56,8 +56,10 @@ class MealDataWidget extends StatelessWidget {
           context: context,
           showDragHandle: true,
           shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(32),
+              topRight: Radius.circular(32),
+            ),
           ),
           builder: (context) => ListTile(
             title: Text(appBarTitle,
@@ -75,7 +77,7 @@ class MealDataWidget extends StatelessWidget {
   Widget title(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      width: 200,
+      width: 230,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(bottomRight: Radius.circular(32)),
         gradient: _gradient(context),

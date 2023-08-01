@@ -64,6 +64,17 @@ class _HomepageState extends State<Homepage> {
                 actions: [
                   TextButton(
                     onPressed: () {
+                      void printTable() async {
+                        print(await DB.select(tableName.text));
+                      }
+
+                      printTable();
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Get"),
+                  ),
+                  TextButton(
+                    onPressed: () {
                       DB.db.delete(tableName.text);
                       Navigator.pop(context);
                     },

@@ -25,7 +25,7 @@ class Sugar {
 
   Map<String, dynamic> toMap() {
     return {
-      "id": id,
+      "id": id == -1 ? null : id,
       "sugar": sugar,
       "date": datetime?.toIso8601String(),
       "notes": notes,

@@ -74,17 +74,11 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
                         },
                       );
                       try {
-                        if (context.mounted) {
-                          setState(() {
-                            food.amount = int.parse(amount ?? "0");
-                          });
-                        }
+                        food.amount = int.tryParse(amount ?? "0") ?? 0;
+                        if (context.mounted) setState(() {});
                       } catch (e) {
-                        if (context.mounted) {
-                          setState(() {
-                            food.amount = 0;
-                          });
-                        }
+                        food.amount = 0;
+                        if (context.mounted) setState(() {});
                       }
                     }
                   : null,

@@ -13,6 +13,10 @@ class ThemeManager {
     textTheme: const TextTheme(
       bodyMedium: TextStyle(
         color: Colors.white,
+        fontSize: 18,
+      ),
+      titleLarge: TextStyle(
+        color: Colors.white,
         fontSize: 20,
       ),
     ),
