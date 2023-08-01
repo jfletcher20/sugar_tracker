@@ -1,3 +1,5 @@
+import 'package:sugar_tracker/data/api/u_api_meal.dart';
+import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
@@ -41,29 +43,53 @@ class _MealFormWidgetState extends State<MealFormWidget> {
       padding: const EdgeInsets.all(16.0),
       child: Form(
         key: _formKey,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Text(
-                "Meal creation",
-                style:
-                    Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            // centered text inkwell widget which updates according to current time automatically, but if the value is set to something else it stops changing
-            const DateTimeSelectorWidget(),
-            _mealCategoryDropdown(),
-            _sugarLevelInput(),
-            _insulinInput(),
-            _notesInput(),
-            const SizedBox(height: 16),
-            _foodGrid(),
-            _foodSelectionMenuButton(),
-            const SizedBox(height: 8),
-            _submitMealButton(),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              title(),
+              const DateTimeSelectorWidget(),
+              FutureBuilder(
+                  future: loadLatestMealCategory(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      meal.category = snapshot.data as MealCategory;
+                      meal.category = meal.category == MealCategory.breakfast
+                          ? MealCategory.lunch
+                          : meal.category == MealCategory.lunch
+                              ? MealCategory.dinner
+                              : meal.category == MealCategory.dinner
+                                  ? MealCategory.breakfast
+                                  : MealCategory.snack;
+                      return _mealCategoryDropdown(meal.category);
+                    }
+                    return DropdownButtonFormField(
+                      items: [
+                        dropdownMenuItem(MealCategory.other, Icons.cake_rounded),
+                      ],
+                      onChanged: null,
+                    );
+                  }),
+              _sugarLevelInput(),
+              _insulinInput(),
+              _notesInput(),
+              const SizedBox(height: 16),
+              _foodGrid(),
+              _foodSelectionMenuButton(),
+              const SizedBox(height: 8),
+              _submitMealButton(),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget title() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Text(
+        "Meal creation",
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -95,8 +121,19 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     );
   }
 
-  DropdownButtonFormField _mealCategoryDropdown() {
-    meal.category ??= MealCategory.other;
+  Future<MealCategory> loadLatestMealCategory() async {
+    List<Meal> meals = await MealAPI.selectAll();
+    MealCategory result = MealCategory.other;
+    if (meals.isEmpty) {
+      return result;
+    }
+    meals.sort((a, b) => a.date.compareTo(b.date));
+    result = meals.last.category;
+    meal.category = result;
+    return result;
+  }
+
+  DropdownButtonFormField _mealCategoryDropdown(MealCategory category) {
     return DropdownButtonFormField(
       items: [
         dropdownMenuItem(MealCategory.breakfast, Icons.free_breakfast_rounded),
@@ -105,7 +142,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
         dropdownMenuItem(MealCategory.snack, Icons.fastfood_rounded),
         dropdownMenuItem(MealCategory.other, Icons.cake_rounded),
       ],
-      onChanged: (value) => meal.category = value as MealCategory,
+      onChanged: (value) => meal.category = value,
       value: meal.category,
     );
   }
@@ -135,9 +172,9 @@ class _MealFormWidgetState extends State<MealFormWidget> {
                 const SnackBar(content: Text("Please select at least one food item.")));
             return;
           }
-          // int sugarId = await SugarAPI.insert(meal.sugarLevel);
-          // meal.sugarLevel.id = sugarId;
-          // await MealAPI.insert(meal);
+          int sugarId = await SugarAPI.insert(meal.sugarLevel);
+          meal.sugarLevel.id = sugarId;
+          await MealAPI.insert(meal);
         }
       },
       child: const Text("Submit"),
@@ -160,6 +197,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
       children: [
         TextFormField(
           decoration: const InputDecoration(labelText: "Sugar level"),
+          autofocus: true,
           controller: _sugarLevelController,
           keyboardType: TextInputType.number,
           inputFormatters: [LengthLimitingTextInputFormatter(4)],

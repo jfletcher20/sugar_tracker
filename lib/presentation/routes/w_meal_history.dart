@@ -20,6 +20,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
       builder: (builder, snapshot) {
         if (snapshot.hasData) {
           List<Meal> meals = snapshot.data as List<Meal>;
+          meals.sort((a, b) => a.sugarLevel.date!.compareTo(b.sugarLevel.date!));
           return SizedBox(
             height: maxSize.height,
             width: maxSize.width,
@@ -35,7 +36,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
                           FoodsGridView(foods: meals[i].food, scrollDirection: Axis.horizontal),
                           MealDataWidget(meal: meals[i]),
                         ]),
-                        category(meals[i].category!),
+                        category(meals[i].category),
                       ],
                     ),
                   ),

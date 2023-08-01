@@ -22,7 +22,7 @@ class MealDataWidget extends StatelessWidget {
     return IconButton(
       icon: const Icon(Icons.notes),
       onPressed: () {
-        String category = MealCategory.values[meal.category!.index].name;
+        String category = MealCategory.values[meal.category.index].name;
         String appBarTitle = "Notes for $category at ${meal.time}, ${meal.date}";
         Widget subtitle;
         TextEditingController notesController = TextEditingController(text: meal.notes);
@@ -64,7 +64,7 @@ class MealDataWidget extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge
-                    ?.copyWith(color: mealCategoryColor(meal.category!))),
+                    ?.copyWith(color: mealCategoryColor(meal.category))),
             subtitle: subtitle,
           ),
         );
@@ -88,7 +88,7 @@ class MealDataWidget extends StatelessWidget {
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Colors.black, mealCategoryColor(meal.category!)],
+      colors: [Colors.black, mealCategoryColor(meal.category)],
     );
   }
 
@@ -108,16 +108,14 @@ class MealDataWidget extends StatelessWidget {
   TextSpan time(BuildContext context) {
     return TextSpan(
       text: meal.time,
-      style: Theme.of(context)
-          .textTheme
-          .titleLarge
-          ?.copyWith(color: mealCategoryColor(meal.category!)),
+      style:
+          Theme.of(context).textTheme.titleLarge?.copyWith(color: mealCategoryColor(meal.category)),
     );
   }
 
   TextSpan category(BuildContext context) {
     return TextSpan(
-      text: MealCategory.values[meal.category!.index].name.toUpperCase(),
+      text: MealCategory.values[meal.category.index].name.toUpperCase(),
       style: Theme.of(context)
           .textTheme
           .titleLarge

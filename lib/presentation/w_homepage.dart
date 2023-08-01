@@ -35,7 +35,17 @@ class _HomepageState extends State<Homepage> {
         ),
         IconButton(
           onPressed: () {
-            setState(() => child = MealFormWidget(meal: Meal(sugarLevel: Sugar(), food: [])));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Scaffold(
+                  appBar: AppBar(title: const Text("Add Meal")),
+                  body: MealFormWidget(
+                    meal: Meal(sugarLevel: Sugar(), food: []),
+                  ),
+                ),
+              ),
+            );
           },
           icon: const Icon(Icons.add),
         ),

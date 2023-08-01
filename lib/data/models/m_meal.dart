@@ -29,7 +29,7 @@ class Meal {
   int insulin = 0;
   List<Food> food = <Food>[];
   String? notes;
-  MealCategory? category;
+  MealCategory category = MealCategory.other;
 
   double get carbs {
     double total = 0;
@@ -62,7 +62,7 @@ class Meal {
     required this.sugarLevel,
     required this.food,
     this.insulin = 0,
-    this.category,
+    this.category = MealCategory.other,
     this.notes,
   });
 
@@ -81,7 +81,7 @@ class Meal {
       "food_ids": foodToCsv(),
       "food_amounts": food.map((e) => e.amount.toString()).join(","),
       "notes": notes,
-      "category": category?.index,
+      "category": category.index,
     };
   }
 
