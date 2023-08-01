@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
@@ -142,6 +143,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
     return IconButton(
       icon: const Icon(Icons.share),
       onPressed: () {
+        Share.share(meal.toString());
         Navigator.pop(context);
       },
     );
