@@ -20,7 +20,7 @@ class MealAPI {
 
   // delete meal entry from db
   static Future<int> delete(Meal meal) async {
-    return await DB.delete("meal", meal.id ?? -1);
+    return await DB.delete("meal", meal.id);
   }
 
   // select all meal entries from db as meals

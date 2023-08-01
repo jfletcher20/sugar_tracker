@@ -1,9 +1,11 @@
+import 'package:flutter/services.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 
 import 'package:flutter/material.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_meals_form.dart';
 
 class MealHistoryWidget extends StatefulWidget {
   const MealHistoryWidget({super.key});
@@ -21,9 +23,9 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
         if (snapshot.hasData) {
           List<Meal> meals = snapshot.data as List<Meal>;
           meals.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
-          return SizedBox(
-            height: maxSize.height,
-            width: maxSize.width,
+          meals = meals.reversed.toList();
+          return SingleChildScrollView(
+            scrollDirection: Axis.vertical,
             child: Column(
               children: [
                 for (int i = 0; i < meals.length; i++) mealCard(context, meals[i]),
@@ -48,7 +50,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
       borderOnForeground: true,
       child: Stack(
         children: [
-          category(meal.category),
+          category(meal),
           Row(children: [
             FoodsGridView(foods: meal.food, scrollDirection: Axis.horizontal),
             MealDataWidget(meal: meal),
@@ -58,13 +60,13 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
     );
   }
 
-  Widget category(MealCategory category) {
+  Widget category(Meal meal) {
     return Positioned(
       right: 0,
       child: InkWell(
-        child: categoryStrip(category),
-        onTap: () {
-          showModalBottomSheet(
+        child: categoryStrip(meal.category),
+        onTap: () async {
+          bool? result = await showModalBottomSheet(
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(32),
@@ -81,36 +83,11 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
                   childAspectRatio: 2,
                 ),
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.food_bank),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+                  _useAsTemplate(context, meal),
+                  _edit(context, meal),
+                  _delete(context, meal),
+                  _share(context, meal),
+                  _copy(context, meal),
                   IconButton(
                     icon: const Icon(Icons.download),
                     onPressed: () {
@@ -121,8 +98,110 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
               ),
             ),
           );
+          if (result != null && result) {
+            setState(() {});
+          }
         },
       ),
+    );
+  }
+
+  IconButton _delete(BuildContext context, Meal meal) {
+    return IconButton(
+      icon: const Icon(Icons.delete),
+      onPressed: () async {
+        // await MealAPI.delete(meal);
+        // show confirmation dialog
+        bool? result = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Delete meal?"),
+            content: const Text("This action cannot be undone."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Delete"),
+              ),
+            ],
+          ),
+        );
+        if (result != null && result) {
+          await MealAPI.delete(meal);
+          if (context.mounted) setState(() {});
+        }
+        if (context.mounted) Navigator.pop(context, true);
+      },
+    );
+  }
+
+  IconButton _share(BuildContext context, Meal meal) {
+    return IconButton(
+      icon: const Icon(Icons.share),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  IconButton _copy(BuildContext context, Meal meal) {
+    return IconButton(
+      icon: const Icon(Icons.copy),
+      onPressed: () {
+        Clipboard.setData(ClipboardData(text: meal.toString()));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Meal copied to clipboard"),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  IconButton _useAsTemplate(BuildContext context, Meal meal) {
+    return IconButton(
+      icon: const Icon(Icons.food_bank),
+      onPressed: () async {
+        Meal? result = await Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: const Text("Meal from template")),
+              body: MealFormWidget(meal: meal, useAsTemplate: true),
+            ),
+          ),
+        );
+        if (result != null) {
+          setState(() {});
+        }
+      },
+    );
+  }
+
+  IconButton _edit(BuildContext context, Meal meal) {
+    return IconButton(
+      icon: const Icon(Icons.edit),
+      onPressed: () async {
+        Meal? result = await Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: const Text("Edit Meal")),
+              body: MealFormWidget(meal: meal),
+            ),
+          ),
+        );
+        if (result != null) {
+          setState(() {
+            meal = result;
+          });
+        }
+      },
     );
   }
 

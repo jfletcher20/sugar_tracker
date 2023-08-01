@@ -10,7 +10,8 @@ import 'package:flutter/services.dart';
 
 class MealFormWidget extends StatefulWidget {
   final Meal meal;
-  const MealFormWidget({super.key, required this.meal});
+  final bool useAsTemplate;
+  const MealFormWidget({super.key, required this.meal, this.useAsTemplate = false});
   @override
   State<MealFormWidget> createState() => _MealFormWidgetState();
 }
@@ -35,6 +36,10 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     _insulinController =
         TextEditingController(text: meal.insulin > 0 ? meal.insulin.toString() : "");
     _notesController = TextEditingController(text: meal.notes);
+    if (widget.useAsTemplate) {
+      meal.sugarLevel.id = -1;
+      meal.id = -1;
+    }
   }
 
   @override
@@ -47,19 +52,18 @@ class _MealFormWidgetState extends State<MealFormWidget> {
           child: Column(
             children: [
               title(),
-              DateTimeSelectorWidget(key: dateTimeSelectorKey),
+              DateTimeSelectorWidget(
+                key: dateTimeSelectorKey,
+                initialDateTime: meal.sugarLevel.datetime,
+              ),
               FutureBuilder(
                   future: loadLatestMealCategory(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       meal.category = snapshot.data as MealCategory;
-                      meal.category = meal.category == MealCategory.breakfast
-                          ? MealCategory.lunch
-                          : meal.category == MealCategory.lunch
-                              ? MealCategory.dinner
-                              : meal.category == MealCategory.dinner
-                                  ? MealCategory.breakfast
-                                  : MealCategory.breakfast;
+                      if (!widget.useAsTemplate && meal.id == -1) {
+                        _cycleMealCategory();
+                      }
                       return _mealCategoryDropdown(meal.category);
                     }
                     return DropdownButtonFormField(
@@ -86,6 +90,10 @@ class _MealFormWidgetState extends State<MealFormWidget> {
         ),
       ),
     );
+  }
+
+  void _cycleMealCategory() {
+    meal.category = MealCategory.values[(meal.category.index + 1) % 3];
   }
 
   Widget title() {
@@ -126,6 +134,9 @@ class _MealFormWidgetState extends State<MealFormWidget> {
   }
 
   Future<MealCategory> loadLatestMealCategory() async {
+    if (meal.id != -1) {
+      return meal.category;
+    }
     List<Meal> meals = await MealAPI.selectAll();
     MealCategory result = MealCategory.other;
     if (meals.isEmpty) {
@@ -176,21 +187,59 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     return ElevatedButton(
       onPressed: () async {
         if (_formKey.currentState!.validate()) {
-          meal.food = meal.food.where((food) => food.amount > 0).toList();
-          if (meal.food.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Please select at least one food item.")));
-            return;
-          }
-          meal.sugarLevel.datetime = dateTimeSelectorKey.currentState!.datetime;
-          meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
-          int sugarId = await SugarAPI.insert(meal.sugarLevel);
-          meal.sugarLevel.id = sugarId;
-          await MealAPI.insert(meal);
+          if (!_prepareFood()) return;
+          _prepareDateTime();
+          _prepareCategory();
+          _saveData();
+          if (context.mounted) Navigator.pop(context, meal);
         }
       },
       child: const Text("Submit"),
     );
+  }
+
+  bool _prepareFood() {
+    meal.food = meal.food.where((food) => food.amount > 0).toList();
+    if (meal.food.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Please select at least one food item."),
+      ));
+      return false;
+    }
+    return true;
+  }
+
+  void _prepareDateTime() {
+    meal.sugarLevel.datetime = dateTimeSelectorKey.currentState!.datetime;
+  }
+
+  void _prepareCategory() {
+    meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
+  }
+
+  Future<void> _saveData() async {
+    meal.sugarLevel.id = await _saveSugarLevel();
+    meal.id = await _saveMeal();
+  }
+
+  Future<int> _saveSugarLevel() async {
+    int sugarId = meal.sugarLevel.id;
+    if (widget.useAsTemplate) {
+      sugarId = await SugarAPI.insert(meal.sugarLevel);
+    } else {
+      await SugarAPI.update(meal.sugarLevel);
+    }
+    return sugarId;
+  }
+
+  Future<int> _saveMeal() async {
+    int mealId = meal.id;
+    if (widget.useAsTemplate) {
+      mealId = await MealAPI.insert(meal);
+    } else {
+      await MealAPI.update(meal);
+    }
+    return mealId;
   }
 
   TextFormField _notesInput() {

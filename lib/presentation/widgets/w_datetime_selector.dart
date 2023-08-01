@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class DateTimeSelectorWidget extends StatefulWidget {
-  const DateTimeSelectorWidget({super.key});
+  final DateTime? initialDateTime;
+  const DateTimeSelectorWidget({super.key, this.initialDateTime});
 
   @override
   State<DateTimeSelectorWidget> createState() => DateTimeSelectorWidgetState();
@@ -17,6 +18,11 @@ class DateTimeSelectorWidgetState extends State<DateTimeSelectorWidget> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialDateTime != null) {
+      datetime = widget.initialDateTime!;
+      pauseDate();
+      pauseTime();
+    }
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       timerFunction();
     });

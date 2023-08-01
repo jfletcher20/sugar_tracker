@@ -1,8 +1,6 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
-import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:flutter/material.dart';
 
 class FoodCard extends StatelessWidget {
   final Food food;

@@ -24,7 +24,7 @@ Color mealCategoryColor(MealCategory category) {
 }
 
 class Meal {
-  int? id;
+  int id = -1;
   Sugar sugarLevel = Sugar();
   int insulin = 0;
   List<Food> food = <Food>[];
@@ -58,7 +58,7 @@ class Meal {
   }
 
   Meal({
-    this.id,
+    this.id = -1,
     required this.sugarLevel,
     required this.food,
     this.insulin = 0,
@@ -75,7 +75,7 @@ class Meal {
 
   Map<String, dynamic> toMap() {
     return {
-      "id": id,
+      "id": id == -1 ? null : id,
       "insulin": insulin,
       "sugar_id": sugarLevel.id,
       "food_ids": foodToCsv(),
@@ -91,6 +91,25 @@ class Meal {
 
   @override
   String toString() {
-    return "Meal(id: $id, insulin: $insulin, sugar: $sugarLevel, food: $food, notes: $notes, category: $category)";
+    /*Meal category name (time, date)
+      Sugar level: sugarLevel.sugar
+        1. Food1 (amount, calcCarbs)
+        2. Food2 (amount, calcCarbs)
+        3. ...
+      Σ Carbs: totalCarbs
+      Insulin taken: insulin*/
+    String categoryName = MealCategory.values[category.index].name.substring(0, 1).toUpperCase();
+    categoryName += MealCategory.values[category.index].name.substring(1);
+    String meal = "$categoryName ($time, $date)\n";
+    meal += "Sugar level: ${sugarLevel.sugar}\n";
+    meal += "Food (${food.length} items):\n";
+    for (int i = 0; i < food.length; i++) {
+      int calculations = (food[i].amount * ((food[i].carbs ?? 0) / 100)).round();
+      String weightAndCarbs = "(${food[i].amount}g, ${calculations}g carbs)";
+      meal += "\t${i + 1}. ${food[i].name} $weightAndCarbs\n";
+    }
+    meal += "Σ Carbs: ${carbs.round()}\n";
+    meal += "Insulin units taken: $insulin";
+    return meal;
   }
 }

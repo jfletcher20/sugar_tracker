@@ -28,6 +28,7 @@ class MealDataWidget extends StatelessWidget {
         TextEditingController notesController = TextEditingController(text: meal.notes);
         subtitle = Column(
           children: [
+            const SizedBox(height: 24),
             TextFormField(
               controller: notesController,
               decoration: const InputDecoration(labelText: "Notes"),
@@ -37,10 +38,6 @@ class MealDataWidget extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              // make color be grey if notesController.text == meal.notes
-              style: notesController.text == meal.notes
-                  ? null
-                  : ButtonStyle(foregroundColor: MaterialStateProperty.all(Colors.grey)),
               onPressed: () {
                 if (notesController.text != meal.notes) {
                   meal.notes = notesController.text;
