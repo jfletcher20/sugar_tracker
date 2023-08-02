@@ -17,18 +17,36 @@ class ThemeManager {
         borderRadius: BorderRadius.circular(4),
       ),
     ),
+    timePickerTheme: TimePickerThemeData(
+      cancelButtonStyle: const ButtonStyle(
+        foregroundColor: MaterialStatePropertyAll<Color>(Colors.grey),
+      ),
+      confirmButtonStyle: const ButtonStyle(
+        foregroundColor: MaterialStatePropertyAll<Color>(Colors.red),
+      ),
+      dialHandColor: Colors.red.withOpacity(0.5),
+      dialTextColor: Colors.white,
+      dialTextStyle: const TextStyle(color: Colors.grey),
+      dayPeriodTextStyle: const TextStyle(
+        backgroundColor: Color.fromARGB(255, 131, 45, 45),
+      ),
+      hourMinuteTextColor: Colors.white,
+    ),
+    datePickerTheme: const DatePickerThemeData(
+      todayForegroundColor: MaterialStatePropertyAll<Color>(Colors.red),
+      dayOverlayColor: MaterialStatePropertyAll<Color>(Colors.red),
+      // add white shadow to day text
+      dayForegroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+    ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: Colors.red,
-        textStyle: const TextStyle(
-          color: Colors.red,
-          fontWeight: FontWeight.bold,
-        ),
-        // minimumSize: const Size(300, 32),
+        textStyle: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
         padding: const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
     ),
     textTheme: const TextTheme(
