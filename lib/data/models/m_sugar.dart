@@ -16,6 +16,25 @@ class Sugar {
 
   Sugar({this.id = -1, this.sugar = 0, this.datetime, this.notes});
 
+  String get time {
+    String hour = datetime!.hour.toString();
+    String minute = datetime!.minute.toString();
+    if (hour.length == 1) {
+      hour = "0$hour";
+    }
+    if (minute.length == 1) {
+      minute = "0$minute";
+    }
+    return "$hour:$minute";
+  }
+
+  String get date {
+    String day = datetime!.day.toString();
+    String month = datetime!.month.toString();
+    String year = datetime!.year.toString();
+    return "$day.$month.$year";
+  }
+
   Sugar.fromMap(Map<String, dynamic> map) {
     id = map["id"];
     sugar = map["sugar"];

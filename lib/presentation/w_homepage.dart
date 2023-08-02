@@ -50,76 +50,7 @@ class _HomepageState extends State<Homepage> {
           },
           icon: const Icon(Icons.add),
         ),
-        IconButton(
-          onPressed: () {
-            // show dialog with text field for table name and button to clear the table
-            TextEditingController tableName = TextEditingController();
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text("Clear Table"),
-                content: TextField(
-                  controller: tableName,
-                  decoration: const InputDecoration(hintText: "Table Name"),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      void printTable() async {
-                        var val = await DB.select(tableName.text);
-                        print(val);
-                        // show dialog with table data
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text("Table Data"),
-                            content: Text(val.toString()),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Close"),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-
-                      printTable();
-                      // Navigator.pop(context);
-                    },
-                    child: const Text("Get"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      DB.db.delete(tableName.text);
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Clear"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // raw query drop table
-                      DB.db.rawDelete("DROP TABLE ${tableName.text}");
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Drop table"),
-                  ),
-                ],
-              ),
-            );
-            setState(() {});
-          },
-          icon: const Icon(Icons.create),
-        ),
-        IconButton(
-          onPressed: () {
-            debug();
-            setState(() {});
-          },
-          icon: const Icon(Icons.code),
-        ),
+        _tableEditorButton(),
       ]),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -128,10 +59,112 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  void debug() async {
-    // ignore: avoid_function_literals_in_foreach_calls
-    (await DB.db.query('sqlite_master', columns: ['type', 'name'])).forEach((row) {
-      print(row.values);
-    });
+  void debug(TextEditingController tableNameController) async {
+    List tables = await DB.db.query('sqlite_master', columns: ['type', 'name']);
+    tables = tables.getRange(1, tables.length).toList();
+    String tableNames = "";
+    for (var table in tables) {
+      tableNames += table["name"] + "\n";
+    }
+    print(tableNames);
+    // show dialog with list of tables as textbuttons
+    // when pressed, set the tableNameController's value to the table name
+    // and close the dialog
+    // ignore: use_build_context_synchronously
+    showDialog(
+      context: context,
+      builder: (context) {
+        return ListView(
+          children: tableNames
+              .split("\n")
+              .map(
+                (e) => TextButton(
+                  onPressed: () {
+                    tableNameController.text = e;
+                    Navigator.pop(context);
+                  },
+                  child: Text(e),
+                ),
+              )
+              .toList(),
+        );
+      },
+    );
+  }
+
+  IconButton _tableEditorButton() {
+    return IconButton(
+      onPressed: () {
+        TextEditingController tableNameController = TextEditingController();
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              const Text("Table editor"),
+              IconButton(
+                onPressed: () {
+                  debug(tableNameController);
+                  setState(() {});
+                },
+                icon: const Icon(Icons.code),
+              ),
+            ]),
+            content: TextField(
+              controller: tableNameController,
+              decoration: const InputDecoration(hintText: "Table Name"),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  void printTable() async {
+                    List val = await DB.select(tableNameController.text.toLowerCase());
+                    String output = "";
+                    output = val.map((e) => e.toString()).toList().join("\n\n");
+                    print(output);
+                    // ignore: use_build_context_synchronously
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Table Data"),
+                        content: SingleChildScrollView(child: Text(output)),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text("Close"),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  printTable();
+                  // Navigator.pop(context);
+                },
+                child: const Text("Get"),
+              ),
+              TextButton(
+                onPressed: () {
+                  DB.db.delete(tableNameController.text.toLowerCase());
+                  Navigator.pop(context);
+                },
+                child: const Text("Clear"),
+              ),
+              TextButton(
+                onPressed: () {
+                  // raw query drop table
+                  DB.db.rawDelete("DROP TABLE ${tableNameController.text.toLowerCase()}");
+                  Navigator.pop(context);
+                },
+                child: const Text("Drop table"),
+              ),
+            ],
+          ),
+        );
+        setState(() {});
+      },
+      icon: const Icon(Icons.create),
+    );
   }
 }

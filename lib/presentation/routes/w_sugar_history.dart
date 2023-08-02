@@ -17,18 +17,28 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
       builder: ((context, snapshot) {
         if (snapshot.hasData) {
           List<Sugar> data = snapshot.data as List<Sugar>;
-          return DataTable(
-              columns: Sugar.columns.map((e) => DataColumn(label: Text(e))).toList(),
-              rows: data
-                  .map((e) => DataRow(
-                        cells: [
-                          DataCell(Text(e.id.toString())),
-                          DataCell(Text(e.sugar.toString())),
-                          DataCell(Text(e.datetime.toString())),
-                          DataCell(Text(e.notes.toString())),
-                        ],
-                      ))
-                  .toList());
+          data.sort((a, b) => a.datetime!.compareTo(b.datetime!));
+          data = data.reversed.toList();
+          var columns = Sugar.columns.map((e) => DataColumn(label: Text(e))).toList();
+          columns = columns.getRange(1, 4).toList();
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: DataTable(
+                  columns: columns,
+                  rows: data
+                      .map((e) => DataRow(
+                            cells: [
+                              // DataCell(Text(e.id.toString())),
+                              DataCell(Text(e.sugar.toString())),
+                              DataCell(Text("${e.time} ${e.date}")),
+                              DataCell(Text(e.notes.toString())),
+                            ],
+                          ))
+                      .toList()),
+            ),
+          );
         } else {
           Future f() async {
             var val = (await SugarAPI.selectAll());
