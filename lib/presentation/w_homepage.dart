@@ -5,6 +5,7 @@ import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/presentation/routes/w_food_list.dart';
 import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
 import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
 import 'package:flutter/material.dart';
@@ -230,10 +231,14 @@ class _HomepageState extends State<Homepage> {
       onTap: (index) {
         setState(() {
           this.index = index;
-          if (index == 0) {
-            child = const MealHistoryWidget();
-          } else {
-            child = const SugarHistoryWidget();
+          // shorthand switch for index
+          switch (index) {
+            case 0:
+              child = const MealHistoryWidget();
+            case 1:
+              child = const SugarHistoryWidget();
+            case 2:
+              child = const FoodListWidget();
           }
         });
       },

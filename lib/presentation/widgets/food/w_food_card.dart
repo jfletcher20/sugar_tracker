@@ -5,19 +5,21 @@ import 'package:flutter/material.dart';
 class FoodCard extends StatelessWidget {
   final Food food;
   final Set<int> columns;
-  final bool modifiable;
+  final bool modifiable, showAmount, showAdditionalOptions;
   const FoodCard({
     super.key,
     required this.food,
     this.columns = const {0, 1, 2},
     this.modifiable = false,
+    this.showAmount = true,
+    this.showAdditionalOptions = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(12),
       ),
       shadowColor: Colors.grey.shade200,
       child: Padding(
@@ -31,10 +33,50 @@ class FoodCard extends StatelessWidget {
               prefix(context),
               const SizedBox(width: 16),
               cardData(context),
+              if (showAdditionalOptions) optionsColumn(context, food),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget optionsColumn(BuildContext context, Food food) {
+    return Row(
+      children: [
+        Column(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.add),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.edit),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.delete),
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.copy),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.share),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.file_download),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -54,7 +96,11 @@ class FoodCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        FoodCountWidget(food: food, modifiable: modifiable),
+        FoodCountWidget(
+          food: food,
+          modifiable: modifiable,
+          showAmount: showAmount,
+        ),
       ],
     );
   }

@@ -4,12 +4,13 @@ import 'package:sugar_tracker/data/models/m_food.dart';
 
 class FoodCountWidget extends StatefulWidget {
   final Food food;
-  final bool autoSize, modifiable;
+  final bool autoSize, modifiable, showAmount;
   const FoodCountWidget({
     super.key,
     required this.food,
     this.autoSize = false,
     this.modifiable = false,
+    this.showAmount = true,
   });
 
   @override
@@ -37,71 +38,74 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
       height: imgSize + 24,
       child: Stack(
         alignment: Alignment.topCenter,
-        children: [
-          img(),
-          Positioned(
-            bottom: 0,
-            child: InkWell(
-              onTap: widget.modifiable
-                  ? () async {
-                      String? amount = await showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("Change amount"),
-                            content: TextField(
-                              controller: _amountController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                              decoration: const InputDecoration(
-                                suffixText: "g",
-                                suffixStyle: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("Cancel"),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context, _amountController.text);
-                                },
-                                child: const Text("Save"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                      try {
-                        food.amount = int.tryParse(amount ?? "0") ?? 0;
-                        if (context.mounted) setState(() {});
-                      } catch (e) {
-                        food.amount = 0;
-                        if (context.mounted) setState(() {});
-                      }
-                    }
-                  : null,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.redAccent.withOpacity(0.85),
-                ),
-                padding: const EdgeInsets.all(4),
-                child: Text(
-                  " ${food.amount}g ",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        children: [img(), if (widget.showAmount) amount(food)],
       ),
     );
+  }
+
+  Widget amount(Food food) {
+    return Positioned(
+      bottom: 0,
+      child: InkWell(
+        onTap: widget.modifiable ? changeAmountDialog(food) : null,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: Colors.redAccent.withOpacity(0.85),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: Text(
+            " ${food.amount}g ",
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> Function() changeAmountDialog(Food food) {
+    return () async {
+      String? amount = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Change amount"),
+            content: TextField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                suffixText: "g",
+                suffixStyle: TextStyle(color: Colors.white),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, _amountController.text);
+                },
+                child: const Text("Save"),
+              ),
+            ],
+          );
+        },
+      );
+      try {
+        food.amount = int.tryParse(amount ?? "0") ?? 0;
+        if (context.mounted) setState(() {});
+      } catch (e) {
+        food.amount = 0;
+        if (context.mounted) setState(() {});
+      }
+    };
   }
 
   Widget img() {
