@@ -1,8 +1,12 @@
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:flutter/material.dart';
+import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
 
-class FoodCard extends StatelessWidget {
+class FoodCard extends StatefulWidget {
   final Food food;
   final Set<int> columns;
   final bool modifiable, showAmount, showAdditionalOptions;
@@ -16,67 +20,74 @@ class FoodCard extends StatelessWidget {
   });
 
   @override
+  State<FoodCard> createState() => _FoodCardState();
+}
+
+class _FoodCardState extends State<FoodCard> {
+  late Food food;
+  @override
+  void initState() {
+    super.initState();
+    food = widget.food;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       shadowColor: Colors.grey.shade200,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              prefix(context),
-              const SizedBox(width: 16),
-              cardData(context),
-              if (showAdditionalOptions) optionsColumn(context, food),
-            ],
+      child: InkWell(
+        onTap: () async {
+          // show modal bottom sheet with options
+          bool? result = await showModalBottomSheet(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
+              ),
+            ),
+            showDragHandle: true,
+            context: context,
+            builder: (context) => SizedBox(
+              height: 64 + 16,
+              child: GridView(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 6,
+                  childAspectRatio: 2,
+                ),
+                children: [
+                  _useAsTemplate(context, food),
+                  _edit(context, food),
+                  _delete(context, food),
+                  _share(context, food),
+                  _copy(context, food),
+                  _exportToCsv(context, food),
+                ],
+              ),
+            ),
+          );
+          if (result != null && result) {
+            setState(() {});
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                prefix(context),
+                const SizedBox(width: 16),
+                cardData(context),
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget optionsColumn(BuildContext context, Food food) {
-    return Row(
-      children: [
-        Column(
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.add),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.edit),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.delete),
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.copy),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.share),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.file_download),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -97,9 +108,9 @@ class FoodCard extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         FoodCountWidget(
-          food: food,
-          modifiable: modifiable,
-          showAmount: showAmount,
+          food: widget.food,
+          modifiable: widget.modifiable,
+          showAmount: widget.showAmount,
         ),
       ],
     );
@@ -109,15 +120,15 @@ class FoodCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        data(food),
+        data(widget.food),
         const SizedBox(height: 8),
-        if (food.notes != null) notes(food.notes, context),
+        if (widget.food.notes != null) notes(widget.food.notes, context),
       ],
     );
   }
 
   Text title(BuildContext context) {
-    String title = food.name ?? "Unknown";
+    String title = widget.food.name ?? "Unknown";
     int wrap = 12;
     if (title.length > wrap) {
       int i = wrap;
@@ -138,7 +149,7 @@ class FoodCard extends StatelessWidget {
 
   Widget notes(String? notes, BuildContext context) {
     return Text(
-      "${food.notes}",
+      "${widget.food.notes}",
       style: const TextStyle(
         fontSize: 12,
         fontStyle: FontStyle.italic,
@@ -161,8 +172,133 @@ class FoodCard extends StatelessWidget {
       horizontalMargin: 10,
       columnSpacing: 25,
       showBottomBorder: true,
-      columns: this.columns.map((e) => columns[e]).toList(),
-      rows: [DataRow(cells: this.columns.map((e) => cells[e]).toList())],
+      columns: widget.columns.map((e) => columns[e]).toList(),
+      rows: [DataRow(cells: widget.columns.map((e) => cells[e]).toList())],
+    );
+  }
+
+  IconButton _delete(BuildContext context, Food food) {
+    return IconButton(
+      icon: const Icon(Icons.delete),
+      onPressed: () async {
+        bool? result = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Delete meal?"),
+            content: const Text("This action cannot be undone."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Delete"),
+              ),
+            ],
+          ),
+        );
+        if (result != null && result) {
+          await FoodAPI.delete(food);
+          if (context.mounted) setState(() {});
+        }
+        if (context.mounted) Navigator.pop(context, true);
+      },
+    );
+  }
+
+  IconButton _exportToCsv(BuildContext context, Food food) {
+    return IconButton(
+      icon: const Icon(Icons.download),
+      onPressed: () {
+        // export to csv to location user specifies (show file dialog)
+        // showSavePanel(
+        //   suggestedFileName: "meal.csv",
+        //   allowedFileTypes: const [FileTypeFilterGroup.csv()],
+        //   confirmButtonText: "Export",
+        //   initialDirectory: "C:\\Users\\${Platform.environment["USERNAME"]}\\Documents",
+        // ).then((value) {
+        //   if (value != null) {
+        //     String path = value.path;
+        //     if (!path.endsWith(".csv")) {
+        //       path += ".csv";
+        //     }
+        //     MealAPI.exportToCsv(meal, path);
+        //   }
+        // });
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  IconButton _share(BuildContext context, Food food) {
+    return IconButton(
+      icon: const Icon(Icons.share),
+      onPressed: () {
+        Share.share(food.toString());
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  IconButton _copy(BuildContext context, Food food) {
+    return IconButton(
+      icon: const Icon(Icons.copy),
+      onPressed: () {
+        Clipboard.setData(ClipboardData(text: food.toString()));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Meal copied to clipboard"),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  IconButton _useAsTemplate(BuildContext context, Food food) {
+    return IconButton(
+      icon: const Icon(Icons.food_bank),
+      onPressed: () async {
+        Food? result = await Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: const Text("Meal from template")),
+              body: FoodFormWidget(food: food, useAsTemplate: true),
+            ),
+          ),
+        );
+        if (result != null) {
+          setState(() {});
+        }
+      },
+    );
+  }
+
+  IconButton _edit(BuildContext context, Food food) {
+    return IconButton(
+      icon: const Icon(Icons.edit),
+      onPressed: () async {
+        Food? result = await Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: const Text("Edit Meal")),
+              body: FoodFormWidget(food: food),
+            ),
+          ),
+        );
+        if (result != null) {
+          setState(() {
+            food = result;
+          });
+        }
+      },
     );
   }
 }

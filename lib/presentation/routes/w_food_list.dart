@@ -21,10 +21,8 @@ class _FoodListWidgetState extends State<FoodListWidget> {
           foods.sort((a, b) => a.name!.compareTo(b.name!));
           return SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: ListView.builder(
-              itemCount: foods.length,
-              itemBuilder: (context, index) => foodCard(context, foods[index]),
-              shrinkWrap: true,
+            child: Column(
+              children: foods.map((e) => foodCard(context, e)).toList(),
             ),
           );
         } else {
@@ -36,12 +34,15 @@ class _FoodListWidgetState extends State<FoodListWidget> {
   }
 
   Widget foodCard(BuildContext context, Food food) {
-    return FoodCard(
-      food: food,
-      modifiable: false,
-      showAmount: false,
-      columns: const {0, 2},
-      showAdditionalOptions: true,
+    return FractionallySizedBox(
+      widthFactor: 1,
+      child: FoodCard(
+        food: food,
+        modifiable: false,
+        showAmount: false,
+        columns: const {0, 2},
+        showAdditionalOptions: true,
+      ),
     );
   }
 }

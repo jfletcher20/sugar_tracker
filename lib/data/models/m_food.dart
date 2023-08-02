@@ -50,6 +50,7 @@ class Food {
     picture = map["picture"];
     notes = map["notes"];
     amount = map["amount"] ?? 0;
+    foodCategory = FoodCategory(id: map["food_category_id"] ?? -1);
   }
 
   Future<void> fromId(int id) async {
@@ -76,5 +77,12 @@ class Food {
       "notes": notes,
       "amount": amount,
     };
+  }
+
+  @override
+  String toString() {
+    String result = "$name - ${carbs.round()}g of carbs";
+    result += notes == null ? "" : "($notes)";
+    return result;
   }
 }

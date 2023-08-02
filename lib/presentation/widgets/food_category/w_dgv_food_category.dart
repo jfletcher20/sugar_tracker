@@ -4,6 +4,7 @@ import 'package:sugar_tracker/presentation/widgets/food_category/w_food_category
 
 class FoodCategoryGridView extends StatefulWidget {
   final List<FoodCategory> foodCategories;
+  final FoodCategory? initialCategory;
   final int crossAxisCount;
   final double imgSize;
   const FoodCategoryGridView({
@@ -11,6 +12,7 @@ class FoodCategoryGridView extends StatefulWidget {
     required this.foodCategories,
     this.crossAxisCount = 4,
     this.imgSize = 64,
+    this.initialCategory,
   });
 
   @override
@@ -52,6 +54,7 @@ class FoodCategoryGridViewState extends State<FoodCategoryGridView> {
       foodCategory: category,
       imgSize: widget.imgSize,
       selectable: true,
+      initializeSelected: category == widget.initialCategory,
       onTap: () {
         setState(() {
           for (var element in _categoryCards) {

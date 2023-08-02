@@ -53,23 +53,29 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
               _carbsInput(),
               _notesInput(),
               const SizedBox(height: 16),
-              FutureBuilder(
-                future: FoodCategoryAPI.selectAll(),
-                builder: (context, snapshot) {
-                  List<FoodCategory> foodCategories = List.empty(growable: true);
-                  if (snapshot.hasData) {
-                    foodCategories = snapshot.data as List<FoodCategory>;
-                    food.foodCategory = foodCategories.first;
-                  }
-                  return _categoryGrid(foodCategories);
-                },
-              ),
+              _categories(),
               const SizedBox(height: 8),
               _submitMealButton(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _categories() {
+    return FutureBuilder(
+      future: FoodCategoryAPI.selectAll(),
+      builder: (context, snapshot) {
+        List<FoodCategory> foodCategories = List.empty(growable: true);
+        if (snapshot.hasData) {
+          foodCategories = snapshot.data as List<FoodCategory>;
+          if (!widget.useAsTemplate) {
+            food.foodCategory = foodCategories.first;
+          }
+        }
+        return _categoryGrid(foodCategories);
+      },
     );
   }
 
@@ -93,7 +99,11 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
 
   final GlobalKey<FoodCategoryGridViewState> _categoryGridKey = GlobalKey();
   Widget _categorySelection(List<FoodCategory> categories) {
-    return FoodCategoryGridView(key: _categoryGridKey, foodCategories: categories);
+    return FoodCategoryGridView(
+      key: _categoryGridKey,
+      foodCategories: categories,
+      initialCategory: widget.food.foodCategory,
+    );
   }
 
   final double imgSize = 64;

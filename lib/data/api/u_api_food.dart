@@ -26,7 +26,7 @@ class FoodAPI {
     List<Map<String, dynamic>> results = await DB.db.query("food");
     List<Food> food = results.map((map) => Food.fromMap(map)).toList();
     for (int i = 0; i < food.length; i++) {
-      food[i].foodCategory = await FoodCategoryAPI.selectById(results[i]["food_category_id"]) ??
+      food[i].foodCategory = await FoodCategoryAPI.selectById(food[i].foodCategory.id) ??
           FoodCategory(name: "Unknown");
     }
     return food;

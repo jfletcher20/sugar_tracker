@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class FoodCategorySelectorWidget extends StatefulWidget {
   final FoodCategory foodCategory;
   final double imgSize;
-  final bool showLabel, selectable;
+  final bool showLabel, selectable, initializeSelected;
   final Function()? onTap;
   const FoodCategorySelectorWidget({
     super.key,
@@ -13,6 +13,7 @@ class FoodCategorySelectorWidget extends StatefulWidget {
     this.imgSize = 64,
     this.showLabel = false,
     this.selectable = false,
+    this.initializeSelected = false,
     this.onTap,
   });
 
@@ -25,6 +26,12 @@ class FoodCategorySelectorWidgetState extends State<FoodCategorySelectorWidget> 
   bool select() {
     setState(() => selected = !selected);
     return selected;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    selected = widget.initializeSelected;
   }
 
   @override

@@ -7,12 +7,12 @@
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
 
 class FoodCategory {
-  int? id;
+  int id = -1;
   String name = "Undefined";
   String? picture;
   String? notes;
 
-  FoodCategory({this.id, this.name = "Undefined", this.picture, this.notes});
+  FoodCategory({this.id = -1, this.name = "Undefined", this.picture, this.notes});
 
   FoodCategory.fromMap(Map<String, dynamic> map) {
     id = map["id"];
