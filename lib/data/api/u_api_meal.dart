@@ -4,6 +4,7 @@ import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 
@@ -46,7 +47,10 @@ class MealAPI {
           ..sugarLevel = sugar
           ..food = food);
       } else {
-        List<Food> food = [await FoodAPI.selectById(meal["food_ids"]) ?? Food()];
+        List<Food> food = [
+          await FoodAPI.selectById(meal["food_ids"]) ??
+              Food(category: FoodCategory(name: "Unknown"))
+        ];
         meal["food_amounts"].split(",").asMap().forEach((i, amount) {
           food[i].amount = int.parse(amount);
         });

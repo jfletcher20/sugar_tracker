@@ -99,7 +99,7 @@ class FoodsGridView extends StatelessWidget {
 
   Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
     return Image.asset(
-      "assets/images/foods/unknown.png",
+      "assets/images/food/unknown.png",
       color: Colors.redAccent,
       height: 32,
       width: 32,
@@ -136,7 +136,7 @@ class FoodsGridView extends StatelessWidget {
     return Image.asset(
       height: 32,
       width: 32,
-      food.picture ?? "assets/images/foods/unknown.png",
+      food.picture ?? "assets/images/food/unknown.png",
       color: food.picture == null ? Colors.greenAccent : null,
       errorBuilder: imageNotFound,
     );

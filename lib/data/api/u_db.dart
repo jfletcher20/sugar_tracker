@@ -3,7 +3,9 @@ import 'package:path/path.dart';
 
 class DB {
   static late Database db;
-  static String rootPicturePath = "assets/images/foods/";
+  static String rootPicturePath = "assets/images";
+  static String rootFoodPicturePath = "$rootPicturePath/food";
+  static String foodCategoryPicturePath = "$rootPicturePath/food_category";
   static Future open() async {
     db = await openDatabase(join(await getDatabasesPath(), "st.db"), version: 1,
         onCreate: (database, version) {
@@ -24,42 +26,42 @@ class DB {
 
       database.insert("food_category", {
         "name": "Fruit",
-        "picture": "${rootPicturePath}fruits.png",
+        "picture": "$foodCategoryPicturePath/fruit.png",
         "notes": "Fruits are high in carbs",
       });
       database.insert("food_category", {
-        "name": "Vegetable",
-        "picture": "${rootPicturePath}vegetables.png",
+        "name": "Veggies",
+        "picture": "$foodCategoryPicturePath/veggies.png",
         "notes": "Vegetables are low in carbs",
       });
       database.insert("food_category", {
         "name": "Grain",
-        "picture": "${rootPicturePath}grains.png",
+        "picture": "$foodCategoryPicturePath/grain.png",
         "notes": "Grains are high in carbs",
       });
       database.insert("food_category", {
         "name": "Dairy",
-        "picture": "${rootPicturePath}dairy.png",
+        "picture": "$foodCategoryPicturePath/dairy.png",
         "notes": "Dairy is high in carbs",
       });
       database.insert("food_category", {
         "name": "Protein",
-        "picture": "${rootPicturePath}protein.png",
+        "picture": "$foodCategoryPicturePath/protein.png",
         "notes": "Protein is low in carbs",
       });
       database.insert("food_category", {
         "name": "Dessert",
-        "picture": "${rootPicturePath}sweets.png",
-        "notes": "Sweets are high in carbs",
+        "picture": "$foodCategoryPicturePath/dessert.png",
+        "notes": "Desserts are high in carbs",
       });
       database.insert("food_category", {
-        "name": "Drink",
-        "picture": "${rootPicturePath}beverages.png",
+        "name": "Drinks",
+        "picture": "$foodCategoryPicturePath/drinks.png",
         "notes": "Beverages are high in carbs",
       });
       database.insert("food_category", {
         "name": "Misc",
-        "picture": "${rootPicturePath}miscellaneous.png",
+        "picture": "$foodCategoryPicturePath/misc.png",
         "notes": "Miscellaneous foods.",
       });
 
@@ -67,9 +69,9 @@ class DB {
       database.insert("food", {
         "name": "Apple",
         "food_category_id": 1,
-        "carbs": 25.13,
-        "weight": 180,
-        "picture": "${rootPicturePath}apple.png",
+        "carbs": 14,
+        "weight": 100,
+        "picture": "$rootFoodPicturePath/apple.png",
         "notes": "1 medium apple",
         "amount": 0,
       });
@@ -77,9 +79,9 @@ class DB {
       database.insert("food", {
         "name": "Banana",
         "food_category_id": 1,
-        "carbs": 26.95,
+        "carbs": 23,
         "weight": 100,
-        "picture": "${rootPicturePath}banana.png",
+        "picture": "$rootFoodPicturePath/banana.png",
         "notes": "1 medium banana",
         "amount": 0,
       });
@@ -87,9 +89,9 @@ class DB {
       database.insert("food", {
         "name": "Grapes",
         "food_category_id": 1,
-        "carbs": 18.1,
+        "carbs": 17,
         "weight": 100,
-        "picture": "${rootPicturePath}grapes.png",
+        "picture": "$rootFoodPicturePath/grapes.png",
         "notes": "1 cup grapes",
         "amount": 0,
       });
@@ -97,9 +99,9 @@ class DB {
       database.insert("food", {
         "name": "Orange",
         "food_category_id": 1,
-        "carbs": 11.75,
+        "carbs": 12,
         "weight": 100,
-        "picture": "${rootPicturePath}orange.png",
+        "picture": "$rootFoodPicturePath/orange.png",
         "notes": "1 medium orange",
         "amount": 0,
       });

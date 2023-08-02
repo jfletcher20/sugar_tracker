@@ -34,7 +34,7 @@ class Meal {
   double get carbs {
     double total = 0;
     for (Food f in food) {
-      total += f.amount * ((f.carbs ?? 0) / 100);
+      total += f.amount * ((f.carbs) / 100);
     }
     return total;
   }
@@ -104,7 +104,7 @@ class Meal {
     meal += "Sugar level: ${sugarLevel.sugar}\n";
     meal += "Food (${food.length} items):\n";
     for (int i = 0; i < food.length; i++) {
-      int calculations = (food[i].amount * ((food[i].carbs ?? 0) / 100)).round();
+      int calculations = (food[i].amount * ((food[i].carbs) / 100)).round();
       String weightAndCarbs = "(${food[i].amount}g, ${calculations}g carbs)";
       meal += "\t${i + 1}. ${food[i].name} $weightAndCarbs\n";
     }

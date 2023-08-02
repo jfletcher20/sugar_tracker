@@ -1,12 +1,15 @@
 // ignore_for_file: avoid_print
 
 import 'package:sugar_tracker/data/api/u_db.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
 import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
 import 'package:flutter/material.dart';
-import 'package:sugar_tracker/presentation/widgets/meal/w_meals_form.dart';
+import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -22,15 +25,11 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: AppBar(title: const Text("Sugar Tracker"), actions: [
         IconButton(
-          onPressed: () {
-            setState(() => child = const MealHistoryWidget());
-          },
+          onPressed: () => setState(() => child = const MealHistoryWidget()),
           icon: const Icon(Icons.food_bank),
         ),
         IconButton(
-          onPressed: () {
-            setState(() => child = const SugarHistoryWidget());
-          },
+          onPressed: () => setState(() => child = const SugarHistoryWidget()),
           icon: const Icon(Icons.query_stats),
         ),
         IconButton(
@@ -43,6 +42,21 @@ class _HomepageState extends State<Homepage> {
                   body: MealFormWidget(
                     meal: Meal(sugarLevel: Sugar(), food: []),
                   ),
+                ),
+              ),
+            );
+            if (context.mounted) setState(() {});
+          },
+          icon: const Icon(Icons.add),
+        ),
+        IconButton(
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Scaffold(
+                  appBar: AppBar(title: const Text("Add Food")),
+                  body: FoodFormWidget(food: Food(category: FoodCategory(name: "Unknown"))),
                 ),
               ),
             );

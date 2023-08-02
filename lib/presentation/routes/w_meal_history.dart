@@ -1,13 +1,13 @@
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
-import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_meal_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 
 import 'package:flutter/material.dart';
-import 'package:sugar_tracker/presentation/widgets/meal/w_meals_form.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
 
 class MealHistoryWidget extends StatefulWidget {
   const MealHistoryWidget({super.key});

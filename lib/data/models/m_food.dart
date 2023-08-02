@@ -14,10 +14,10 @@ import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 
 class Food {
-  int? id;
+  int id = -1;
   String? name;
-  FoodCategory? category;
-  double? carbs;
+  FoodCategory category = FoodCategory(name: "Unknown");
+  double carbs = 0;
   double? weight;
   String? picture;
   String? notes;
@@ -31,16 +31,16 @@ class Food {
     }
   }
 
-  Food(
-      {this.id,
-      this.name,
-      this.category,
-      this.carbs,
-      this.weight,
-      this.picture,
-      this.notes,
-      int amount = 0})
-      : _amount = amount;
+  Food({
+    this.id = -1,
+    this.name,
+    required this.category,
+    this.carbs = 0,
+    this.weight,
+    this.picture,
+    this.notes,
+    int amount = 0,
+  }) : _amount = amount;
 
   Food.fromMap(Map<String, dynamic> map) {
     id = map["id"];
@@ -53,7 +53,8 @@ class Food {
   }
 
   Future<void> fromId(int id) async {
-    Food food = await FoodAPI.selectById(id) ?? Food(name: "Unknown");
+    Food food = await FoodAPI.selectById(id) ??
+        Food(name: "Unknown", category: FoodCategory(name: "Unknown"));
     this.id = food.id;
     category = food.category;
     name = food.name;
@@ -66,9 +67,9 @@ class Food {
 
   Map<String, dynamic> toMap() {
     return {
-      "id": id,
+      "id": id == -1 ? null : id,
       "name": name,
-      "category": category?.id,
+      "category": category.id,
       "carbs": carbs,
       "weight": weight,
       "picture": picture,

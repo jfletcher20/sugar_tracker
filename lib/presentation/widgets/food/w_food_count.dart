@@ -129,7 +129,7 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
     return Image.asset(
       height: widget.autoSize ? null : 48,
       width: widget.autoSize ? null : 48,
-      food.picture ?? "assets/images/foods/unknown.png",
+      food.picture ?? "assets/images/food/unknown.png",
       color: food.picture == null ? Colors.greenAccent : null,
       errorBuilder: imageNotFound,
     );
@@ -137,7 +137,7 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
 
   Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
     return Image.asset(
-      "assets/images/foods/unknown.png",
+      "assets/images/food/unknown.png",
       color: Colors.redAccent,
       height: widget.autoSize ? null : 48,
       width: widget.autoSize ? null : 48,

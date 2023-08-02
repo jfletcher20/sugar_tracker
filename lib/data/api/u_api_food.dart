@@ -26,7 +26,8 @@ class FoodAPI {
     List<Map<String, dynamic>> results = await DB.db.query("food");
     List<Food> food = results.map((map) => Food.fromMap(map)).toList();
     for (int i = 0; i < food.length; i++) {
-      food[i].category = await FoodCategoryAPI.selectById(results[i]["food_category_id"]);
+      food[i].category = await FoodCategoryAPI.selectById(results[i]["food_category_id"]) ??
+          FoodCategory(name: "Unknown");
     }
     return food;
   }
@@ -37,7 +38,8 @@ class FoodAPI {
         await DB.db.query("food", where: "id = ?", whereArgs: [id]);
     if (results.isNotEmpty) {
       // get food category and store it in food
-      FoodCategory? category = await FoodCategoryAPI.selectById(results.first["food_category_id"]);
+      FoodCategory category = await FoodCategoryAPI.selectById(results.first["food_category_id"]) ??
+          FoodCategory(name: "Unknown");
       return Food.fromMap(results.first)..category = category;
     }
     return null;
@@ -47,7 +49,7 @@ class FoodAPI {
     // for each id in ids store result from selectById function
     List<Food> food = List.empty(growable: true);
     for (int id in ids) {
-      food.add(await selectById(id) ?? Food());
+      food.add(await selectById(id) ?? Food(category: FoodCategory(name: "Unknown")));
     }
     return food;
   }
