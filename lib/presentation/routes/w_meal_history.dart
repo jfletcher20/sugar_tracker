@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meals_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
@@ -23,6 +24,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
       builder: (builder, snapshot) {
         if (snapshot.hasData) {
           List<Meal> meals = snapshot.data as List<Meal>;
+          meals.removeWhere((element) => element.sugarLevel.datetime == null);
           meals.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
           meals = meals.reversed.toList();
           return SingleChildScrollView(
@@ -89,12 +91,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
                   _delete(context, meal),
                   _share(context, meal),
                   _copy(context, meal),
-                  IconButton(
-                    icon: const Icon(Icons.download),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+                  _exportToCsv(context, meal),
                 ],
               ),
             ),
@@ -111,8 +108,6 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
     return IconButton(
       icon: const Icon(Icons.delete),
       onPressed: () async {
-        // await MealAPI.delete(meal);
-        // show confirmation dialog
         bool? result = await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -124,6 +119,9 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
                 child: const Text("Cancel"),
               ),
               TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
                 onPressed: () => Navigator.pop(context, true),
                 child: const Text("Delete"),
               ),
@@ -131,10 +129,35 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
           ),
         );
         if (result != null && result) {
+          await SugarAPI.delete(meal.sugarLevel);
           await MealAPI.delete(meal);
           if (context.mounted) setState(() {});
         }
         if (context.mounted) Navigator.pop(context, true);
+      },
+    );
+  }
+
+  IconButton _exportToCsv(BuildContext context, Meal meal) {
+    return IconButton(
+      icon: const Icon(Icons.download),
+      onPressed: () {
+        // export to csv to location user specifies (show file dialog)
+        // showSavePanel(
+        //   suggestedFileName: "meal.csv",
+        //   allowedFileTypes: const [FileTypeFilterGroup.csv()],
+        //   confirmButtonText: "Export",
+        //   initialDirectory: "C:\\Users\\${Platform.environment["USERNAME"]}\\Documents",
+        // ).then((value) {
+        //   if (value != null) {
+        //     String path = value.path;
+        //     if (!path.endsWith(".csv")) {
+        //       path += ".csv";
+        //     }
+        //     MealAPI.exportToCsv(meal, path);
+        //   }
+        // });
+        Navigator.pop(context);
       },
     );
   }

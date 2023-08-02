@@ -34,8 +34,8 @@ class _HomepageState extends State<Homepage> {
           icon: const Icon(Icons.query_stats),
         ),
         IconButton(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => Scaffold(
@@ -46,6 +46,7 @@ class _HomepageState extends State<Homepage> {
                 ),
               ),
             );
+            if (context.mounted) setState(() {});
           },
           icon: const Icon(Icons.add),
         ),
@@ -65,11 +66,28 @@ class _HomepageState extends State<Homepage> {
                   TextButton(
                     onPressed: () {
                       void printTable() async {
-                        print(await DB.select(tableName.text));
+                        var val = await DB.select(tableName.text);
+                        print(val);
+                        // show dialog with table data
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Table Data"),
+                            content: Text(val.toString()),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Close"),
+                              ),
+                            ],
+                          ),
+                        );
                       }
 
                       printTable();
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
                     },
                     child: const Text("Get"),
                   ),

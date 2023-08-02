@@ -10,6 +10,27 @@ class ThemeManager {
     appBarTheme: const AppBarTheme(
       backgroundColor: Color.fromARGB(255, 183, 0, 0),
     ),
+    buttonTheme: ButtonThemeData(
+      buttonColor: Colors.redAccent,
+      textTheme: ButtonTextTheme.primary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.red,
+        textStyle: const TextStyle(
+          color: Colors.red,
+          fontWeight: FontWeight.bold,
+        ),
+        // minimumSize: const Size(300, 32),
+        padding: const EdgeInsets.all(8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+    ),
     textTheme: const TextTheme(
       bodyMedium: TextStyle(
         color: Colors.white,

@@ -190,8 +190,10 @@ class _MealFormWidgetState extends State<MealFormWidget> {
           if (!_prepareFood()) return;
           _prepareDateTime();
           _prepareCategory();
-          _saveData();
-          if (context.mounted) Navigator.pop(context, meal);
+          await _saveData();
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (context.mounted) Navigator.pop(context, meal);
+          });
         }
       },
       child: const Text("Submit"),
@@ -220,11 +222,12 @@ class _MealFormWidgetState extends State<MealFormWidget> {
   Future<void> _saveData() async {
     meal.sugarLevel.id = await _saveSugarLevel();
     meal.id = await _saveMeal();
+    return;
   }
 
   Future<int> _saveSugarLevel() async {
     int sugarId = meal.sugarLevel.id;
-    if (widget.useAsTemplate) {
+    if (widget.useAsTemplate || sugarId == -1) {
       sugarId = await SugarAPI.insert(meal.sugarLevel);
     } else {
       await SugarAPI.update(meal.sugarLevel);
@@ -234,7 +237,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
 
   Future<int> _saveMeal() async {
     int mealId = meal.id;
-    if (widget.useAsTemplate) {
+    if (widget.useAsTemplate || mealId == -1) {
       mealId = await MealAPI.insert(meal);
     } else {
       await MealAPI.update(meal);
