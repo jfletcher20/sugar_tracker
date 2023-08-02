@@ -17,6 +17,12 @@ class ThemeManager {
         borderRadius: BorderRadius.circular(4),
       ),
     ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      landscapeLayout: BottomNavigationBarLandscapeLayout.spread,
+      backgroundColor: Colors.black,
+      selectedItemColor: Color.fromARGB(255, 255, 32, 32),
+      unselectedItemColor: Colors.white,
+    ),
     timePickerTheme: TimePickerThemeData(
       cancelButtonStyle: const ButtonStyle(
         foregroundColor: MaterialStatePropertyAll<Color>(Colors.grey),

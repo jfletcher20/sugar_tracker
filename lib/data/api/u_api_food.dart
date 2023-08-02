@@ -8,7 +8,7 @@ import 'package:sugar_tracker/data/models/m_food_category.dart';
 class FoodAPI {
   // insert food entry into db
   static Future<int> insert(Food food) async {
-    return await DB.db.insert("food", food.toMap());
+    return await DB.insert("food", food.toMap());
   }
 
   // update food entry in db
@@ -26,7 +26,7 @@ class FoodAPI {
     List<Map<String, dynamic>> results = await DB.db.query("food");
     List<Food> food = results.map((map) => Food.fromMap(map)).toList();
     for (int i = 0; i < food.length; i++) {
-      food[i].category = await FoodCategoryAPI.selectById(results[i]["food_category_id"]) ??
+      food[i].foodCategory = await FoodCategoryAPI.selectById(results[i]["food_category_id"]) ??
           FoodCategory(name: "Unknown");
     }
     return food;
@@ -40,7 +40,7 @@ class FoodAPI {
       // get food category and store it in food
       FoodCategory category = await FoodCategoryAPI.selectById(results.first["food_category_id"]) ??
           FoodCategory(name: "Unknown");
-      return Food.fromMap(results.first)..category = category;
+      return Food.fromMap(results.first)..foodCategory = category;
     }
     return null;
   }
@@ -49,7 +49,7 @@ class FoodAPI {
     // for each id in ids store result from selectById function
     List<Food> food = List.empty(growable: true);
     for (int id in ids) {
-      food.add(await selectById(id) ?? Food(category: FoodCategory(name: "Unknown")));
+      food.add(await selectById(id) ?? Food(foodCategory: FoodCategory(name: "Unknown")));
     }
     return food;
   }

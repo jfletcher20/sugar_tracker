@@ -109,7 +109,7 @@ class FoodCard extends StatelessWidget {
     List<DataCell> cells = [
       DataCell(Center(child: Text("${(food.carbs).round()}g"))),
       DataCell(Center(child: Text("${((food.carbs / 100) * food.amount).round()}g"))),
-      DataCell(Center(child: Text(food.category.name))),
+      DataCell(Center(child: Text(food.foodCategory.name))),
     ];
     return DataTable(
       horizontalMargin: 10,

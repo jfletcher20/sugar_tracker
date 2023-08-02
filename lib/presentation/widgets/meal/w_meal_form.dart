@@ -108,7 +108,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
 
   Card _foodGrid() {
     return Card(
-      child: FoodsGridView(
+      child: FoodListView(
         foods: meal.food.where((food) => food.amount > 0).toList(),
         crossAxisCount: 3,
         showCounter: true,
@@ -148,7 +148,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     return result;
   }
 
-  GlobalKey<FormFieldState> _mealCategoryDropdownKey = GlobalKey();
+  final GlobalKey<FormFieldState> _mealCategoryDropdownKey = GlobalKey();
   DropdownButtonFormField _mealCategoryDropdown(MealCategory category) {
     return DropdownButtonFormField(
       key: _mealCategoryDropdownKey,

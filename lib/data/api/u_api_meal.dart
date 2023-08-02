@@ -49,7 +49,7 @@ class MealAPI {
       } else {
         List<Food> food = [
           await FoodAPI.selectById(meal["food_ids"]) ??
-              Food(category: FoodCategory(name: "Unknown"))
+              Food(foodCategory: FoodCategory(name: "Unknown"))
         ];
         meal["food_amounts"].split(",").asMap().forEach((i, amount) {
           food[i].amount = int.parse(amount);

@@ -20,56 +20,74 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   Widget child = const SugarHistoryWidget();
+  int index = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Sugar Tracker"), actions: [
-        IconButton(
-          onPressed: () => setState(() => child = const MealHistoryWidget()),
-          icon: const Icon(Icons.food_bank),
-        ),
-        IconButton(
-          onPressed: () => setState(() => child = const SugarHistoryWidget()),
-          icon: const Icon(Icons.query_stats),
-        ),
-        IconButton(
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Scaffold(
-                  appBar: AppBar(title: const Text("Add Meal")),
-                  body: MealFormWidget(
-                    meal: Meal(sugarLevel: Sugar(), food: []),
-                  ),
-                ),
-              ),
-            );
-            if (context.mounted) setState(() {});
-          },
-          icon: const Icon(Icons.add),
-        ),
-        IconButton(
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Scaffold(
-                  appBar: AppBar(title: const Text("Add Food")),
-                  body: FoodFormWidget(food: Food(category: FoodCategory(name: "Unknown"))),
-                ),
-              ),
-            );
-            if (context.mounted) setState(() {});
-          },
-          icon: const Icon(Icons.add),
-        ),
+        _mealHistoryTab(),
+        _sugarHistoryTab(),
+        _createMealButton(),
+        _createFoodItemButton(),
         _tableEditorButton(),
       ]),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: child,
       ),
+      bottomNavigationBar: _bottomNavigation(),
+    );
+  }
+
+  IconButton _mealHistoryTab() {
+    return IconButton(
+      onPressed: () => setState(() => child = const MealHistoryWidget()),
+      icon: const Icon(Icons.fastfood),
+    );
+  }
+
+  IconButton _sugarHistoryTab() {
+    return IconButton(
+      onPressed: () => setState(() => child = const SugarHistoryWidget()),
+      icon: const Icon(Icons.query_stats),
+    );
+  }
+
+  IconButton _createMealButton() {
+    return IconButton(
+      onPressed: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: const Text("Create a meal")),
+              body: MealFormWidget(
+                meal: Meal(sugarLevel: Sugar(), food: []),
+              ),
+            ),
+          ),
+        );
+        if (context.mounted) setState(() {});
+      },
+      icon: const Icon(Icons.add),
+    );
+  }
+
+  IconButton _createFoodItemButton() {
+    return IconButton(
+      onPressed: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: const Text("Create a food item")),
+              body: FoodFormWidget(food: Food(foodCategory: FoodCategory(name: "Unknown"))),
+            ),
+          ),
+        );
+        if (context.mounted) setState(() {});
+      },
+      icon: const Icon(Icons.food_bank),
     );
   }
 
@@ -179,6 +197,46 @@ class _HomepageState extends State<Homepage> {
         setState(() {});
       },
       icon: const Icon(Icons.create),
+    );
+  }
+
+  Widget _bottomNavigation() {
+    return BottomNavigationBar(
+      landscapeLayout: BottomNavigationBarLandscapeLayout.spread,
+      type: BottomNavigationBarType.fixed,
+      currentIndex: index,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.fastfood),
+          label: "Meals",
+          backgroundColor: Colors.black,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.query_stats),
+          label: "Sugars",
+          backgroundColor: Colors.black,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.food_bank),
+          label: "Foods",
+          backgroundColor: Colors.black,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.category),
+          label: "Categories",
+          backgroundColor: Colors.black,
+        ),
+      ],
+      onTap: (index) {
+        setState(() {
+          this.index = index;
+          if (index == 0) {
+            child = const MealHistoryWidget();
+          } else {
+            child = const SugarHistoryWidget();
+          }
+        });
+      },
     );
   }
 }

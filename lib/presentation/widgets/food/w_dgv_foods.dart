@@ -3,12 +3,12 @@ import 'package:sugar_tracker/data/dialogs/u_details_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
 
-class FoodsGridView extends StatelessWidget {
+class FoodListView extends StatelessWidget {
   final List<Food> foods;
   final int crossAxisCount;
   final Axis scrollDirection;
   final bool showCounter;
-  const FoodsGridView({
+  const FoodListView({
     super.key,
     required this.foods,
     this.crossAxisCount = 1,

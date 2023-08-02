@@ -16,7 +16,7 @@ import 'package:sugar_tracker/data/models/m_food_category.dart';
 class Food {
   int id = -1;
   String? name;
-  FoodCategory category = FoodCategory(name: "Unknown");
+  FoodCategory foodCategory = FoodCategory(name: "Unknown");
   double carbs = 0;
   double? weight;
   String? picture;
@@ -34,7 +34,7 @@ class Food {
   Food({
     this.id = -1,
     this.name,
-    required this.category,
+    required this.foodCategory,
     this.carbs = 0,
     this.weight,
     this.picture,
@@ -54,9 +54,9 @@ class Food {
 
   Future<void> fromId(int id) async {
     Food food = await FoodAPI.selectById(id) ??
-        Food(name: "Unknown", category: FoodCategory(name: "Unknown"));
+        Food(name: "Unknown", foodCategory: FoodCategory(name: "Unknown"));
     this.id = food.id;
-    category = food.category;
+    foodCategory = food.foodCategory;
     name = food.name;
     carbs = food.carbs;
     weight = food.weight;
@@ -69,7 +69,7 @@ class Food {
     return {
       "id": id == -1 ? null : id,
       "name": name,
-      "category": category.id,
+      "food_category_id": foodCategory.id,
       "carbs": carbs,
       "weight": weight,
       "picture": picture,

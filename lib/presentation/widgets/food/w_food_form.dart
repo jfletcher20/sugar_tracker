@@ -1,3 +1,4 @@
+import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
@@ -58,7 +59,7 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
                   List<FoodCategory> foodCategories = List.empty(growable: true);
                   if (snapshot.hasData) {
                     foodCategories = snapshot.data as List<FoodCategory>;
-                    food.category = foodCategories.first;
+                    food.foodCategory = foodCategories.first;
                   }
                   return _categoryGrid(foodCategories);
                 },
@@ -90,82 +91,18 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
     );
   }
 
-  GridView _categorySelection(List<FoodCategory> categories) {
-    return GridView(
-      shrinkWrap: true,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
-      children: categories.map((e) => _categoryCard(e)).toList(),
-    );
+  final GlobalKey<FoodCategoryGridViewState> _categoryGridKey = GlobalKey();
+  Widget _categorySelection(List<FoodCategory> categories) {
+    return FoodCategoryGridView(key: _categoryGridKey, foodCategories: categories);
   }
 
   final double imgSize = 64;
-  Card _categoryCard(FoodCategory category) {
-    return Card(
-      color: food.category == category ? Colors.red.withOpacity(0.5) : null,
-      child: InkWell(
-        onTap: () {
-          print("tapped");
-          food.category = category;
-          setState(() {});
-        },
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image.asset(
-              category.picture ?? "assets/images/food/unknown.png",
-              width: imgSize,
-              height: imgSize,
-              errorBuilder: imageNotFound,
-            ),
-            // label(category),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget label(FoodCategory category) {
-    return Positioned(
-      bottom: 0,
-      child: SizedBox(
-        width: imgSize + 16,
-        child: FittedBox(
-          fit: BoxFit.fitWidth,
-          child: Text(
-            category.name.substring(0, 1).toUpperCase() + category.name.substring(1),
-            // add drop shadow
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              shadows: [
-                const Shadow(
-                  color: Colors.black,
-                  offset: Offset(1, 1),
-                  blurRadius: 2,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
-    return Image.asset(
-      "assets/images/food/unknown.png",
-      color: Colors.redAccent,
-      height: imgSize,
-      width: imgSize,
-    );
-  }
 
   ElevatedButton _submitMealButton() {
     return ElevatedButton(
       onPressed: () async {
         if (_formKey.currentState!.validate()) {
+          _prepareFoodCategory();
           await _saveData();
           Future.delayed(const Duration(milliseconds: 100), () {
             if (context.mounted) Navigator.pop(context, food);
@@ -174,6 +111,10 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
       },
       child: const Text("Submit"),
     );
+  }
+
+  void _prepareFoodCategory() {
+    food.foodCategory = _categoryGridKey.currentState!.selected;
   }
 
   Future<void> _saveData() async {

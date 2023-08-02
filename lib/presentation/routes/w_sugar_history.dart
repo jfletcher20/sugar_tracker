@@ -40,11 +40,6 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
             ),
           );
         } else {
-          Future f() async {
-            var val = (await SugarAPI.selectAll());
-            print(val);
-          }
-
           return const Center(child: CircularProgressIndicator());
         }
       }),

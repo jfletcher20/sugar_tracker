@@ -55,7 +55,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
         children: [
           category(meal),
           Row(children: [
-            FoodsGridView(foods: meal.food, scrollDirection: Axis.horizontal),
+            FoodListView(foods: meal.food, scrollDirection: Axis.horizontal),
             MealDataWidget(meal: meal),
           ]),
         ],
