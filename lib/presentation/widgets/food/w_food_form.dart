@@ -7,6 +7,7 @@ import 'package:sugar_tracker/data/models/m_food.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sugar_tracker/presentation/widgets/w_imagepicker.dart';
 
 class FoodFormWidget extends StatefulWidget {
   final Food food;
@@ -51,7 +52,12 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
               title(),
               _nameInput(),
               _carbsInput(),
-              _notesInput(),
+              Row(
+                children: [
+                  ImagePickerWidget(path: food.picture, imgSize: 128),
+                  _notesInput(),
+                ],
+              ),
               const SizedBox(height: 16),
               _categories(),
               const SizedBox(height: 8),
@@ -70,8 +76,10 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
         List<FoodCategory> foodCategories = List.empty(growable: true);
         if (snapshot.hasData) {
           foodCategories = snapshot.data as List<FoodCategory>;
-          if (!widget.useAsTemplate) {
+          if (!widget.useAsTemplate && food.id == -1) {
             food.foodCategory = foodCategories.first;
+          } else {
+            food.foodCategory = widget.food.foodCategory;
           }
         }
         return _categoryGrid(foodCategories);
@@ -102,7 +110,7 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
     return FoodCategoryGridView(
       key: _categoryGridKey,
       foodCategories: categories,
-      initialCategory: widget.food.foodCategory,
+      initialCategory: food.foodCategory,
     );
   }
 

@@ -99,7 +99,7 @@ class _FoodCardState extends State<FoodCard> {
         SizedBox(
           width: 64 + 16,
           child: FractionallySizedBox(
-            widthFactor: 1.5,
+            widthFactor: 1.25,
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: title(context),
@@ -129,14 +129,8 @@ class _FoodCardState extends State<FoodCard> {
 
   Text title(BuildContext context) {
     String title = widget.food.name ?? "Unknown";
-    int wrap = 12;
-    if (title.length > wrap) {
-      int i = wrap;
-      while (i < title.length) {
-        title = title.replaceRange(i, i, "\n");
-        i += wrap;
-      }
-    }
+    // replace all " " with "\n"
+    title = title.replaceAll(" ", "\n");
     TextStyle titleLarge = Theme.of(context).textTheme.titleLarge!;
     titleLarge = titleLarge.copyWith(
       fontWeight: FontWeight.w500,
@@ -144,6 +138,8 @@ class _FoodCardState extends State<FoodCard> {
     return Text(
       title,
       style: titleLarge,
+      textAlign: TextAlign.center,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -184,7 +180,7 @@ class _FoodCardState extends State<FoodCard> {
         bool? result = await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text("Delete meal?"),
+            title: const Text("Delete food?"),
             content: const Text("This action cannot be undone."),
             actions: [
               TextButton(

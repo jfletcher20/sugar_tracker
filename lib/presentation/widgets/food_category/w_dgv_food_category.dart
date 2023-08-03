@@ -49,12 +49,13 @@ class FoodCategoryGridViewState extends State<FoodCategoryGridView> {
   }
 
   FoodCategorySelectorWidget _categoryCard(FoodCategory category) {
+    bool selected = category.id == widget.initialCategory?.id;
     return FoodCategorySelectorWidget(
       key: GlobalKey<FoodCategorySelectorWidgetState>(),
       foodCategory: category,
       imgSize: widget.imgSize,
       selectable: true,
-      initializeSelected: category == widget.initialCategory,
+      initializeSelected: selected,
       onTap: () {
         setState(() {
           for (var element in _categoryCards) {

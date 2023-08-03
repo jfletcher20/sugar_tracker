@@ -19,7 +19,7 @@ class Food {
   FoodCategory foodCategory = FoodCategory(name: "Unknown");
   double carbs = 0;
   double? weight;
-  String? picture;
+  String picture = "";
   String? notes;
   int _amount = 0;
   int get amount => _amount;
@@ -37,7 +37,7 @@ class Food {
     required this.foodCategory,
     this.carbs = 0,
     this.weight,
-    this.picture,
+    this.picture = "",
     this.notes,
     int amount = 0,
   }) : _amount = amount;
@@ -47,7 +47,7 @@ class Food {
     name = map["name"];
     carbs = map["carbs"];
     weight = map["weight"];
-    picture = map["picture"];
+    picture = map["picture"] ?? "";
     notes = map["notes"];
     amount = map["amount"] ?? 0;
     foodCategory = FoodCategory(id: map["food_category_id"] ?? -1);
