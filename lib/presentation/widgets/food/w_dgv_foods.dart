@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/dialogs/u_details_dialogs.dart';
 import 'package:flutter/material.dart';
@@ -133,12 +135,20 @@ class FoodListView extends StatelessWidget {
   }
 
   Image image(Food food) {
-    return Image.asset(
-      height: 32,
-      width: 32,
-      food.picture ?? "assets/images/food/unknown.png",
-      color: food.picture == null ? Colors.greenAccent : null,
-      errorBuilder: imageNotFound,
-    );
+    return food.picture.contains("asset")
+        ? Image.asset(
+            height: 32,
+            width: 32,
+            food.picture,
+            color: food.picture == "" ? Colors.greenAccent : null,
+            errorBuilder: imageNotFound,
+          )
+        : Image.file(
+            File(food.picture),
+            height: 32,
+            width: 32,
+            color: food.picture == "" ? Colors.greenAccent : null,
+            errorBuilder: imageNotFound,
+          );
   }
 }

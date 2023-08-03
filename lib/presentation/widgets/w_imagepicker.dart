@@ -1,11 +1,7 @@
-// image picker widget with image preview and attribute for image size
-// if image size is not defined it should autoexpand to the available space
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/material.dart';
 
 import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 
 class ImagePickerWidget extends StatefulWidget {
   final double? imgSize;
@@ -25,20 +21,17 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
     loadImage();
   }
 
-  Future<void> loadImage() async {
-    final Directory docs = await getApplicationDocumentsDirectory();
-    String path = "${docs.path}/${widget.path.split("/").last}";
-    if (File(path).existsSync()) {
-      setState(() => image = File("${docs.path}/${widget.path.split("/").last}"));
+  void loadImage() {
+    if (File(widget.path).existsSync()) {
+      setState(() => image = File(widget.path));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: widget.imgSize,
       width: widget.imgSize,
-      color: Colors.redAccent[400],
       child: _buildImageInput(),
     );
   }
@@ -176,6 +169,7 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(10),
       border: Border.all(color: Colors.red, width: 3),
+      color: Colors.white,
     );
   }
 }

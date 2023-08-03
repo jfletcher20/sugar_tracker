@@ -39,39 +39,7 @@ class _FoodCardState extends State<FoodCard> {
       ),
       shadowColor: Colors.grey.shade200,
       child: InkWell(
-        onTap: () async {
-          // show modal bottom sheet with options
-          bool? result = await showModalBottomSheet(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(32),
-                topRight: Radius.circular(32),
-              ),
-            ),
-            showDragHandle: true,
-            context: context,
-            builder: (context) => SizedBox(
-              height: 64 + 16,
-              child: GridView(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6,
-                  childAspectRatio: 2,
-                ),
-                children: [
-                  _useAsTemplate(context, food),
-                  _edit(context, food),
-                  _delete(context, food),
-                  _share(context, food),
-                  _copy(context, food),
-                  _exportToCsv(context, food),
-                ],
-              ),
-            ),
-          );
-          if (result != null && result) {
-            setState(() {});
-          }
-        },
+        onTap: () async => _modalWithOptions(),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: SingleChildScrollView(
@@ -91,6 +59,45 @@ class _FoodCardState extends State<FoodCard> {
     );
   }
 
+  final ShapeBorder _modalShape = const RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+      topLeft: Radius.circular(32),
+      topRight: Radius.circular(32),
+    ),
+  );
+  final SliverGridDelegate _modalGridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 6,
+    childAspectRatio: 2,
+  );
+  Future<void> _modalWithOptions() async {
+    bool? result = await showModalBottomSheet(
+      shape: _modalShape,
+      showDragHandle: true,
+      context: context,
+      builder: (context) => SizedBox(
+        height: 64 + 16,
+        child: GridView(
+          gridDelegate: _modalGridDelegate,
+          children: _modalOptions(),
+        ),
+      ),
+    );
+    if (result != null && result) {
+      setState(() {});
+    }
+  }
+
+  List<IconButton> _modalOptions() {
+    return <IconButton>[
+      _useAsTemplate(context, food),
+      _edit(context, food),
+      _delete(context, food),
+      _share(context, food),
+      _copy(context, food),
+      _exportToCsv(context, food),
+    ];
+  }
+
   Column prefix(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -100,10 +107,7 @@ class _FoodCardState extends State<FoodCard> {
           width: 64 + 16,
           child: FractionallySizedBox(
             widthFactor: 1.25,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: title(context),
-            ),
+            child: FittedBox(fit: BoxFit.scaleDown, child: title(context)),
           ),
         ),
         const SizedBox(height: 16),

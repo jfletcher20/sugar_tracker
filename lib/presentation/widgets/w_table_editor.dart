@@ -201,7 +201,6 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
     for (var table in tables) {
       tableNames += table["name"] + "\n";
     }
-    print(tableNames);
     _tableNamesDialog(tableNames);
   }
 

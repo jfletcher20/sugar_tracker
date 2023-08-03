@@ -1,5 +1,6 @@
 import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
+import 'package:sugar_tracker/presentation/widgets/w_imagepicker.dart';
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/api/u_api_food.dart';
@@ -7,7 +8,6 @@ import 'package:sugar_tracker/data/models/m_food.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sugar_tracker/presentation/widgets/w_imagepicker.dart';
 
 class FoodFormWidget extends StatefulWidget {
   final Food food;
@@ -40,31 +40,35 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
     }
   }
 
+  GlobalKey<ImagePickerWidgetState> imagePickerKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              title(),
-              _nameInput(),
-              _carbsInput(),
-              Row(
-                children: [
-                  ImagePickerWidget(path: food.picture, imgSize: 128),
-                  _notesInput(),
-                ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    title(),
+                    ImagePickerWidget(key: imagePickerKey, path: food.picture, imgSize: 128),
+                    const SizedBox(height: 16),
+                    _nameInput(),
+                    _carbsInput(),
+                    _notesInput(),
+                    const SizedBox(height: 16),
+                    _categories(),
+                    const SizedBox(height: 8),
+                    _submitMealButton(),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              _categories(),
-              const SizedBox(height: 8),
-              _submitMealButton(),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -121,6 +125,7 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
       onPressed: () async {
         if (_formKey.currentState!.validate()) {
           _prepareFoodCategory();
+          await _prepareImage();
           await _saveData();
           Future.delayed(const Duration(milliseconds: 100), () {
             if (context.mounted) Navigator.pop(context, food);
@@ -129,6 +134,12 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
       },
       child: const Text("Submit"),
     );
+  }
+
+  Future<void> _prepareImage() async {
+    ImagePickerWidgetState imagePicker = imagePickerKey.currentState!;
+    food.picture = imagePicker.image?.path ?? "";
+    return;
   }
 
   void _prepareFoodCategory() {

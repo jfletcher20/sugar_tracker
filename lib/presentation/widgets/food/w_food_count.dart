@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
@@ -115,7 +117,6 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
         border: Border.all(color: Colors.redAccent),
         color: Colors.white,
       ),
-      padding: const EdgeInsets.all(4),
       child: SizedBox(
         height: widget.autoSize ? null : imgSize,
         width: widget.autoSize ? null : imgSize,
@@ -130,13 +131,21 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
   }
 
   Image image(Food food) {
-    return Image.asset(
-      height: widget.autoSize ? null : 48,
-      width: widget.autoSize ? null : 48,
-      food.picture ?? "assets/images/food/unknown.png",
-      color: food.picture == null ? Colors.greenAccent : null,
-      errorBuilder: imageNotFound,
-    );
+    return food.picture.contains("asset")
+        ? Image.asset(
+            height: widget.autoSize ? null : 48,
+            width: widget.autoSize ? null : 48,
+            food.picture,
+            color: food.picture == "" ? Colors.greenAccent : null,
+            errorBuilder: imageNotFound,
+          )
+        : Image.file(
+            File(food.picture),
+            height: widget.autoSize ? null : 48,
+            width: widget.autoSize ? null : 48,
+            color: food.picture == "" ? Colors.greenAccent : null,
+            errorBuilder: imageNotFound,
+          );
   }
 
   Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
