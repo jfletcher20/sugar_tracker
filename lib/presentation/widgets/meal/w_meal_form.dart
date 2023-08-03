@@ -179,7 +179,8 @@ class _MealFormWidgetState extends State<MealFormWidget> {
         );
         setState(() {});
       },
-      child: Text("Select food" " (${meal.food.where((e) => e.amount > 0).length})"),
+      child: Text("Food"
+          " (${meal.food.fold(0.0, (previousValue, element) => previousValue + (element.amount * (element.carbs / 100))).round()}g carbs)"),
     );
   }
 
@@ -300,7 +301,10 @@ class _MealFormWidgetState extends State<MealFormWidget> {
             }
             return null;
           },
-          onChanged: (value) => meal.sugarLevel.sugar = double.tryParse(value) ?? 0,
+          onChanged: (value) {
+            meal.sugarLevel.sugar = double.tryParse(value) ?? 0;
+            setState(() {});
+          },
           onSaved: (value) => meal.sugarLevel.sugar = double.tryParse(value ?? "0") ?? 0,
         ),
         Align(
@@ -317,9 +321,29 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     );
   }
 
+  int get recommendedInsulin {
+    double carbs = meal.food.fold(
+        0.0, (previousValue, element) => previousValue + (element.amount * (element.carbs / 100)));
+    double ratio = 10;
+    int totalUnits = carbs ~/ ratio;
+    return totalUnits;
+  }
+
+  int get recommendedCorrection {
+    int correction = 0;
+    if (meal.sugarLevel.sugar > 10) {
+      correction = ((meal.sugarLevel.sugar - 10) / 2).floor();
+      if (correction > 5) {
+        correction = 5;
+      }
+    }
+    return correction;
+  }
+
   TextFormField _insulinInput() {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Insulin units"),
+      decoration: InputDecoration(
+          labelText: "Insulin units (recommended $recommendedInsulin + $recommendedCorrection)"),
       controller: _insulinController,
       keyboardType: TextInputType.number,
       inputFormatters: [
