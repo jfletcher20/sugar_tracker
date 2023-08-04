@@ -1,4 +1,6 @@
 // insulin model has id, name, datetime, type (0=bolus, 1=basal), and notes
+import 'package:flutter/material.dart';
+
 /// Bolus is fast-acting, basal is slow-acting insulin.
 enum InsulinCategory {
   /// Bolus is fast-acting insulin.
@@ -8,20 +10,42 @@ enum InsulinCategory {
   basal
 }
 
+Color insulinCategoryColor(InsulinCategory category) {
+  return InsulinCategory.values.indexOf(category) == 0 ? Colors.orange : Colors.lightGreen[400]!;
+}
+
 class Insulin {
   int id = -1;
   String name = "Unknown";
   DateTime? datetime;
   int units = 0;
-  InsulinCategory insulinCategory = InsulinCategory.bolus;
+  InsulinCategory category = InsulinCategory.bolus;
   String notes = "";
+
+  String get date {
+    DateTime date = datetime ?? DateTime.now();
+    return "${date.day}.${date.month}.${date.year}";
+  }
+
+  String get time {
+    DateTime date = datetime ?? DateTime.now();
+    String minute = date.minute.toString();
+    if (minute.length == 1) {
+      minute = "0$minute";
+    }
+    String hour = date.hour.toString();
+    if (hour.length == 1) {
+      hour = "0$hour";
+    }
+    return "$hour:$minute";
+  }
 
   Insulin({
     this.id = -1,
     this.name = "Unknown",
     this.datetime,
     this.units = 0,
-    this.insulinCategory = InsulinCategory.bolus,
+    this.category = InsulinCategory.bolus,
     this.notes = "",
   });
 
@@ -30,7 +54,7 @@ class Insulin {
     name = map['name'];
     datetime = DateTime.parse(map['date']);
     units = map['units'];
-    insulinCategory = InsulinCategory.values[map['insulin_category'] ?? 0];
+    category = InsulinCategory.values[map['insulin_category'] ?? 0];
     notes = map['notes'];
   }
 
@@ -40,13 +64,19 @@ class Insulin {
     data['name'] = name;
     data['date'] = datetime.toString();
     data['units'] = units;
-    data['insulin_category'] = insulinCategory.index;
+    data['insulin_category'] = category.index;
     data['notes'] = notes;
     return data;
   }
 
+  String get info {
+    String output = "$units units of $name (${category.name}) taken at $time, $date";
+    output += notes.isNotEmpty ? "\n$notes" : "";
+    return output;
+  }
+
   @override
   String toString() {
-    return "$units";
+    return "$units of $name";
   }
 }

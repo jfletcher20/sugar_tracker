@@ -143,7 +143,7 @@ class MealDataWidget extends StatelessWidget {
       TextSpan(text: meal.sugarLevel.toString()),
       const TextSpan(text: "\n"),
       const TextSpan(text: "Insulin: "),
-      TextSpan(text: meal.insulin.toString()),
+      TextSpan(text: meal.insulin.units.toString()),
     ];
   }
 

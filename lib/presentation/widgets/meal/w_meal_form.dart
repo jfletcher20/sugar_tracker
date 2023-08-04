@@ -233,7 +233,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
 
   void _prepareCategory() {
     meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
-    meal.insulin.insulinCategory = InsulinCategory.bolus;
+    meal.insulin.category = InsulinCategory.bolus;
   }
 
   Future<void> _saveData() async {

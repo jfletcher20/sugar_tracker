@@ -37,12 +37,8 @@ class MealAPI {
       Insulin insulin = await InsulinAPI.selectById(meal["insulin"]) ?? Insulin(notes: "Unknown");
       if (meal["food_ids"] is String) {
         String ids = meal["food_ids"];
-        List<String> notparsed = ids.split(",");
-        List<int> foodIds = [];
-        for (String id in notparsed) {
-          foodIds.add(int.parse(id));
-        }
-        List<Food> food = await FoodAPI.selectByIds(foodIds);
+        List<String> notParsed = ids.split(",");
+        List<Food> food = await FoodAPI.selectByIds(notParsed);
         meal["food_amounts"].split(",").asMap().forEach((i, amount) {
           food[i].amount = int.parse(amount);
         });
@@ -90,9 +86,27 @@ class MealAPI {
   }
 
   // select meal entries from db by sugar id
-  static Future<Meal> selectBySugarId(int sugarId) async {
+  static Future<Meal> selectBySugarId(Sugar sugar) async {
     Map<String, dynamic> result =
-        (await DB.db.rawQuery("SELECT * FROM meal WHERE sugar_id = ?", [sugarId])).first;
+        (await DB.db.rawQuery("SELECT * FROM meal WHERE sugar_id = ?", [sugar.id])).first;
+
+    // Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
+    // List<Food> food = await FoodAPI.selectByIds(
+    //   result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
+    // );
+
+    // result["food_amounts"].split(",").asMap().forEach((i, amount) {
+    //   food[i].amount = int.parse(amount);
+    // });
+
+    return Meal.fromMap(result)..sugarLevel = sugar;
+    // ..insulin = insulin
+    // ..food = food
+  }
+
+  static Future<Meal> selectById(int id) async {
+    Map<String, dynamic> result =
+        (await DB.db.rawQuery("SELECT * FROM meal WHERE id = ?", [id])).first;
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
     Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
@@ -110,15 +124,20 @@ class MealAPI {
       ..food = food;
   }
 
-  static Future<Meal> selectById(int id) async {
-    Map<String, dynamic> result =
-        (await DB.db.rawQuery("SELECT * FROM meal WHERE id = ?", [id])).first;
+  static Future<Meal> selectByInsulinId(Insulin insulin) async {
+    Map<String, dynamic> result;
+    try {
+      result = (await DB.db.rawQuery("SELECT * FROM meal WHERE insulin = ?", [insulin.id])).first;
+    } catch (e) {
+      return Meal(
+        sugarLevel: Sugar(notes: "Unknown"),
+        insulin: Insulin(notes: "Unknown"),
+        food: [],
+      );
+    }
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
-    Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
-    List<Food> food = await FoodAPI.selectByIds(
-      result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
-    );
+    List<Food> food = await FoodAPI.selectByIds(result["food_ids"].split(","));
 
     result["food_amounts"].split(",").asMap().forEach((i, amount) {
       food[i].amount = int.parse(amount);

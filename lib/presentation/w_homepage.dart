@@ -9,6 +9,7 @@ import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/presentation/routes/w_food_list.dart';
+import 'package:sugar_tracker/presentation/routes/w_insulin_history.dart';
 import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
 import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
@@ -52,7 +53,7 @@ class _HomepageState extends State<Homepage> {
             builder: (context) => Scaffold(
               appBar: AppBar(title: const Text("Create a meal")),
               body: MealFormWidget(
-                meal: Meal(sugarLevel: Sugar(), food: [], insulin: Insulin()),
+                meal: Meal(sugarLevel: Sugar(), insulin: Insulin(), food: <Food>[]),
               ),
             ),
           ),
@@ -218,8 +219,8 @@ class _HomepageState extends State<Homepage> {
               child = const MealHistoryWidget();
             case 1:
               child = const SugarHistoryWidget();
-            // case 2:
-            //   child = const InsulinHistoryWidget();
+            case 2:
+              child = const InsulinHistoryWidget();
             case 3:
               child = const FoodListWidget();
           }
