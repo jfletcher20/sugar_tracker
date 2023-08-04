@@ -132,7 +132,7 @@ class _FoodCardState extends State<FoodCard> {
   }
 
   Text title(BuildContext context) {
-    String title = widget.food.name ?? "Unknown";
+    String title = widget.food.name;
     // replace all " " with "\n"
     title = title.replaceAll(" ", "\n");
     TextStyle titleLarge = Theme.of(context).textTheme.titleLarge!;
@@ -216,7 +216,7 @@ class _FoodCardState extends State<FoodCard> {
       onPressed: () {
         // export to csv to location user specifies (show file dialog)
         // showSavePanel(
-        //   suggestedFileName: "meal.csv",
+        //   suggestedFileName: "food.csv",
         //   allowedFileTypes: const [FileTypeFilterGroup.csv()],
         //   confirmButtonText: "Export",
         //   initialDirectory: "C:\\Users\\${Platform.environment["USERNAME"]}\\Documents",
@@ -251,7 +251,7 @@ class _FoodCardState extends State<FoodCard> {
         Clipboard.setData(ClipboardData(text: food.toString()));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Meal copied to clipboard"),
+            content: Text("Food copied to clipboard"),
             duration: Duration(seconds: 2),
           ),
         );
@@ -268,7 +268,7 @@ class _FoodCardState extends State<FoodCard> {
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
-              appBar: AppBar(title: const Text("Meal from template")),
+              appBar: AppBar(title: const Text("Food from template")),
               body: FoodFormWidget(food: food, useAsTemplate: true),
             ),
           ),

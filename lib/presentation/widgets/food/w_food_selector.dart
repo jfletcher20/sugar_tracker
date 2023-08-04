@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_counter.dart';
+import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
 
 class FoodSelectorWidget extends StatefulWidget {
   final Meal meal;
@@ -13,6 +15,29 @@ class FoodSelectorWidget extends StatefulWidget {
 }
 
 class _FoodSelectorWidgetState extends State<FoodSelectorWidget> {
+  final GlobalKey<FoodCategoryGridViewState> foodCategoryKey = GlobalKey();
+  late List<Food> allFoods = List.empty(growable: true);
+  bool loadCategories = true;
+
+  Future<void> initFoods() async {
+    if (allFoods.isEmpty) allFoods = await FoodAPI.selectAll();
+    widget.meal.food = widget.meal.food.where((element) => element.amount > 0).toList();
+    for (Food food in allFoods) {
+      if (!widget.meal.food.any((element) => element.id == food.id)) {
+        widget.meal.food.add(food);
+      }
+    }
+    if (foodCategoryKey.currentState!.allSelected.isNotEmpty) {
+      widget.meal.food.retainWhere(
+        (food) => foodCategoryKey.currentState!.allSelected.any(
+          (c) => c.id == food.foodCategory.id || food.amount > 0,
+        ),
+      );
+    }
+    if (context.mounted) setState(() {});
+    return;
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget child;
@@ -20,20 +45,29 @@ class _FoodSelectorWidgetState extends State<FoodSelectorWidget> {
       child = listView();
     } else {
       child = FutureBuilder(
-        future: FoodAPI.selectAll(),
+        future: initFoods(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            widget.meal.food = snapshot.data as List<Food>;
+          if (snapshot.connectionState == ConnectionState.done) {
             return listView();
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
           }
-          return const CircularProgressIndicator();
+          return Card(
+            child: Container(
+              padding: const EdgeInsets.all(64),
+              height: 321,
+              child: const Text("No food in this category"),
+            ),
+          );
         },
       );
     }
     return WillPopScope(
-      child: child,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [_foodCategoryFilter(), child],
+        ),
+      ),
       onWillPop: () {
         Navigator.pop(context, widget.meal.food);
         return Future.value(false);
@@ -41,7 +75,26 @@ class _FoodSelectorWidgetState extends State<FoodSelectorWidget> {
     );
   }
 
-  ListView listView() {
+  Widget _foodCategoryFilter() {
+    return Card(
+      color: Colors.black,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: FoodCategoryGridView(
+          key: foodCategoryKey,
+          multiSelect: true,
+          crossAxisCount: 8,
+          crossAxisSpacing: 0,
+          mainAxisSpacing: 0,
+          onSelect: (category) async {
+            await initFoods();
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget listView() {
     widget.meal.food.sort((a, b) => a.name.compareTo(b.name));
     widget.meal.food.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
     List<Food> selected = [];
@@ -57,12 +110,14 @@ class _FoodSelectorWidgetState extends State<FoodSelectorWidget> {
     selected.sort((a, b) => a.name.compareTo(b.name));
     selected.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
     widget.meal.food = selected + unselected;
-    return ListView.builder(
-      itemCount: widget.meal.food.length,
-      shrinkWrap: true,
-      itemBuilder: (context, index) {
-        return FoodCounterWidget(food: widget.meal.food[index], modifiable: true);
-      },
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          for (int i = 0; i < widget.meal.food.length; i++)
+            FoodCounterWidget(food: widget.meal.food[i], modifiable: true),
+          if (widget.meal.food.isEmpty) const Text("No food items found"),
+        ],
+      ),
     );
   }
 }

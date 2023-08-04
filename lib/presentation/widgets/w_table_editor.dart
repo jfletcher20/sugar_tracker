@@ -86,7 +86,6 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
     return TextButton(
       onPressed: () async {
         await _setAllDialog();
-        if (context.mounted) Navigator.pop(context);
       },
       child: const Text("Set"),
     );
@@ -124,7 +123,6 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
           TextButton(
             onPressed: () async {
               await _confirmSetAllDialog(columnController.text, valueController.text);
-              if (context.mounted) Navigator.pop(context);
             },
             child: const Text("Set"),
           ),
@@ -138,7 +136,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
     SwitchListTile switchListTile = SwitchListTile(
       title: const Text("Only null values"),
       value: onlyNullValues,
-      onChanged: (value) => setState(() => onlyNullValues = value),
+      onChanged: (value) => onlyNullValues = value,
     );
     return showDialog(
       context: context,

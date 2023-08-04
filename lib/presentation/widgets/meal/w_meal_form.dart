@@ -72,11 +72,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
                       items: [
                         dropdownMenuItem(MealCategory.other, Icons.cake_rounded),
                       ],
-                      onChanged: (value) {
-                        setState(() {
-                          meal.category = value;
-                        });
-                      },
+                      onChanged: (value) => setState(() => meal.category = value),
                     );
                   }),
               _sugarLevelInput(),
@@ -178,6 +174,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
         for (int i = 0; i < foods.length; i++) {
           if (!meal.food.any((element) => element.id == foods[i].id)) {
             meal.food.add(foods[i]);
+            meal.food.last.amount = 0;
           }
         }
         // ignore: use_build_context_synchronously

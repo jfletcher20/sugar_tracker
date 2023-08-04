@@ -37,7 +37,7 @@ class FoodCategorySelectorWidgetState extends State<FoodCategorySelectorWidget> 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: selected ? Colors.red.withOpacity(0.5) : null,
+      color: selected ? Colors.red.withOpacity(0.5) : Colors.transparent,
       child: InkWell(
         onTap: widget.selectable
             ? () {

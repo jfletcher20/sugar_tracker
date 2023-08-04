@@ -101,11 +101,6 @@ class _HomepageState extends State<Homepage> {
           label: "Foods",
           backgroundColor: Colors.black,
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.category),
-          label: "Categories",
-          backgroundColor: Colors.black,
-        ),
       ],
       onTap: (index) {
         setState(() {

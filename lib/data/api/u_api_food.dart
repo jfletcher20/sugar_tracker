@@ -31,7 +31,7 @@ class FoodAPI {
 
   // select all food entries from db
   static Future<List<Food>> selectAll() async {
-    List<Map<String, dynamic>> results = await DB.db.query("food");
+    List<Map<String, dynamic>> results = await DB.select("food");
     List<Food> food = results.map((map) => Food.fromMap(map)).toList();
     for (int i = 0; i < food.length; i++) {
       food[i].foodCategory = await FoodCategoryAPI.selectById(food[i].foodCategory.id) ??
