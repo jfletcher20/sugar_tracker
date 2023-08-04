@@ -1,4 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';

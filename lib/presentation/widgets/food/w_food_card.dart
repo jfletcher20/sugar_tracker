@@ -39,7 +39,7 @@ class _FoodCardState extends State<FoodCard> {
       ),
       shadowColor: Colors.grey.shade200,
       child: InkWell(
-        onTap: () async => _modalWithOptions(),
+        onTap: () async => widget.showAdditionalOptions ? _modalWithOptions() : null,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: SingleChildScrollView(
@@ -89,12 +89,12 @@ class _FoodCardState extends State<FoodCard> {
 
   List<IconButton> _modalOptions() {
     return <IconButton>[
-      _useAsTemplate(context, food),
-      _edit(context, food),
-      _delete(context, food),
-      _share(context, food),
-      _copy(context, food),
-      _exportToCsv(context, food),
+      _useAsTemplate(context, widget.food),
+      _edit(context, widget.food),
+      _delete(context, widget.food),
+      _share(context, widget.food),
+      _copy(context, widget.food),
+      _exportToCsv(context, widget.food),
     ];
   }
 
@@ -184,7 +184,7 @@ class _FoodCardState extends State<FoodCard> {
         bool? result = await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text("Delete food?"),
+            title: Text("Delete ${food.toString()}?"),
             content: const Text("This action cannot be undone."),
             actions: [
               TextButton(

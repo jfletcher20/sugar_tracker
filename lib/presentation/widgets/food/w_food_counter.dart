@@ -13,7 +13,12 @@ class FoodCounterWidget extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          FoodCard(food: food, columns: const {2, 0, 1}, modifiable: modifiable),
+          FoodCard(
+            food: food,
+            columns: const {2, 0, 1},
+            modifiable: modifiable,
+            showAdditionalOptions: true,
+          ),
         ],
       ),
     );

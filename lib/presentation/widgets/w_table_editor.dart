@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:sugar_tracker/data/api/u_api_food.dart';
+import 'package:sugar_tracker/data/api/u_api_food_category.dart';
+import 'package:sugar_tracker/data/api/u_api_meal.dart';
+import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
 
 class TableEditorWidget extends StatefulWidget {
@@ -27,6 +32,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
       builder: (context) => AlertDialog(
         title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           const Text("Table editor"),
+          _query(),
           _debugButton(),
         ]),
         content: TextField(
@@ -34,9 +40,10 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
           decoration: const InputDecoration(hintText: "Table Name"),
         ),
         actions: [
+          _export(),
           _getAll(),
           _setAll(),
-          _deleteAll(),
+          _delete(),
         ],
       ),
     );
@@ -49,6 +56,155 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
         setState(() {});
       },
       icon: const Icon(Icons.code),
+    );
+  }
+
+  IconButton _query() {
+    return IconButton(
+      onPressed: () async {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Execute query?"),
+            content: SingleChildScrollView(child: Text(tableNameController.text)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await DB.db.execute(tableNameController.text);
+                  if (context.mounted) Navigator.pop(context);
+                },
+                child: const Text("Execute"),
+              ),
+            ],
+          ),
+        );
+        if (context.mounted) setState(() {});
+      },
+      icon: const Icon(Icons.abc),
+    );
+  }
+
+  TextButton _delete() {
+    return TextButton(
+      onPressed: () async => await _deleteDialog(),
+      child: const Text("Delete"),
+    );
+  }
+
+  Future _deleteDialog() {
+    // show dialog with controller for id to delete
+    TextEditingController idController = TextEditingController();
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete"),
+        content: TextField(
+          controller: idController,
+          decoration: const InputDecoration(hintText: "ID"),
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          _deleteAll(),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            onPressed: () async {
+              // show confirmation dialog
+              await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Confirm deletion"),
+                  content: Text("Delete ${tableNameController.text} with id ${idController.text}?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Cancel"),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        // delete from table where id = idController.text
+                        await DB.delete(
+                            tableNameController.text.toLowerCase(), int.parse(idController.text));
+                        if (context.mounted) Navigator.pop(context);
+                      },
+                      child: const Text("Delete"),
+                    ),
+                  ],
+                ),
+              );
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  TextButton _export() {
+    return TextButton(
+      onPressed: () async {
+        String exported = "";
+        switch (tableNameController.text) {
+          case "food":
+            exported = await FoodAPI.export();
+            break;
+          case "meal":
+            exported = await MealAPI.export();
+            break;
+          case "sugar":
+            exported = await SugarAPI.export();
+            break;
+          case "food_category":
+            exported = await FoodCategoryAPI.export();
+            break;
+        }
+        // show dialog with text in singlechildscrollview
+        _exportDialog(exported);
+      },
+      child: const Text("Export"),
+    );
+  }
+
+  Future<dynamic> _exportDialog(String exported) {
+    List<String> text = exported.split("\n");
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Exported data (x${text.length - 1})"),
+        content: SingleChildScrollView(
+          child: Card(
+            child: Column(
+              children: [
+                ...text
+                    .map(
+                      (e) => InkWell(
+                          child: Text(e), onTap: () => Clipboard.setData(ClipboardData(text: e))),
+                    )
+                    .toList(),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.copy_all),
+            onPressed: () => Clipboard.setData(ClipboardData(text: exported)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
+        ],
+      ),
     );
   }
 

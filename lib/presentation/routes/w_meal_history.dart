@@ -119,9 +119,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
                 child: const Text("Cancel"),
               ),
               TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.red,
-                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
                 onPressed: () => Navigator.pop(context, true),
                 child: const Text("Delete"),
               ),

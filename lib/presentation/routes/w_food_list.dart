@@ -14,11 +14,11 @@ class FoodListWidget extends StatefulWidget {
 
 class _FoodListWidgetState extends State<FoodListWidget> {
   final GlobalKey<FoodCategoryGridViewState> foodCategoryKey = GlobalKey();
-  bool loadCategories = true;
+  bool loadFoods = true;
   List<Food> foods = [];
 
   void initFoods(List<Food> foods) {
-    if (loadCategories) {
+    if (loadFoods) {
       this.foods = foods;
       foods.sort((a, b) => a.name.compareTo(b.name));
     }
@@ -67,18 +67,15 @@ class _FoodListWidgetState extends State<FoodListWidget> {
             FoodCategoryGridViewState foodCategoryGridViewState = foodCategoryKey.currentState!;
             List<FoodCategory> fc = foodCategoryGridViewState.allSelected;
             if (fc.isEmpty) {
-              if (context.mounted) {
-                setState(() => loadCategories = true);
-              }
+              loadFoods = true;
               initFoods(await FoodAPI.selectAll());
+              setState(() {});
             } else {
-              loadCategories = true;
+              loadFoods = true;
               initFoods(await FoodAPI.selectAll());
-              loadCategories = false;
               foods.retainWhere((food) => fc.any((c) => c.id == food.foodCategory.id));
-              if (context.mounted) {
-                setState(() => loadCategories = false);
-              }
+              loadFoods = false;
+              if (context.mounted) setState(() => {});
             }
           },
         ),

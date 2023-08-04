@@ -34,4 +34,13 @@ class SugarAPI {
     }
     return null;
   }
+
+  static Future<String> export() async {
+    List<Map<String, dynamic>> results = await DB.select("sugar");
+    String output = "";
+    for (Map<String, dynamic> map in results) {
+      output += "$map\n";
+    }
+    return output;
+  }
 }

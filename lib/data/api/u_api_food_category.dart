@@ -26,7 +26,6 @@ class FoodCategoryAPI {
     return results.map((map) => FoodCategory.fromMap(map)).toList();
   }
 
-  // select food_category entry from db by id
   static Future<FoodCategory?> selectById(int id) async {
     List<Map<String, dynamic>> results =
         await DB.db.query("food_category", where: "id = ?", whereArgs: [id]);
@@ -34,5 +33,16 @@ class FoodCategoryAPI {
       return FoodCategory.fromMap(results.first);
     }
     return null;
+  }
+
+  static Future<String> export() async {
+    // export table as list of insert commands
+    List<Map<String, dynamic>> results = await DB.select("food_category");
+    String output = "";
+    for (Map<String, dynamic> map in results) {
+      output +=
+          "INSERT INTO food_category VALUES(${map["id"]}, '${map["name"]}', '${map["picture"]}', '${map["notes"]}');\n";
+    }
+    return output;
   }
 }

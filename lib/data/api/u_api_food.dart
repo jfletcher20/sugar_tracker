@@ -61,4 +61,13 @@ class FoodAPI {
     }
     return food;
   }
+
+  static Future<String> export() async {
+    List<Map<String, dynamic>> results = await DB.select("food");
+    String output = "";
+    for (Map<String, dynamic> map in results) {
+      output += "$map\n";
+    }
+    return output;
+  }
 }
