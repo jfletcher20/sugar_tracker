@@ -1,3 +1,4 @@
+import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/presentation/theme/i_theme.dart';
 import 'package:sugar_tracker/presentation/w_homepage.dart';
 import 'data/api/u_db.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DB.open();
+  await Profile.futureWeight;
+  await Profile.futureDividers;
   runApp(const MainApp());
 }
 

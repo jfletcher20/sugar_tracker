@@ -1,7 +1,9 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
@@ -177,6 +179,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
             meal.food.last.amount = 0;
           }
         }
+        meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
         // ignore: use_build_context_synchronously
         meal.food = await showModalBottomSheet(
           context: context,
@@ -184,6 +187,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
           showDragHandle: true,
           builder: (context) => Card(child: FoodSelectorWidget(meal: meal)),
         );
+        meal.category;
         setState(() {});
       },
       child: Text(
@@ -304,12 +308,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
               return newValue;
             }),
           ],
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return "Please enter a value";
-            }
-            return null;
-          },
+          validator: (value) => value == null || value.isEmpty ? "Please enter a value" : null,
           onChanged: (value) {
             meal.sugarLevel.sugar = double.tryParse(value) ?? 0;
             setState(() {});
@@ -331,43 +330,41 @@ class _MealFormWidgetState extends State<MealFormWidget> {
   }
 
   int get recommendedInsulin {
+    double divider = Profile.dividers[meal.category.index];
     double carbs = meal.food.fold(
-        0.0, (previousValue, element) => previousValue + (element.amount * (element.carbs / 100)));
-    double ratio = 10;
-    int totalUnits = (carbs / ratio).round();
+      0.0,
+      (previousValue, element) => previousValue + (element.amount * (element.carbs / 100)),
+    );
+    int totalUnits = (carbs / divider).round();
     return totalUnits;
   }
 
   int get recommendedCorrection {
+    int correctionLimit = (Profile.weight * 0.1).floor();
+    int lowerBorder = 8;
     int correction = 0;
-    int lowerBorder = 10;
     if (meal.sugarLevel.sugar > lowerBorder) {
       correction = ((meal.sugarLevel.sugar - lowerBorder) / 2).round();
-      if (correction > 5) {
-        correction = 5;
-      }
+      correction > correctionLimit ? correction = correctionLimit : null;
     }
     return correction;
   }
 
   TextFormField _insulinInput() {
+    String recommended = "Insulin units ($recommendedInsulin";
+    if (recommendedCorrection > 0) {
+      recommended += " + $recommendedCorrection for correction";
+    } else {
+      recommended += " advised";
+    }
     return TextFormField(
-      decoration: InputDecoration(
-        labelText: "Insulin units (recommended $recommendedInsulin"
-            "${recommendedCorrection > 0 ? " + $recommendedCorrection for correction)" : ")"}",
-      ),
+      decoration: InputDecoration(labelText: "$recommended)"),
       controller: _insulinController,
       keyboardType: TextInputType.number,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(2)
+        LengthLimitingTextInputFormatter(2),
       ],
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return "Please enter a value";
-        }
-        return null;
-      },
       onChanged: (value) => meal.insulin = int.tryParse(value) ?? 0,
       onSaved: (value) => meal.insulin = int.tryParse(value ?? "0") ?? 0,
     );

@@ -171,12 +171,7 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
       autofocus: true,
       controller: _nameController,
       keyboardType: TextInputType.name,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return "Please enter a value";
-        }
-        return null;
-      },
+      validator: (value) => value == null || value.isEmpty ? "Please enter a value" : null,
       onChanged: (value) => food.name = value,
       onSaved: (value) => food.name = value ?? "Unknown",
     );
@@ -188,7 +183,6 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
       controller: _carbsController,
       keyboardType: TextInputType.number,
       inputFormatters: limitDecimals,
-      validator: (value) => value == null || value.isEmpty ? "Please enter a value" : null,
       onChanged: (value) => food.carbs = double.tryParse(value) ?? 0,
       onSaved: (value) => food.carbs = double.tryParse(value ?? "0") ?? 0,
     );
