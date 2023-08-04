@@ -1,10 +1,12 @@
 // api for inserting, updating, deleting, and selecting data from meal table in db
 
 import 'package:sugar_tracker/data/api/u_api_food.dart';
+import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 
@@ -32,6 +34,7 @@ class MealAPI {
 
     for (Map<String, dynamic> meal in meals) {
       Sugar sugar = await SugarAPI.selectById(meal["sugar_id"]) ?? Sugar(notes: "Unknown");
+      Insulin insulin = await InsulinAPI.selectById(meal["insulin"]) ?? Insulin(notes: "Unknown");
       if (meal["food_ids"] is String) {
         String ids = meal["food_ids"];
         List<String> notparsed = ids.split(",");
@@ -45,6 +48,7 @@ class MealAPI {
         });
         result.add(Meal.fromMap(meal)
           ..sugarLevel = sugar
+          ..insulin = insulin
           ..food = food);
       } else {
         List<Food> food = [
@@ -56,6 +60,7 @@ class MealAPI {
         });
         result.add(Meal.fromMap(meal)
           ..sugarLevel = sugar
+          ..insulin = insulin
           ..food = food);
       }
     }
@@ -69,6 +74,7 @@ class MealAPI {
         (await DB.db.rawQuery("SELECT * FROM meal WHERE food_ids = ?", [foodId.toString()])).first;
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
+    Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
     List<Food> food = await FoodAPI.selectByIds(
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
@@ -79,6 +85,7 @@ class MealAPI {
 
     return Meal.fromMap(result)
       ..sugarLevel = sugar
+      ..insulin = insulin
       ..food = food;
   }
 
@@ -88,6 +95,7 @@ class MealAPI {
         (await DB.db.rawQuery("SELECT * FROM meal WHERE sugar_id = ?", [sugarId])).first;
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
+    Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
     List<Food> food = await FoodAPI.selectByIds(
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
@@ -98,6 +106,7 @@ class MealAPI {
 
     return Meal.fromMap(result)
       ..sugarLevel = sugar
+      ..insulin = insulin
       ..food = food;
   }
 
@@ -106,6 +115,7 @@ class MealAPI {
         (await DB.db.rawQuery("SELECT * FROM meal WHERE id = ?", [id])).first;
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
+    Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
     List<Food> food = await FoodAPI.selectByIds(
       result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
     );
@@ -116,6 +126,7 @@ class MealAPI {
 
     return Meal.fromMap(result)
       ..sugarLevel = sugar
+      ..insulin = insulin
       ..food = food;
   }
 
@@ -123,7 +134,8 @@ class MealAPI {
     List<Map<String, dynamic>> results = await DB.select("meal");
     String output = "";
     for (Map<String, dynamic> map in results) {
-      output += "$map\n";
+      output +=
+          "INSERT INTO meal VALUES(${map["id"]}, ${map["insulin"]}, ${map["sugar_id"]}, '${map["food_ids"]}', '${map["food_amounts"]}', '${map["notes"]}', ${map["category"]});\n";
     }
     return output;
   }

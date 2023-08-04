@@ -39,7 +39,8 @@ class SugarAPI {
     List<Map<String, dynamic>> results = await DB.select("sugar");
     String output = "";
     for (Map<String, dynamic> map in results) {
-      output += "$map\n";
+      output +=
+          "INSERT INTO sugar VALUES(${map["id"]}, ${map["sugar"]}, '${map["date"]}', '${map["notes"]}');\n";
     }
     return output;
   }

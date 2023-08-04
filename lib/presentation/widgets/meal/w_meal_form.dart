@@ -1,7 +1,9 @@
 import 'package:sugar_tracker/data/api/u_api_food.dart';
+import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
@@ -37,10 +39,11 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     _sugarLevelController = TextEditingController(
         text: meal.sugarLevel.sugar != 0 ? meal.sugarLevel.sugar.toString() : "");
     _insulinController =
-        TextEditingController(text: meal.insulin > 0 ? meal.insulin.toString() : "");
+        TextEditingController(text: meal.insulin.units > 0 ? meal.insulin.units.toString() : "");
     _notesController = TextEditingController(text: meal.notes);
     if (widget.useAsTemplate) {
       meal.sugarLevel.id = -1;
+      meal.insulin.id = -1;
       meal.id = -1;
     }
   }
@@ -225,15 +228,17 @@ class _MealFormWidgetState extends State<MealFormWidget> {
   }
 
   void _prepareDateTime() {
-    meal.sugarLevel.datetime = dateTimeSelectorKey.currentState!.datetime;
+    meal.sugarLevel.datetime = meal.insulin.datetime = dateTimeSelectorKey.currentState!.datetime;
   }
 
   void _prepareCategory() {
     meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
+    meal.insulin.insulinCategory = InsulinCategory.bolus;
   }
 
   Future<void> _saveData() async {
     meal.sugarLevel.id = await _saveSugarLevel();
+    meal.insulin.id = await _saveInsulin();
     meal.id = await _saveMeal();
     return;
   }
@@ -246,6 +251,20 @@ class _MealFormWidgetState extends State<MealFormWidget> {
       await SugarAPI.update(meal.sugarLevel);
     }
     return sugarId;
+  }
+
+  Future<int> _saveInsulin() async {
+    int insulinId = meal.insulin.id;
+    if (widget.useAsTemplate || insulinId == -1) {
+      try {
+        insulinId = await InsulinAPI.insert(meal.insulin);
+      } catch (e) {
+        await InsulinAPI.update(meal.insulin);
+      }
+    } else {
+      await InsulinAPI.update(meal.insulin);
+    }
+    return insulinId;
   }
 
   Future<int> _saveMeal() async {
@@ -349,23 +368,47 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     return correction;
   }
 
-  TextFormField _insulinInput() {
+  Widget _insulinInput() {
     String recommended = "Insulin units ($recommendedInsulin";
     if (recommendedCorrection > 0) {
       recommended += " + $recommendedCorrection for correction";
     } else {
       recommended += " advised";
     }
-    return TextFormField(
-      decoration: InputDecoration(labelText: "$recommended)"),
-      controller: _insulinController,
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(2),
+    return Stack(
+      children: [
+        TextFormField(
+          decoration: InputDecoration(labelText: "$recommended)"),
+          controller: _insulinController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(2),
+          ],
+          onChanged: (value) => meal.insulin.units = int.tryParse(value) ?? 0,
+          onSaved: (value) => meal.insulin.units = int.tryParse(value ?? "0") ?? 0,
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            child: IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () async {
+                String insulinName = meal.insulin.name;
+                if (insulinName == "Unknown") {
+                  List<Insulin> insulins = await InsulinAPI.selectAll();
+                  if (insulins.isNotEmpty) {
+                    insulins.sort((a, b) => a.datetime!.compareTo(b.datetime!));
+                    insulinName = insulins.last.name;
+                  }
+                }
+                showInsulinEditor(insulinName);
+              },
+            ),
+          ),
+        )
       ],
-      onChanged: (value) => meal.insulin = int.tryParse(value) ?? 0,
-      onSaved: (value) => meal.insulin = int.tryParse(value ?? "0") ?? 0,
     );
   }
 
@@ -402,7 +445,59 @@ class _MealFormWidgetState extends State<MealFormWidget> {
       shape: _modalDecoration,
       builder: (context) => WillPopScope(
         onWillPop: () async {
-          sugarLevelNotesController.text = meal.sugarLevel.notes ?? "";
+          sugarLevelNotesController.text = meal.sugarLevel.notes;
+          return true;
+        },
+        child: ListTile(subtitle: subtitle),
+      ),
+    );
+  }
+
+  Future showInsulinEditor(String insulinName) {
+    final TextEditingController insulinNameController = TextEditingController(text: insulinName);
+    final TextEditingController insulinNotesController =
+        TextEditingController(text: meal.insulin.notes);
+    Widget subtitle;
+    subtitle = Column(
+      children: [
+        TextFormField(
+          controller: insulinNameController,
+          decoration: const InputDecoration(labelText: "Insulin name"),
+          keyboardType: TextInputType.multiline,
+          maxLines: 3,
+          minLines: 1,
+        ),
+        TextFormField(
+          controller: insulinNotesController,
+          decoration: const InputDecoration(labelText: "Insulin notes"),
+          keyboardType: TextInputType.multiline,
+          maxLines: 3,
+          minLines: 1,
+        ),
+        const SizedBox(height: 24),
+        ElevatedButton(
+          onPressed: () {
+            if (insulinNotesController.text != meal.insulin.notes ||
+                insulinNameController.text != meal.insulin.name) {
+              meal.insulin.notes = insulinNotesController.text;
+              meal.insulin.name = insulinNameController.text;
+              Navigator.pop(context, meal);
+            } else {
+              Navigator.pop(context);
+            }
+          },
+          child: const Text("Save"),
+        ),
+      ],
+    );
+    return showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      shape: _modalDecoration,
+      builder: (context) => WillPopScope(
+        onWillPop: () async {
+          insulinNameController.text = meal.insulin.name;
+          insulinNotesController.text = meal.insulin.notes;
           return true;
         },
         child: ListTile(subtitle: subtitle),

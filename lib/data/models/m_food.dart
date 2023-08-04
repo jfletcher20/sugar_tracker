@@ -47,9 +47,9 @@ class Food {
     name = map["name"];
     carbs = map["carbs"];
     weight = map["weight"];
-    picture = map["picture"] ?? "";
+    picture = map["picture"];
     notes = map["notes"];
-    amount = map["amount"] ?? 0;
+    amount = map["amount"];
     foodCategory = FoodCategory(id: map["food_category_id"] ?? -1);
   }
 

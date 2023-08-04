@@ -63,10 +63,19 @@ class FoodAPI {
   }
 
   static Future<String> export() async {
+    // export table as list of insert commands and include the null-values
     List<Map<String, dynamic>> results = await DB.select("food");
     String output = "";
     for (Map<String, dynamic> map in results) {
-      output += "$map\n";
+      output += "INSERT INTO food VALUES (";
+      output += "${map["id"]}, ";
+      output += "'${map["name"]}', ";
+      output += "${map["food_category_id"]}, ";
+      output += "${map["carbs"]}, ";
+      output += "${map["weight"]}, ";
+      output += "'${map["picture"]}', ";
+      output += "'${map["notes"]}'";
+      output += ");\n";
     }
     return output;
   }

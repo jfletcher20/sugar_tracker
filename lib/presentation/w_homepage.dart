@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 import 'package:sugar_tracker/data/preferences.dart';
@@ -51,7 +52,7 @@ class _HomepageState extends State<Homepage> {
             builder: (context) => Scaffold(
               appBar: AppBar(title: const Text("Create a meal")),
               body: MealFormWidget(
-                meal: Meal(sugarLevel: Sugar(), food: []),
+                meal: Meal(sugarLevel: Sugar(), food: [], insulin: Insulin()),
               ),
             ),
           ),
@@ -184,7 +185,7 @@ class _HomepageState extends State<Homepage> {
   Widget _bottomNavigation() {
     return BottomNavigationBar(
       landscapeLayout: BottomNavigationBarLandscapeLayout.spread,
-      type: BottomNavigationBarType.fixed,
+      type: BottomNavigationBarType.shifting,
       currentIndex: index,
       items: const [
         BottomNavigationBarItem(
@@ -195,6 +196,11 @@ class _HomepageState extends State<Homepage> {
         BottomNavigationBarItem(
           icon: Icon(Icons.query_stats),
           label: "Sugars",
+          backgroundColor: Colors.black,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.edit_outlined),
+          label: "Insulin",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
@@ -212,9 +218,12 @@ class _HomepageState extends State<Homepage> {
               child = const MealHistoryWidget();
             case 1:
               child = const SugarHistoryWidget();
-            case 2:
+            // case 2:
+            //   child = const InsulinHistoryWidget();
+            case 3:
               child = const FoodListWidget();
           }
+          // change to fancy short-handswitch
         });
       },
     );

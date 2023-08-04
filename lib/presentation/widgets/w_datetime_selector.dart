@@ -83,7 +83,7 @@ class DateTimeSelectorWidgetState extends State<DateTimeSelectorWidget> {
     return InkWell(
       onTap: () => timePicker(),
       onDoubleTap: resetTime,
-      onLongPress: pauseTime,
+      onLongPress: autoRefreshTime ? pauseTime : resumeTime,
       child: Text(time, style: _style(autoRefreshTime)),
     );
   }
@@ -92,7 +92,7 @@ class DateTimeSelectorWidgetState extends State<DateTimeSelectorWidget> {
     return InkWell(
       onTap: () => datePicker(),
       onDoubleTap: resetDate,
-      onLongPress: pauseDate,
+      onLongPress: autoRefreshDate ? pauseDate : resumeDate,
       child: Text(date, style: _style(autoRefreshDate)),
     );
   }
@@ -137,17 +137,11 @@ class DateTimeSelectorWidgetState extends State<DateTimeSelectorWidget> {
     }
   }
 
-  void pauseDate() {
-    setState(() {
-      autoRefreshDate = !autoRefreshDate;
-    });
-  }
+  void resumeDate() => setState(() => autoRefreshDate = true);
+  void resumeTime() => setState(() => autoRefreshTime = true);
 
-  void pauseTime() {
-    setState(() {
-      autoRefreshTime = !autoRefreshTime;
-    });
-  }
+  void pauseDate() => setState(() => autoRefreshDate = false);
+  void pauseTime() => setState(() => autoRefreshTime = false);
 
   void resetDatetime() {
     setState(() {

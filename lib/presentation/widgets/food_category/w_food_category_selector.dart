@@ -49,7 +49,7 @@ class FoodCategorySelectorWidgetState extends State<FoodCategorySelectorWidget> 
           alignment: Alignment.center,
           children: [
             Image.asset(
-              widget.foodCategory.picture ?? "assets/images/food/unknown.png",
+              widget.foodCategory.picture,
               width: widget.imgSize,
               height: widget.imgSize,
               errorBuilder: imageNotFound,

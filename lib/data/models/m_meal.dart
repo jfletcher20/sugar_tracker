@@ -7,6 +7,7 @@
           ")"; */
 
 import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ Color mealCategoryColor(MealCategory category) {
 class Meal {
   int id = -1;
   Sugar sugarLevel = Sugar();
-  int insulin = 0;
+  Insulin insulin = Insulin();
   List<Food> food = <Food>[];
   String? notes;
   MealCategory category = MealCategory.other;
@@ -61,14 +62,13 @@ class Meal {
     this.id = -1,
     required this.sugarLevel,
     required this.food,
-    this.insulin = 0,
+    required this.insulin,
     this.category = MealCategory.other,
     this.notes,
   });
 
   Meal.fromMap(Map<String, dynamic> map) {
     id = map["id"];
-    insulin = map["insulin"].round();
     notes = map["notes"];
     category = MealCategory.values[map["category"]];
   }
@@ -76,7 +76,7 @@ class Meal {
   Map<String, dynamic> toMap() {
     return {
       "id": id == -1 ? null : id,
-      "insulin": insulin,
+      "insulin": insulin.id,
       "sugar_id": sugarLevel.id,
       "food_ids": foodToCsv(),
       "food_amounts": food.map((e) => e.amount.toString()).join(","),

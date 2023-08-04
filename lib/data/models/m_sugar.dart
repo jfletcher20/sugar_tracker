@@ -10,11 +10,11 @@ class Sugar {
   int id = -1;
   double sugar = 0;
   DateTime? datetime;
-  String? notes;
+  String notes = "";
 
   static List<String> get columns => ["id", "sugar", "date", "notes"];
 
-  Sugar({this.id = -1, this.sugar = 0, this.datetime, this.notes});
+  Sugar({this.id = -1, this.sugar = 0, this.datetime, this.notes = ""});
 
   String get time {
     String hour = datetime!.hour.toString();

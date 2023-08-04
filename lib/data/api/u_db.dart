@@ -16,12 +16,15 @@ class DB {
           "CREATE TABLE food (id INTEGER PRIMARY KEY, name TEXT, food_category_id INTEGER, carbs REAL, weight REAL, picture TEXT, notes TEXT, amount INTEGER)";
       String sugarTable =
           "CREATE TABLE sugar (id INTEGER PRIMARY KEY, sugar REAL, date TEXT, notes TEXT)";
+      String insulinTable =
+          "CREATE TABLE insulin (id INTEGER PRIMARY KEY, name TEXT, date TEXT, insulin_category INTEGER, notes TEXT)";
       String mealTable =
           "CREATE TABLE meal (id INTEGER PRIMARY KEY, sugar_id INTEGER, food_ids TEXT, food_amounts TEXT, insulin INTEGER, notes TEXT, category INTEGER)";
       // create table called entire_meal which is a join of sugar and meal
       database.execute(foodCategoryTable);
       database.execute(foodTable);
       database.execute(sugarTable);
+      database.execute(insulinTable);
       database.execute(mealTable);
 
       database.insert("food_category", {
@@ -157,21 +160,11 @@ class DB {
       });
 
       // insert meals with database.insert
-
-      database.insert("meal", {
-        "sugar_id": 7,
-        "food_ids": "1,2",
-        "food_amounts": "100,250",
-        "insulin": 16,
-        "notes": "breakfast",
-        "category": 0,
-      });
-
       database.insert("meal", {
         "sugar_id": 1,
         "food_ids": "1,2,3",
         "food_amounts": "60,50,50",
-        "insulin": 2,
+        "insulin": 1,
         "notes": "lunch",
         "category": 1,
       });
@@ -180,7 +173,7 @@ class DB {
         "sugar_id": 2,
         "food_ids": "2,4,1",
         "food_amounts": "100,200,150",
-        "insulin": 10,
+        "insulin": 2,
         "notes": "dinner",
         "category": 2,
       });
@@ -189,7 +182,7 @@ class DB {
         "sugar_id": 3,
         "food_ids": "3,2",
         "food_amounts": "100,20",
-        "insulin": 16,
+        "insulin": 3,
         "notes": "breakfast",
         "category": 0,
       });
@@ -207,7 +200,7 @@ class DB {
         "sugar_id": 5,
         "food_ids": "1",
         "food_amounts": "180",
-        "insulin": 0,
+        "insulin": 5,
         "notes": "A simple treat on the side",
         "category": 4,
       });
@@ -217,9 +210,18 @@ class DB {
         "sugar_id": 6,
         "food_ids": "1,2,3,4",
         "food_amounts": "30,20,40,20",
-        "insulin": 0,
+        "insulin": 6,
         "notes": "A fruit bowl with a side of nuts and cheese",
         "category": 3,
+      });
+
+      database.insert("meal", {
+        "sugar_id": 7,
+        "food_ids": "1,2",
+        "food_amounts": "100,250",
+        "insulin": 7,
+        "notes": "breakfast",
+        "category": 0,
       });
 
       // insert snack
@@ -227,10 +229,75 @@ class DB {
         "sugar_id": 8,
         "food_ids": "4",
         "food_amounts": "360",
-        "insulin": 0,
+        "insulin": 8,
         "notes": "A couple oranges",
         "category": 4,
       });
+    });
+
+    // insert 8 insulins with database.insert and random units
+    db.insert("insulin", {
+      "name": "Humalog",
+      "date": "2021-10-01 12:00:00",
+      "units": 5,
+      "insulin_category": 0,
+      "notes": "before lunch",
+    });
+
+    db.insert("insulin", {
+      "name": "Humalog",
+      "date": "2021-10-01 18:00:00",
+      "units": 10,
+      "insulin_category": 0,
+      "notes": "before dinner",
+    });
+
+    db.insert("insulin", {
+      "name": "Humalog",
+      "date": "2021-10-02 12:00:00",
+      "units": 15,
+      "insulin_category": 0,
+      "notes": "before lunch",
+    });
+
+    db.insert("insulin", {
+      "name": "Humalog",
+      "date": "2021-10-01 12:00:00",
+      "units": 5,
+      "insulin_category": 0,
+      "notes": "before lunch",
+    });
+
+    db.insert("insulin", {
+      "name": "Humalog",
+      "date": "2021-10-01 18:00:00",
+      "units": 10,
+      "insulin_category": 0,
+      "notes": "before dinner",
+    });
+
+    db.insert("insulin", {
+      "name": "Humalog",
+      "date": "2021-10-02 12:00:00",
+      "units": 15,
+      "insulin_category": 0,
+      "notes": "before lunch",
+    });
+
+    db.insert("insulin", {
+      "name": "Humalog",
+      "date": "2021-10-01 18:00:00",
+      "units": 10,
+      "insulin_category": 0,
+      "notes": "before dinner",
+    });
+
+    db.insert("insulin", {
+      "name": "Humalog",
+      "date": "2021-10-02 12:00:00",
+      "units": 15,
+      "insulin_category": 0,
+      "notes": "before lunch",
     });
   }
 
