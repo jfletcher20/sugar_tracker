@@ -42,7 +42,7 @@ class _FoodSelectorWidgetState extends State<FoodSelectorWidget> {
   }
 
   ListView listView() {
-    widget.meal.food.sort((a, b) => a.name!.compareTo(b.name!));
+    widget.meal.food.sort((a, b) => a.name.compareTo(b.name));
     widget.meal.food.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
     List<Food> selected = [];
     List<Food> unselected = [];
@@ -54,7 +54,7 @@ class _FoodSelectorWidgetState extends State<FoodSelectorWidget> {
       }
     }
     selected.sort((a, b) => b.amount.compareTo(a.amount));
-    selected.sort((a, b) => a.name!.compareTo(b.name!));
+    selected.sort((a, b) => a.name.compareTo(b.name));
     selected.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
     widget.meal.food = selected + unselected;
     return ListView.builder(

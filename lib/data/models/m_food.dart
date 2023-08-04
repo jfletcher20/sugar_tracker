@@ -15,10 +15,10 @@ import 'package:sugar_tracker/data/models/m_food_category.dart';
 
 class Food {
   int id = -1;
-  String? name;
+  String name = "Unknown";
   FoodCategory foodCategory = FoodCategory(name: "Unknown");
   double carbs = 0;
-  double? weight;
+  double weight = 0;
   String picture = "";
   String? notes;
   int _amount = 0;
@@ -33,10 +33,10 @@ class Food {
 
   Food({
     this.id = -1,
-    this.name,
+    this.name = "Unknown",
     required this.foodCategory,
     this.carbs = 0,
-    this.weight,
+    this.weight = 0,
     this.picture = "",
     this.notes,
     int amount = 0,

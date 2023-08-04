@@ -1,5 +1,7 @@
+import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
@@ -171,6 +173,14 @@ class _MealFormWidgetState extends State<MealFormWidget> {
   ElevatedButton _foodSelectionMenuButton() {
     return ElevatedButton(
       onPressed: () async {
+        List<Food> foods = await FoodAPI.selectAll();
+        // add all foods to meal where id of food is not in meal
+        for (int i = 0; i < foods.length; i++) {
+          if (!meal.food.any((element) => element.id == foods[i].id)) {
+            meal.food.add(foods[i]);
+          }
+        }
+        // ignore: use_build_context_synchronously
         meal.food = await showModalBottomSheet(
           context: context,
           shape: _modalDecoration,
@@ -179,8 +189,10 @@ class _MealFormWidgetState extends State<MealFormWidget> {
         );
         setState(() {});
       },
-      child: Text("Food"
-          " (${meal.food.fold(0.0, (previousValue, element) => previousValue + (element.amount * (element.carbs / 100))).round()}g carbs)"),
+      child: Text(
+        "Food"
+        " (${meal.food.fold(0.0, (previousValue, element) => previousValue + (element.amount * (element.carbs / 100))).round()}g carbs)",
+      ),
     );
   }
 
@@ -325,14 +337,15 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     double carbs = meal.food.fold(
         0.0, (previousValue, element) => previousValue + (element.amount * (element.carbs / 100)));
     double ratio = 10;
-    int totalUnits = carbs ~/ ratio;
+    int totalUnits = (carbs / ratio).round();
     return totalUnits;
   }
 
   int get recommendedCorrection {
     int correction = 0;
-    if (meal.sugarLevel.sugar > 10) {
-      correction = ((meal.sugarLevel.sugar - 10) / 2).floor();
+    int lowerBorder = 10;
+    if (meal.sugarLevel.sugar > lowerBorder) {
+      correction = ((meal.sugarLevel.sugar - lowerBorder) / 2).round();
       if (correction > 5) {
         correction = 5;
       }
@@ -343,7 +356,9 @@ class _MealFormWidgetState extends State<MealFormWidget> {
   TextFormField _insulinInput() {
     return TextFormField(
       decoration: InputDecoration(
-          labelText: "Insulin units (recommended $recommendedInsulin + $recommendedCorrection)"),
+        labelText: "Insulin units (recommended $recommendedInsulin"
+            "${recommendedCorrection > 0 ? " + $recommendedCorrection for correction)" : ")"}",
+      ),
       controller: _insulinController,
       keyboardType: TextInputType.number,
       inputFormatters: [

@@ -1,9 +1,11 @@
 // api for CRUD on food table
 
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
+import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
+import 'package:sugar_tracker/data/models/m_meal.dart';
 
 class FoodAPI {
   // insert food entry into db
@@ -18,7 +20,13 @@ class FoodAPI {
 
   // delete food entry from db
   static Future<int> delete(Food food) async {
-    return await DB.db.delete("food", where: "id = ?", whereArgs: [food.id]);
+    List<Meal> meals = await MealAPI.selectAll();
+    meals = meals.where((meal) => meal.food.any((f) => f.id == food.id)).toList();
+    for (Meal meal in meals) {
+      meal.food.removeWhere((f) => f.id == food.id);
+      await MealAPI.update(meal);
+    }
+    return await DB.delete("food", food.id);
   }
 
   // select all food entries from db

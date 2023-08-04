@@ -49,7 +49,11 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
     return Positioned(
       bottom: 0,
       child: InkWell(
-        onTap: widget.modifiable ? changeAmountDialog(food) : null,
+        onTap: widget.modifiable
+            ? () async {
+                changeAmountDialog(food).call().then((value) => setState(() {}));
+              }
+            : null,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
@@ -90,6 +94,17 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text("Cancel"),
               ),
+              // if food.weight is > 0, then show TextButton to add food.weight to _amountController.value
+              if (food.weight > 0)
+                TextButton(
+                  onPressed: () {
+                    int current = int.tryParse(_amountController.text) ?? 0;
+                    current += food.weight.round();
+                    _amountController.text = current.toString();
+                    setState(() {});
+                  },
+                  child: Text("Add ${food.weight.round()}g"),
+                ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context, _amountController.text);
@@ -115,7 +130,7 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
         border: Border.all(color: Colors.redAccent),
-        color: Colors.white,
+        // color: Colors.white,
       ),
       child: SizedBox(
         height: widget.autoSize ? null : imgSize,
@@ -123,7 +138,15 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
         child: Center(
           child: Stack(
             fit: StackFit.expand,
-            children: [image(widget.food)],
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: Colors.redAccent),
+                ),
+                child: image(widget.food),
+              )
+            ],
           ),
         ),
       ),

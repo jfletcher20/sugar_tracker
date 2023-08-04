@@ -39,6 +39,7 @@ class FoodCategoryGridViewState extends State<FoodCategoryGridView> {
     }
     return GridView(
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: widget.crossAxisCount,
         mainAxisSpacing: 8,

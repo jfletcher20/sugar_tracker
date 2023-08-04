@@ -21,6 +21,7 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
   // text controllers for each text field
   late final TextEditingController _nameController;
   late final TextEditingController _carbsController;
+  late final TextEditingController _weightController;
   late final TextEditingController _notesController;
   late Food food;
 
@@ -33,7 +34,9 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
     super.initState();
     food = widget.food;
     _carbsController = TextEditingController(text: food.carbs > 0 ? food.carbs.toString() : "");
-    _nameController = TextEditingController(text: food.name ?? "");
+    _nameController = TextEditingController(text: food.name != "Unknown" ? food.name : "");
+    _weightController =
+        TextEditingController(text: food.weight > 0 ? food.weight.round().toString() : "");
     _notesController = TextEditingController(text: food.notes);
     if (widget.useAsTemplate) {
       food.id = -1;
@@ -58,6 +61,7 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
                     const SizedBox(height: 16),
                     _nameInput(),
                     _carbsInput(),
+                    _weightInput(),
                     _notesInput(),
                     const SizedBox(height: 16),
                     _categories(),
@@ -174,7 +178,7 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
         return null;
       },
       onChanged: (value) => food.name = value,
-      onSaved: (value) => food.name = value,
+      onSaved: (value) => food.name = value ?? "Unknown",
     );
   }
 
@@ -183,45 +187,58 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
       decoration: const InputDecoration(labelText: "Carbs per 100g"),
       controller: _carbsController,
       keyboardType: TextInputType.number,
-      inputFormatters: [
-        LengthLimitingTextInputFormatter(4),
-        TextInputFormatter.withFunction((oldValue, newValue) {
-          if (newValue.text.contains(",")) {
-            return TextEditingValue(
-              text: newValue.text.replaceAll(",", "."),
-              selection: newValue.selection,
-            );
-          }
-          return newValue;
-        }),
-        TextInputFormatter.withFunction((oldValue, newValue) {
-          if (newValue.text.split(".").length > 2) {
-            return oldValue;
-          }
-          return newValue;
-        }),
-        TextInputFormatter.withFunction((oldValue, newValue) {
-          if (newValue.text.contains(".")) {
-            if (newValue.text.split(".")[0].length > 2) {
-              return oldValue;
-            }
-          } else {
-            if (newValue.text.length > 2) {
-              return oldValue;
-            }
-          }
-          return newValue;
-        }),
-      ],
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return "Please enter a value";
-        }
-        return null;
-      },
+      inputFormatters: limitDecimals,
+      validator: (value) => value == null || value.isEmpty ? "Please enter a value" : null,
       onChanged: (value) => food.carbs = double.tryParse(value) ?? 0,
       onSaved: (value) => food.carbs = double.tryParse(value ?? "0") ?? 0,
     );
+  }
+
+  TextFormField _weightInput() {
+    return TextFormField(
+      decoration: const InputDecoration(labelText: "Expected weight"),
+      controller: _weightController,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(6),
+      ],
+      onChanged: (value) => food.weight = double.tryParse(value) ?? 0,
+      onSaved: (value) => food.weight = double.tryParse(value ?? "0") ?? 0,
+    );
+  }
+
+  List<TextInputFormatter> get limitDecimals {
+    return <TextInputFormatter>[
+      LengthLimitingTextInputFormatter(4),
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        if (newValue.text.contains(",")) {
+          return TextEditingValue(
+            text: newValue.text.replaceAll(",", "."),
+            selection: newValue.selection,
+          );
+        }
+        return newValue;
+      }),
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        if (newValue.text.split(".").length > 2) {
+          return oldValue;
+        }
+        return newValue;
+      }),
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        if (newValue.text.contains(".")) {
+          if (newValue.text.split(".")[0].length > 2) {
+            return oldValue;
+          }
+        } else {
+          if (newValue.text.length > 2) {
+            return oldValue;
+          }
+        }
+        return newValue;
+      }),
+    ];
   }
 
   TextFormField _notesInput() {

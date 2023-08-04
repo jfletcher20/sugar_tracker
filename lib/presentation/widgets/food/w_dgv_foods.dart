@@ -65,9 +65,7 @@ class FoodListView extends StatelessWidget {
         return InkWell(
           onTap: () => DetailsDialogs.mealDetails(context, foods),
           child: !showCounter
-              ? Card(
-                  child: Column(children: [img(food)]),
-                )
+              ? Card(child: Column(children: [img(food)]))
               : FoodCountWidget(food: food, autoSize: true),
         );
       }).toList(),
@@ -83,17 +81,22 @@ class FoodListView extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
         border: Border.all(color: Colors.redAccent),
-        color: Colors.white,
       ),
-      padding: const EdgeInsets.all(4),
-      child: SizedBox(
-        height: size,
-        width: size,
-        child: Center(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [image(food), label(food)],
-          ),
+      height: size,
+      width: size,
+      child: Center(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Colors.redAccent),
+              ),
+              child: image(food),
+            ),
+            label(food),
+          ],
         ),
       ),
     );
