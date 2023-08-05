@@ -14,13 +14,24 @@ import 'package:flutter/material.dart';
 
 enum MealCategory { breakfast, lunch, dinner, snack, other }
 
-Color mealCategoryColor(MealCategory category) {
+IconData mealCategoryIcon(MealCategory category) {
+  return {
+    MealCategory.breakfast: Icons.free_breakfast_rounded,
+    MealCategory.lunch: Icons.lunch_dining_rounded,
+    MealCategory.dinner: Icons.dinner_dining_rounded,
+    MealCategory.snack: Icons.fastfood_rounded,
+    MealCategory.other: Icons.cake_rounded,
+  }[category]!;
+}
+
+Color mealCategoryColor(MealCategory? category) {
   return {
     MealCategory.breakfast: Colors.lightBlue,
     MealCategory.lunch: Colors.green,
     MealCategory.dinner: Colors.orange,
     MealCategory.snack: Colors.purpleAccent.withGreen(100),
     MealCategory.other: Colors.yellow,
+    null: Colors.black,
   }[category]!;
 }
 

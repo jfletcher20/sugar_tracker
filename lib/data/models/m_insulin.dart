@@ -24,7 +24,7 @@ class Insulin {
 
   String get date {
     DateTime date = datetime ?? DateTime.now();
-    return "${date.day}.${date.month}.${date.year}";
+    return "${date.day}.${date.month}.'${date.year.toString().substring(2)}";
   }
 
   String get time {

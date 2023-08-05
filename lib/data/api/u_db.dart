@@ -233,71 +233,71 @@ class DB {
         "notes": "A couple oranges",
         "category": 4,
       });
-    });
 
-    // insert 8 insulins with database.insert and random units
-    db.insert("insulin", {
-      "name": "Humalog",
-      "date": "2021-10-01 12:00:00",
-      "units": 5,
-      "insulin_category": 0,
-      "notes": "before lunch",
-    });
+      // insert 8 insulins with database.insert and random units
+      database.insert("insulin", {
+        "name": "Humalog",
+        "date": "2021-10-01 12:00:00",
+        "units": 5,
+        "insulin_category": 0,
+        "notes": "before lunch",
+      });
 
-    db.insert("insulin", {
-      "name": "Humalog",
-      "date": "2021-10-01 18:00:00",
-      "units": 10,
-      "insulin_category": 0,
-      "notes": "before dinner",
-    });
+      database.insert("insulin", {
+        "name": "Humalog",
+        "date": "2021-10-01 18:00:00",
+        "units": 10,
+        "insulin_category": 0,
+        "notes": "before dinner",
+      });
 
-    db.insert("insulin", {
-      "name": "Humalog",
-      "date": "2021-10-02 12:00:00",
-      "units": 15,
-      "insulin_category": 0,
-      "notes": "before lunch",
-    });
+      database.insert("insulin", {
+        "name": "Humalog",
+        "date": "2021-10-02 12:00:00",
+        "units": 15,
+        "insulin_category": 0,
+        "notes": "before lunch",
+      });
 
-    db.insert("insulin", {
-      "name": "Humalog",
-      "date": "2021-10-01 12:00:00",
-      "units": 5,
-      "insulin_category": 0,
-      "notes": "before lunch",
-    });
+      database.insert("insulin", {
+        "name": "Humalog",
+        "date": "2021-10-01 12:00:00",
+        "units": 5,
+        "insulin_category": 0,
+        "notes": "before lunch",
+      });
 
-    db.insert("insulin", {
-      "name": "Humalog",
-      "date": "2021-10-01 18:00:00",
-      "units": 10,
-      "insulin_category": 0,
-      "notes": "before dinner",
-    });
+      database.insert("insulin", {
+        "name": "Humalog",
+        "date": "2021-10-01 18:00:00",
+        "units": 10,
+        "insulin_category": 0,
+        "notes": "before dinner",
+      });
 
-    db.insert("insulin", {
-      "name": "Humalog",
-      "date": "2021-10-02 12:00:00",
-      "units": 15,
-      "insulin_category": 0,
-      "notes": "before lunch",
-    });
+      database.insert("insulin", {
+        "name": "Humalog",
+        "date": "2021-10-02 12:00:00",
+        "units": 15,
+        "insulin_category": 0,
+        "notes": "before lunch",
+      });
 
-    db.insert("insulin", {
-      "name": "Humalog",
-      "date": "2021-10-01 18:00:00",
-      "units": 10,
-      "insulin_category": 0,
-      "notes": "before dinner",
-    });
+      database.insert("insulin", {
+        "name": "Humalog",
+        "date": "2021-10-01 18:00:00",
+        "units": 10,
+        "insulin_category": 0,
+        "notes": "before dinner",
+      });
 
-    db.insert("insulin", {
-      "name": "Humalog",
-      "date": "2021-10-02 12:00:00",
-      "units": 15,
-      "insulin_category": 0,
-      "notes": "before lunch",
+      database.insert("insulin", {
+        "name": "Humalog",
+        "date": "2021-10-02 12:00:00",
+        "units": 15,
+        "insulin_category": 0,
+        "notes": "before lunch",
+      });
     });
   }
 

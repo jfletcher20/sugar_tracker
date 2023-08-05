@@ -63,15 +63,10 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
     return Positioned(
       right: 0,
       child: InkWell(
-        child: categoryStrip(insulin.category),
+        child: categoryStrip(insulin),
         onTap: () async {
           bool? result = await showModalBottomSheet(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(32),
-                topRight: Radius.circular(32),
-              ),
-            ),
+            shape: _modalDecoration,
             showDragHandle: true,
             context: context,
             builder: (context) => SizedBox(
@@ -202,7 +197,7 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
           MaterialPageRoute(
             builder: (context) => Scaffold(
               appBar: AppBar(title: const Text("Insulin from template")),
-              // body: InsulinFormWidget(insulin: insulin, useAsTemplate: true),
+              body: InsulinFormWidget(insulin: insulin, useAsTemplate: true),
             ),
           ),
         );
@@ -233,16 +228,53 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
     );
   }
 
-  Widget categoryStrip(InsulinCategory category) {
-    return Container(
-      width: 48,
-      height: 16,
-      decoration: BoxDecoration(
-        color: insulinCategoryColor(category),
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(16),
-          bottomLeft: Radius.circular(16),
+  Widget categoryStrip(Insulin insulin) {
+    return FutureBuilder(
+      builder: (context, snapshot) => Container(
+        width: 48,
+        height: 32,
+        decoration: BoxDecoration(
+          gradient: _gradient(categoryColor(snapshot.data)),
+          borderRadius: _categoryBorder,
         ),
+        child: snapshot.data is MealCategory
+            ? Icon(mealCategoryIcon(snapshot.data as MealCategory))
+            : null,
+      ),
+      future: () async {
+        Meal meal = await MealAPI.selectByInsulinId(insulin);
+        return meal.category;
+      }(),
+      initialData: null,
+    );
+  }
+
+  LinearGradient _gradient(Color color) {
+    return LinearGradient(
+      begin: Alignment.centerRight,
+      end: Alignment.bottomLeft,
+      colors: [color.withOpacity(0.5), color],
+    );
+  }
+
+  Color categoryColor(dynamic category) {
+    if (category is InsulinCategory) return insulinCategoryColor(category);
+    if (category is MealCategory) return mealCategoryColor(category);
+    return Colors.transparent;
+  }
+
+  BorderRadius get _categoryBorder {
+    return const BorderRadius.only(
+      topRight: Radius.circular(8),
+      bottomLeft: Radius.circular(32),
+    );
+  }
+
+  RoundedRectangleBorder get _modalDecoration {
+    return const RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(32),
+        topRight: Radius.circular(32),
       ),
     );
   }

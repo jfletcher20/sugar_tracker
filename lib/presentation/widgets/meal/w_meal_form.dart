@@ -62,6 +62,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
                 key: dateTimeSelectorKey,
                 initialDateTime: meal.sugarLevel.datetime,
               ),
+              const SizedBox(height: 24),
               FutureBuilder(
                   future: loadLatestMealCategory(),
                   builder: (context, snapshot) {
@@ -73,12 +74,11 @@ class _MealFormWidgetState extends State<MealFormWidget> {
                       return _mealCategoryDropdown(meal.category);
                     }
                     return DropdownButtonFormField(
-                      items: [
-                        dropdownMenuItem(MealCategory.other, Icons.cake_rounded),
-                      ],
+                      items: [dropdownMenuItem(MealCategory.other)],
                       onChanged: (value) => setState(() => meal.category = value),
                     );
                   }),
+              const SizedBox(height: 24),
               _sugarLevelInput(),
               _insulinInput(),
               _notesInput(),
@@ -118,13 +118,13 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     );
   }
 
-  DropdownMenuItem dropdownMenuItem(MealCategory category, IconData icon) {
+  DropdownMenuItem dropdownMenuItem(MealCategory category) {
     return DropdownMenuItem(
       value: category,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: mealCategoryColor(category)),
+          Icon(mealCategoryIcon(category), color: mealCategoryColor(category)),
           const SizedBox(width: 16),
           Text(
             category.name.substring(0, 1).toUpperCase() + category.name.substring(1),
@@ -155,11 +155,11 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     return DropdownButtonFormField(
       key: _mealCategoryDropdownKey,
       items: [
-        dropdownMenuItem(MealCategory.breakfast, Icons.free_breakfast_rounded),
-        dropdownMenuItem(MealCategory.lunch, Icons.lunch_dining_rounded),
-        dropdownMenuItem(MealCategory.dinner, Icons.dinner_dining_rounded),
-        dropdownMenuItem(MealCategory.snack, Icons.fastfood_rounded),
-        dropdownMenuItem(MealCategory.other, Icons.cake_rounded),
+        dropdownMenuItem(MealCategory.breakfast),
+        dropdownMenuItem(MealCategory.lunch),
+        dropdownMenuItem(MealCategory.dinner),
+        dropdownMenuItem(MealCategory.snack),
+        dropdownMenuItem(MealCategory.other),
       ],
       onChanged: (value) {
         setState(() {

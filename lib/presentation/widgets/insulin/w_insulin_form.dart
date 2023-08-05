@@ -22,7 +22,6 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   // text controllers for each text field
   late final TextEditingController _sugarLevelController;
   late final TextEditingController _insulinController;
-  late final TextEditingController _notesController;
   late Insulin insulin;
   Sugar sugarLevel = Sugar();
 
@@ -38,7 +37,6 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     _insulinController =
         TextEditingController(text: insulin.units > 0 ? insulin.units.toString() : "");
     _sugarLevelController = TextEditingController();
-    _notesController = TextEditingController(text: insulin.notes);
     if (widget.useAsTemplate) {
       sugarLevel.id = -1;
       insulin.id = -1;
@@ -48,7 +46,11 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   void initSugarLevel() async {
     List<Sugar> sugarLevels = await SugarAPI.selectAll();
     if (sugarLevels.isNotEmpty) {
-      sugarLevel = sugarLevels.firstWhere((s) => s.datetime == insulin.datetime);
+      try {
+        sugarLevel = sugarLevels.firstWhere((s) => s.datetime == insulin.datetime);
+      } catch (e) {
+        sugarLevel = Sugar(notes: "");
+      }
     } else {
       sugarLevel = Sugar(notes: "");
     }
@@ -67,11 +69,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
           child: Column(
             children: [
               title(),
-              DateTimeSelectorWidget(
-                key: dateTimeSelectorKey,
-                initialDateTime: insulin.datetime,
-              ),
-              const SizedBox(height: 16),
+              DateTimeSelectorWidget(key: dateTimeSelectorKey, initialDateTime: insulin.datetime),
+              const SizedBox(height: 24),
               FutureBuilder(
                 future: loadInsulinData(),
                 builder: (context, snapshot) {
@@ -81,11 +80,11 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
                   return _insulinCategorySwitchTile(insulin.category);
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               _sugarLevelInput(),
+              const SizedBox(height: 24),
               _insulinInput(),
-              _notesInput(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               _submitInsulinButton(),
             ],
           ),
@@ -105,7 +104,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   }
 
   Future<InsulinCategory> loadInsulinData() async {
-    if (insulin.id != -1 || !widget.useAsTemplate) {
+    if (insulin.id != -1 || widget.useAsTemplate) {
       return insulin.category;
     }
     List<Insulin> insulinData = await InsulinAPI.selectAll();
@@ -198,6 +197,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     if (sugarLevel.sugar > 0) {
       int sugarId = sugarLevel.id;
       if (widget.useAsTemplate || sugarId == -1) {
+        sugarLevel.id = -1;
         sugarId = await SugarAPI.insert(sugarLevel);
       } else {
         await SugarAPI.update(sugarLevel);
@@ -284,17 +284,6 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
       await InsulinAPI.update(insulin);
     }
     return insulinId;
-  }
-
-  TextFormField _notesInput() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: "Notes"),
-      controller: _notesController,
-      maxLines: 3,
-      onChanged: (value) {
-        insulin.notes = value;
-      },
-    );
   }
 
   Widget _sugarLevelInput() {

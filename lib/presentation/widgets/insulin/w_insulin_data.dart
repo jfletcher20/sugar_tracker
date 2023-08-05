@@ -93,11 +93,8 @@ class _InsulinDataWidgetState extends State<InsulinDataWidget> {
   TextSpan category(BuildContext context) {
     return TextSpan(
       text: "${widget.insulin.name}"
-          " (${InsulinCategory.values[widget.insulin.category.index].name.toUpperCase()})",
-      style: Theme.of(context)
-          .textTheme
-          .titleLarge
-          ?.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+          " ${widget.insulin.date}",
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),
     );
   }
 

@@ -87,8 +87,16 @@ class MealAPI {
 
   // select meal entries from db by sugar id
   static Future<Meal> selectBySugarId(Sugar sugar) async {
-    Map<String, dynamic> result =
-        (await DB.db.rawQuery("SELECT * FROM meal WHERE sugar_id = ?", [sugar.id])).first;
+    Map<String, dynamic> result;
+    try {
+      result = (await DB.db.rawQuery("SELECT * FROM meal WHERE sugar_id = ?", [sugar.id])).first;
+    } catch (e) {
+      return Meal(
+        sugarLevel: Sugar(notes: "Unknown"),
+        insulin: Insulin(notes: "Unknown"),
+        food: [],
+      );
+    }
 
     // Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
     // List<Food> food = await FoodAPI.selectByIds(

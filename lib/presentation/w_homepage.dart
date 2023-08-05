@@ -13,6 +13,7 @@ import 'package:sugar_tracker/presentation/routes/w_insulin_history.dart';
 import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
 import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
+import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
 import 'package:sugar_tracker/presentation/widgets/w_table_editor.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,6 @@ class _HomepageState extends State<Homepage> {
       appBar: AppBar(title: const Text("Sugar Tracker"), actions: [
         _createMealButton(),
         _createFoodItemButton(),
-        _tableEditorButton(),
         _profileButton(),
       ]),
       body: SingleChildScrollView(
@@ -51,10 +51,11 @@ class _HomepageState extends State<Homepage> {
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
-              appBar: AppBar(title: const Text("Create a meal")),
-              body: MealFormWidget(
-                meal: Meal(sugarLevel: Sugar(), insulin: Insulin(), food: <Food>[]),
-              ),
+              appBar: AppBar(title: const Text("Create an entry")),
+              body: child is MealHistoryWidget
+                  ? MealFormWidget(
+                      meal: Meal(sugarLevel: Sugar(), insulin: Insulin(), food: <Food>[]))
+                  : InsulinFormWidget(insulin: Insulin()),
             ),
           ),
         );
@@ -112,7 +113,9 @@ class _HomepageState extends State<Homepage> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text("Profile"),
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [const Text("Profile"), _tableEditorButton()]),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
