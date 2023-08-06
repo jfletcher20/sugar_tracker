@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
@@ -238,13 +239,22 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
           gradient: _gradient(categoryColor(snapshot.data)),
           borderRadius: _categoryBorder,
         ),
-        child: snapshot.data is MealCategory
-            ? Icon(mealCategoryIcon(snapshot.data as MealCategory))
-            : null,
+        child: snapshot.data == null
+            ? const Icon(Icons.query_stats)
+            : snapshot.data is MealCategory
+                ? Icon(mealCategoryIcon(snapshot.data as MealCategory))
+                : Icon(insulinCategoryIcon(snapshot.data as InsulinCategory)),
       ),
       future: () async {
         Meal meal = await MealAPI.selectBySugarId(sugar);
-        return meal.category;
+        dynamic val = meal.id == -1 ? null : meal.category;
+        if (val == null) {
+          List<Insulin> insulins = await InsulinAPI.selectAll();
+          Insulin insulin =
+              insulins.firstWhere((e) => e.datetime == sugar.datetime, orElse: () => Insulin());
+          val = insulin.id == -1 ? null : insulin.category;
+        }
+        return val;
       }(),
       initialData: null,
     );
