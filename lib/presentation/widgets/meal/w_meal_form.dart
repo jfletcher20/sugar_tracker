@@ -37,7 +37,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     super.initState();
     meal = widget.meal;
     _sugarLevelController = TextEditingController(
-        text: meal.sugarLevel.sugar != 0 ? meal.sugarLevel.sugar.toString() : "");
+        text: meal.sugarLevel.level != 0 ? meal.sugarLevel.level.toString() : "");
     _insulinController =
         TextEditingController(text: meal.insulin.units > 0 ? meal.insulin.units.toString() : "");
     _notesController = TextEditingController(text: meal.notes);
@@ -238,6 +238,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
 
   Future<void> _saveData() async {
     meal.sugarLevel.id = await _saveSugarLevel();
+    meal.insulin.name == "Unknown" ? meal.insulin.name = "Fiasp" : null;
     meal.insulin.id = await _saveInsulin();
     meal.id = await _saveMeal();
     return;
@@ -328,10 +329,10 @@ class _MealFormWidgetState extends State<MealFormWidget> {
           ],
           validator: (value) => value == null || value.isEmpty ? "Please enter a value" : null,
           onChanged: (value) {
-            meal.sugarLevel.sugar = double.tryParse(value) ?? 0;
+            meal.sugarLevel.level = double.tryParse(value) ?? 0;
             setState(() {});
           },
-          onSaved: (value) => meal.sugarLevel.sugar = double.tryParse(value ?? "0") ?? 0,
+          onSaved: (value) => meal.sugarLevel.level = double.tryParse(value ?? "0") ?? 0,
         ),
         Align(
           alignment: Alignment.centerRight,
@@ -361,8 +362,8 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     int correctionLimit = (Profile.weight * 0.1).floor();
     int lowerBorder = 8;
     int correction = 0;
-    if (meal.sugarLevel.sugar > lowerBorder) {
-      correction = ((meal.sugarLevel.sugar - lowerBorder) / 2).round();
+    if (meal.sugarLevel.level > lowerBorder) {
+      correction = ((meal.sugarLevel.level - lowerBorder) / 2).round();
       correction > correctionLimit ? correction = correctionLimit : null;
     }
     return correction;

@@ -231,21 +231,20 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
   Widget categoryStrip(Insulin insulin) {
     return FutureBuilder(
       builder: (context, snapshot) => Container(
-        width: 48,
-        height: 32,
-        decoration: BoxDecoration(
-          gradient: _gradient(categoryColor(snapshot.data)),
-          borderRadius: _categoryBorder,
-        ),
-        child: snapshot.data is MealCategory
-            ? Icon(mealCategoryIcon(snapshot.data as MealCategory))
-            : null,
-      ),
+          width: 48,
+          height: 32,
+          decoration: BoxDecoration(
+            gradient: _gradient(categoryColor(snapshot.data)),
+            borderRadius: _categoryBorder,
+          ),
+          child: snapshot.data is MealCategory
+              ? Icon(mealCategoryIcon(snapshot.data as MealCategory))
+              : Icon(insulinCategoryIcon(snapshot.data as InsulinCategory))),
       future: () async {
         Meal meal = await MealAPI.selectByInsulinId(insulin);
-        return meal.category;
+        return meal.id == -1 ? insulin.category : meal.category;
       }(),
-      initialData: null,
+      initialData: insulin.category,
     );
   }
 

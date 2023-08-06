@@ -11,11 +11,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class InsulinFormWidget extends StatefulWidget {
-  final Insulin insulin;
+  final Insulin? insulin;
+  final Sugar? sugar;
   final bool useAsTemplate;
-  const InsulinFormWidget({super.key, required this.insulin, this.useAsTemplate = false});
+
+  const InsulinFormWidget({super.key, this.insulin, this.sugar, this.useAsTemplate = false});
+
   @override
   State<InsulinFormWidget> createState() => _InsulinFormWidgetState();
+
+  // ignore: library_private_types_in_public_api
+  static _InsulinFormWidgetState _of(BuildContext context) {
+    return context.findAncestorStateOfType<_InsulinFormWidgetState>()!;
+  }
 }
 
 class _InsulinFormWidgetState extends State<InsulinFormWidget> {
@@ -23,7 +31,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   late final TextEditingController _sugarLevelController;
   late final TextEditingController _insulinController;
   late Insulin insulin;
-  Sugar sugarLevel = Sugar();
+  late Sugar sugarLevel;
 
   GlobalKey<DateTimeSelectorWidgetState> dateTimeSelectorKey = GlobalKey();
   // form key
@@ -32,7 +40,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   @override
   void initState() {
     super.initState();
-    insulin = widget.insulin;
+    insulin = widget.insulin ?? Insulin();
+    sugarLevel = widget.sugar ?? Sugar();
     initSugarLevel();
     _insulinController =
         TextEditingController(text: insulin.units > 0 ? insulin.units.toString() : "");
@@ -54,7 +63,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     } else {
       sugarLevel = Sugar(notes: "");
     }
-    String startingValue = sugarLevel.sugar > 0 ? sugarLevel.sugar.toString() : "";
+    String startingValue = sugarLevel.level > 0 ? sugarLevel.level.toString() : "";
     _sugarLevelController.text = startingValue;
     setState(() {});
   }
@@ -75,7 +84,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
                 future: loadInsulinData(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    insulin.category = snapshot.data as InsulinCategory;
+                    return _insulinCategorySwitchTile(insulin.category);
                   }
                   return _insulinCategorySwitchTile(insulin.category);
                 },
@@ -113,7 +122,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     if ((dateTimeSelectorKey.currentState!.datetime.hour >= 21 &&
             dateTimeSelectorKey.currentState!.datetime.minute >= 55) &&
         (dateTimeSelectorKey.currentState!.datetime.hour <= 22 &&
-            dateTimeSelectorKey.currentState!.datetime.minute <= 35)) {
+            dateTimeSelectorKey.currentState!.datetime.minute <= 15)) {
       result = InsulinCategory.basal;
       insulin.category = result;
       insulin.name = insulinData.firstWhere((i) => i.category == result).name;
@@ -123,49 +132,14 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
       return result;
     }
     insulinData.sort((a, b) => a.date.compareTo(b.date));
-    insulin.name = insulinData.last.name;
+    insulinData = insulinData.reversed.toList();
+    insulin.name = insulinData.firstWhere((element) => element.category == result).name;
     return result;
   }
 
-  SwitchListTile _insulinCategorySwitchTile(InsulinCategory category) {
-    return SwitchListTile(
-      onChanged: (value) {
-        setState(() => insulin.category = insulin.category == InsulinCategory.bolus
-            ? InsulinCategory.basal
-            : InsulinCategory.bolus);
-      },
-      value: insulin.category == InsulinCategory.basal,
-      activeColor: insulinCategoryColor(category),
-      inactiveThumbColor: insulinCategoryColor(category),
-      tileColor: Colors.redAccent.withOpacity(0.35),
-      title: FutureBuilder(
-        future: () async {
-          List<Insulin> insulinData = await InsulinAPI.selectAll();
-          if (insulinData.isEmpty) {
-            return ("Bolus", "Basal");
-          }
-          insulinData.sort((a, b) => a.date.compareTo(b.date));
-          String bolus = insulinData.firstWhere((i) => i.category == InsulinCategory.bolus).name;
-          String basal = insulinData.firstWhere((i) => i.category == InsulinCategory.basal).name;
-          return (bolus, basal);
-        }(),
-        initialData: ("Bolus", "Basal"),
-        builder: (context, snapshot) {
-          (String bolus, String basal) data = ("Bolus", "Basal");
-          if (snapshot.hasData) {
-            data = snapshot.data as (String, String);
-            return Text(
-              category.index == 0 ? data.$1 : data.$2,
-              style: Theme.of(context).textTheme.titleLarge,
-            );
-          }
-          return Text(
-            category.index == 0 ? data.$1 : data.$2,
-            style: Theme.of(context).textTheme.titleLarge,
-          );
-        },
-      ),
-    );
+  final GlobalKey<_InsulinCategorySelectorState> _insulinCategorySelectorKey = GlobalKey();
+  _InsulinCategorySelector _insulinCategorySwitchTile(InsulinCategory category) {
+    return _InsulinCategorySelector(key: _insulinCategorySelectorKey, category: category);
   }
 
   ElevatedButton _submitInsulinButton() {
@@ -173,6 +147,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
       onPressed: () async {
         if (_formKey.currentState!.validate()) {
           _prepareDateTime();
+          _prepareInsulinCategory();
           await _saveData();
           Future.delayed(const Duration(milliseconds: 100), () {
             if (context.mounted) Navigator.pop(context, insulin);
@@ -187,6 +162,10 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     insulin.datetime = sugarLevel.datetime = dateTimeSelectorKey.currentState!.datetime;
   }
 
+  void _prepareInsulinCategory() {
+    insulin.category = _insulinCategorySelectorKey.currentState!.category;
+  }
+
   Future<void> _saveData() async {
     sugarLevel.id = await _saveSugarLevel();
     insulin.id = await _saveInsulin();
@@ -194,7 +173,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   }
 
   Future<int> _saveSugarLevel() async {
-    if (sugarLevel.sugar > 0) {
+    if (sugarLevel.level > 0) {
       int sugarId = sugarLevel.id;
       if (widget.useAsTemplate || sugarId == -1) {
         sugarLevel.id = -1;
@@ -325,10 +304,10 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
             }),
           ],
           onChanged: (value) {
-            sugarLevel.sugar = double.tryParse(value) ?? 0;
+            sugarLevel.level = double.tryParse(value) ?? 0;
             setState(() {});
           },
-          onSaved: (value) => sugarLevel.sugar = double.tryParse(value ?? "0") ?? 0,
+          onSaved: (value) => sugarLevel.level = double.tryParse(value ?? "0") ?? 0,
         ),
         Align(
           alignment: Alignment.centerRight,
@@ -348,8 +327,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     int correctionLimit = (Profile.weight * 0.1).floor();
     int lowerBorder = 8;
     int correction = 0;
-    if (sugarLevel.sugar > lowerBorder) {
-      correction = ((sugarLevel.sugar - lowerBorder) / 2).round();
+    if (sugarLevel.level > lowerBorder) {
+      correction = ((sugarLevel.level - lowerBorder) / 2).round();
       correction > correctionLimit ? correction = correctionLimit : null;
     }
     return correction;
@@ -380,15 +359,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
             child: IconButton(
               icon: const Icon(Icons.edit_outlined),
               onPressed: () async {
-                String insulinName = insulin.name;
-                if (insulinName == "Unknown") {
-                  List<Insulin> insulins = await InsulinAPI.selectAll();
-                  if (insulins.isNotEmpty) {
-                    insulins.sort((a, b) => a.datetime!.compareTo(b.datetime!));
-                    insulinName = insulins.last.name;
-                  }
-                }
-                showInsulinEditor(insulinName);
+                showInsulinEditor();
               },
             ),
           ),
@@ -407,8 +378,6 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
           controller: sugarLevelNotesController,
           decoration: const InputDecoration(labelText: "Sugar level notes"),
           keyboardType: TextInputType.multiline,
-          maxLines: 3,
-          minLines: 1,
         ),
         const SizedBox(height: 24),
         ElevatedButton(
@@ -438,40 +407,21 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     );
   }
 
-  Future showInsulinEditor(String insulinName) {
-    final TextEditingController insulinNameController = TextEditingController(text: insulinName);
+  Future showInsulinEditor() {
+    final TextEditingController insulinNameController = TextEditingController(
+      text: _insulinCategorySelectorKey.currentState!.category == InsulinCategory.bolus
+          ? "Fiasp"
+          : "Tresiba",
+    );
     final TextEditingController insulinNotesController = TextEditingController(text: insulin.notes);
     Widget subtitle;
     subtitle = Column(
       children: [
-        TextFormField(
-          controller: insulinNameController,
-          decoration: const InputDecoration(labelText: "Insulin name"),
-          keyboardType: TextInputType.multiline,
-          maxLines: 3,
-          minLines: 1,
-        ),
-        TextFormField(
-          controller: insulinNotesController,
-          decoration: const InputDecoration(labelText: "Insulin notes"),
-          keyboardType: TextInputType.multiline,
-          maxLines: 3,
-          minLines: 1,
-        ),
+        _insulinNameInput(insulinNameController),
         const SizedBox(height: 24),
-        ElevatedButton(
-          onPressed: () {
-            if (insulinNotesController.text != insulin.notes ||
-                insulinNameController.text != insulin.name) {
-              insulin.notes = insulinNotesController.text;
-              insulin.name = insulinNameController.text;
-              Navigator.pop(context, insulin);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-          child: const Text("Save"),
-        ),
+        _insulinNotesInput(insulinNotesController),
+        const SizedBox(height: 24),
+        _saveButton(insulinNameController, insulinNotesController),
       ],
     );
     return showModalBottomSheet(
@@ -489,10 +439,106 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     );
   }
 
+  ElevatedButton _saveButton(
+    TextEditingController insulinNameController,
+    TextEditingController insulinNotesController,
+  ) {
+    return ElevatedButton(
+      onPressed: () {
+        if (insulinNotesController.text != insulin.notes ||
+            insulinNameController.text != insulin.name) {
+          insulin.notes = insulinNotesController.text;
+          insulin.name = insulinNameController.text;
+          Navigator.pop(context, insulin);
+        } else {
+          Navigator.pop(context);
+        }
+      },
+      child: const Text("Save"),
+    );
+  }
+
+  TextFormField _insulinNameInput(TextEditingController insulinNameController) {
+    return TextFormField(
+      controller: insulinNameController,
+      decoration: const InputDecoration(labelText: "Insulin name"),
+      keyboardType: TextInputType.multiline,
+    );
+  }
+
+  TextFormField _insulinNotesInput(TextEditingController insulinNotesController) {
+    return TextFormField(
+      controller: insulinNotesController,
+      decoration: const InputDecoration(labelText: "Insulin notes"),
+      keyboardType: TextInputType.multiline,
+      maxLines: 3,
+      minLines: 1,
+    );
+  }
+
   final RoundedRectangleBorder _modalDecoration = const RoundedRectangleBorder(
     borderRadius: BorderRadius.only(
       topLeft: Radius.circular(32),
       topRight: Radius.circular(32),
     ),
   );
+}
+
+class _InsulinCategorySelector extends StatefulWidget {
+  final InsulinCategory category;
+  const _InsulinCategorySelector({super.key, this.category = InsulinCategory.bolus});
+
+  @override
+  State<_InsulinCategorySelector> createState() => _InsulinCategorySelectorState();
+}
+
+class _InsulinCategorySelectorState extends State<_InsulinCategorySelector> {
+  InsulinCategory category = InsulinCategory.bolus;
+
+  @override
+  void initState() {
+    super.initState();
+    category = widget.category;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      onChanged: (value) {
+        value ? category = InsulinCategory.basal : category = InsulinCategory.bolus;
+        setState(() {});
+      },
+      value: category == InsulinCategory.basal,
+      activeColor: insulinCategoryColor(category),
+      inactiveThumbColor: insulinCategoryColor(category),
+      tileColor: Colors.redAccent.withOpacity(0.35),
+      title: FutureBuilder(
+        future: () async {
+          List<Insulin> insulinData = await InsulinAPI.selectAll();
+          if (insulinData.isEmpty) {
+            return ("Bolus", "Basal");
+          }
+          insulinData.sort((a, b) => a.date.compareTo(b.date));
+          String bolus = insulinData.firstWhere((i) => i.category == InsulinCategory.bolus).name;
+          String basal = insulinData.firstWhere((i) => i.category == InsulinCategory.basal).name;
+          return (bolus, basal);
+        }(),
+        initialData: ("Bolus", "Basal"),
+        builder: (context, snapshot) {
+          (String bolus, String basal) data = ("Bolus", "Basal");
+          if (snapshot.hasData) {
+            data = snapshot.data as (String, String);
+            return Text(
+              category.index == 0 ? data.$1 : data.$2,
+              style: Theme.of(context).textTheme.titleLarge,
+            );
+          }
+          return Text(
+            category.index == 0 ? data.$1 : data.$2,
+            style: Theme.of(context).textTheme.titleLarge,
+          );
+        },
+      ),
+    );
+  }
 }

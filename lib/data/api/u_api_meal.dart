@@ -71,9 +71,7 @@ class MealAPI {
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
     Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
-    List<Food> food = await FoodAPI.selectByIds(
-      result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
-    );
+    List<Food> food = await FoodAPI.selectByIds(result["food_ids"].split(","));
 
     result["food_amounts"].split(",").asMap().forEach((i, amount) {
       food[i].amount = int.parse(amount);
@@ -98,18 +96,18 @@ class MealAPI {
       );
     }
 
-    // Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
-    // List<Food> food = await FoodAPI.selectByIds(
-    //   result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
-    // );
+    Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
+    List<String> ids = result["food_ids"].split(",");
+    List<Food> food = await FoodAPI.selectByIds(ids);
 
-    // result["food_amounts"].split(",").asMap().forEach((i, amount) {
-    //   food[i].amount = int.parse(amount);
-    // });
+    result["food_amounts"].split(",").asMap().forEach((i, amount) {
+      food[i].amount = int.parse(amount);
+    });
 
-    return Meal.fromMap(result)..sugarLevel = sugar;
-    // ..insulin = insulin
-    // ..food = food
+    return Meal.fromMap(result)
+      ..sugarLevel = sugar
+      ..insulin = insulin
+      ..food = food;
   }
 
   static Future<Meal> selectById(int id) async {
@@ -118,9 +116,7 @@ class MealAPI {
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
     Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
-    List<Food> food = await FoodAPI.selectByIds(
-      result["food_ids"].split(",").map((e) => int.parse(e)).toList(),
-    );
+    List<Food> food = await FoodAPI.selectByIds(result["food_ids"].split(","));
 
     result["food_amounts"].split(",").asMap().forEach((i, amount) {
       food[i].amount = int.parse(amount);

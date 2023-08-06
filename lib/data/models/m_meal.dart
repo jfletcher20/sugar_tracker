@@ -52,8 +52,36 @@ class Meal {
   }
 
   String get date {
-    DateTime date = sugarLevel.datetime ?? DateTime.now();
-    return "${date.day}.${date.month}.${date.year}";
+    DateTime local = sugarLevel.datetime ?? DateTime.now();
+    if (local.day == DateTime.now().day) {
+      return "Today";
+    } else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day) {
+      return "Yesterday";
+    } /* else if in the past 7 days return the weekday name like Sunday, Monday, Tuesday...*/ else {
+      // check that local day is within the past 7 days
+      if (local.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
+        switch (local.weekday) {
+          case 1:
+            return "Monday";
+          case 2:
+            return "Tuesday";
+          case 3:
+            return "Wednesday";
+          case 4:
+            return "Thursday";
+          case 5:
+            return "Friday";
+          case 6:
+            return "Saturday";
+          case 7:
+            return "Sunday";
+          default:
+            return "${local.day}.${local.month}.${local.year}";
+        }
+      } else {
+        return "${local.day}.${local.month}.${local.year}";
+      }
+    }
   }
 
   String get time {
@@ -112,7 +140,7 @@ class Meal {
     String categoryName = MealCategory.values[category.index].name.substring(0, 1).toUpperCase();
     categoryName += MealCategory.values[category.index].name.substring(1);
     String meal = "$categoryName ($time, $date)\n";
-    meal += "Sugar level: ${sugarLevel.sugar}\n";
+    meal += "Sugar level: ${sugarLevel.level}\n";
     meal += "Food (${food.length} items):\n";
     for (int i = 0; i < food.length; i++) {
       int calculations = (food[i].amount * ((food[i].carbs) / 100)).round();

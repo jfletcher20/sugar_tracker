@@ -55,7 +55,7 @@ class _HomepageState extends State<Homepage> {
               body: child is MealHistoryWidget
                   ? MealFormWidget(
                       meal: Meal(sugarLevel: Sugar(), insulin: Insulin(), food: <Food>[]))
-                  : InsulinFormWidget(insulin: Insulin()),
+                  : const InsulinFormWidget(),
             ),
           ),
         );

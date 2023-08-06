@@ -8,13 +8,13 @@
 
 class Sugar {
   int id = -1;
-  double sugar = 0;
+  double level = 0;
   DateTime? datetime;
   String notes = "";
 
   static List<String> get columns => ["id", "sugar", "date", "notes"];
 
-  Sugar({this.id = -1, this.sugar = 0, this.datetime, this.notes = ""});
+  Sugar({this.id = -1, this.level = 0, this.datetime, this.notes = ""});
 
   String get time {
     String hour = datetime!.hour.toString();
@@ -29,23 +29,53 @@ class Sugar {
   }
 
   String get date {
-    String day = datetime!.day.toString();
-    String month = datetime!.month.toString();
-    String year = datetime!.year.toString();
-    return "$day.$month.$year";
+    DateTime local = datetime ?? DateTime.now();
+    if (local.day == DateTime.now().day) {
+      return "Today";
+    } else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day) {
+      return "Yesterday";
+    } /* else if in the past 7 days return the weekday name like Sunday, Monday, Tuesday...*/ else {
+      // check that local day is within the past 7 days
+      if (local.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
+        switch (local.weekday) {
+          case 1:
+            return "Monday";
+          case 2:
+            return "Tuesday";
+          case 3:
+            return "Wednesday";
+          case 4:
+            return "Thursday";
+          case 5:
+            return "Friday";
+          case 6:
+            return "Saturday";
+          case 7:
+            return "Sunday";
+          default:
+            return "${local.day}.${local.month}.${local.year}";
+        }
+      } else {
+        return "${local.day}.${local.month}.${local.year}";
+      }
+    }
   }
 
   Sugar.fromMap(Map<String, dynamic> map) {
     id = map["id"];
-    sugar = map["sugar"];
+    level = map["sugar"];
     datetime = DateTime.parse(map["date"]);
     notes = map["notes"];
+  }
+
+  String get info {
+    return "$level at $time on $date";
   }
 
   Map<String, dynamic> toMap() {
     return {
       "id": id == -1 ? null : id,
-      "sugar": sugar,
+      "sugar": level,
       "date": datetime?.toIso8601String(),
       "notes": notes,
     };
@@ -53,6 +83,6 @@ class Sugar {
 
   @override
   String toString() {
-    return "$sugar";
+    return "$level";
   }
 }

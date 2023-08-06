@@ -11,7 +11,13 @@ enum InsulinCategory {
 }
 
 Color insulinCategoryColor(InsulinCategory category) {
-  return InsulinCategory.values.indexOf(category) == 0 ? Colors.orange : Colors.lightGreen[400]!;
+  return InsulinCategory.values.indexOf(category) == 0 ? Colors.deepOrange : Colors.lightGreen;
+}
+
+IconData insulinCategoryIcon(InsulinCategory category) {
+  return InsulinCategory.values.indexOf(category) == 0
+      ? Icons.fast_forward
+      : Icons.slow_motion_video;
 }
 
 class Insulin {
@@ -23,8 +29,36 @@ class Insulin {
   String notes = "";
 
   String get date {
-    DateTime date = datetime ?? DateTime.now();
-    return "${date.day}.${date.month}.'${date.year.toString().substring(2)}";
+    DateTime local = datetime ?? DateTime.now();
+    if (local.day == DateTime.now().day) {
+      return "Today";
+    } else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day) {
+      return "Yesterday";
+    } /* else if in the past 7 days return the weekday name like Sunday, Monday, Tuesday...*/ else {
+      // check that local day is within the past 7 days
+      if (local.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
+        switch (local.weekday) {
+          case 1:
+            return "Monday";
+          case 2:
+            return "Tuesday";
+          case 3:
+            return "Wednesday";
+          case 4:
+            return "Thursday";
+          case 5:
+            return "Friday";
+          case 6:
+            return "Saturday";
+          case 7:
+            return "Sunday";
+          default:
+            return "${local.day}.${local.month}.${local.year}";
+        }
+      } else {
+        return "${local.day}.${local.month}.${local.year}";
+      }
+    }
   }
 
   String get time {
