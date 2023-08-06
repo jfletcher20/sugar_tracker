@@ -75,7 +75,7 @@ class Food {
       "weight": weight,
       "picture": picture,
       "notes": notes,
-      "amount": amount,
+      "amount": 0,
     };
   }
 

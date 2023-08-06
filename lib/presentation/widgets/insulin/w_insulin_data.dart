@@ -77,14 +77,10 @@ class _InsulinDataWidgetState extends State<InsulinDataWidget> {
             if (snapshot.hasData) {
               Meal meal = snapshot.data as Meal;
               String carbs = meal.id != -1 ? "${meal.carbs.round()}g" : "";
-              return FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  carbs,
-                  style: TextStyle(
-                    color: meal.id == -1 ? Colors.white : mealCategoryColor(meal.category),
-                  ),
+              return Text(
+                carbs,
+                style: TextStyle(
+                  color: meal.id == -1 ? Colors.white : mealCategoryColor(meal.category),
                 ),
               );
             } else {

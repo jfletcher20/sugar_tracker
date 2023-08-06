@@ -1,13 +1,15 @@
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meal_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
-
-import 'package:flutter/material.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
+
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 
 class MealHistoryWidget extends StatefulWidget {
   const MealHistoryWidget({super.key});
@@ -108,31 +110,76 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
     return IconButton(
       icon: const Icon(Icons.delete),
       onPressed: () async {
-        bool? result = await showDialog(
+        await showModalBottomSheet(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("Delete meal?"),
-            content: const Text("This action cannot be undone."),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("Cancel"),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(32),
+              topRight: Radius.circular(32),
+            ),
+          ),
+          showDragHandle: true,
+          builder: (context) => Column(
+            children: [
+              _optionTile(
+                label: "Everything",
+                icon: Icons.delete_forever,
+                onTap: () async {
+                  await SugarAPI.delete(meal.sugarLevel);
+                  await InsulinAPI.delete(meal.insulin);
+                  await MealAPI.delete(meal);
+                  if (context.mounted) Navigator.pop(context);
+                },
               ),
-              TextButton(
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text("Delete"),
+              _optionTile(
+                label: "Meal and sugar",
+                icon: Icons.query_stats,
+                onTap: () async {
+                  await MealAPI.delete(meal);
+                  await SugarAPI.delete(meal.sugarLevel);
+                  if (context.mounted) Navigator.pop(context);
+                },
+              ),
+              _optionTile(
+                label: "Meal and insulin",
+                icon: Icons.edit_outlined,
+                onTap: () async {
+                  await MealAPI.delete(meal);
+                  await InsulinAPI.delete(meal.insulin);
+                  if (context.mounted) Navigator.pop(context);
+                },
+              ),
+              _optionTile(
+                label: "Only meal",
+                icon: Icons.fastfood,
+                onTap: () async {
+                  await MealAPI.delete(meal);
+                  if (context.mounted) Navigator.pop(context);
+                },
+              ),
+              _optionTile(
+                label: "Cancel",
+                icon: Icons.cancel,
+                onTap: () {
+                  Navigator.pop(context);
+                },
               ),
             ],
           ),
         );
-        if (result != null && result) {
-          await SugarAPI.delete(meal.sugarLevel);
-          await MealAPI.delete(meal);
-          if (context.mounted) setState(() {});
+        if (context.mounted) {
+          setState(() {});
+          Navigator.pop(context, true);
         }
-        if (context.mounted) Navigator.pop(context, true);
       },
+    );
+  }
+
+  ListTile _optionTile({required IconData icon, required String label, void Function()? onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(label, style: const TextStyle(color: Colors.white)),
+      onTap: onTap,
     );
   }
 

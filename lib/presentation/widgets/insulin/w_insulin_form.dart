@@ -19,11 +19,6 @@ class InsulinFormWidget extends StatefulWidget {
 
   @override
   State<InsulinFormWidget> createState() => _InsulinFormWidgetState();
-
-  // ignore: library_private_types_in_public_api
-  static _InsulinFormWidgetState _of(BuildContext context) {
-    return context.findAncestorStateOfType<_InsulinFormWidgetState>()!;
-  }
 }
 
 class _InsulinFormWidgetState extends State<InsulinFormWidget> {
@@ -42,10 +37,12 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     super.initState();
     insulin = widget.insulin ?? Insulin();
     sugarLevel = widget.sugar ?? Sugar();
-    initSugarLevel();
+    if (widget.sugar == null || sugarLevel.id == -1) initSugarLevel();
+    if (widget.insulin == null || insulin.id == -1) initInsulinUnits();
     _insulinController =
         TextEditingController(text: insulin.units > 0 ? insulin.units.toString() : "");
-    _sugarLevelController = TextEditingController();
+    _sugarLevelController =
+        TextEditingController(text: sugarLevel.level > 0 ? sugarLevel.level.toString() : "");
     if (widget.useAsTemplate) {
       sugarLevel.id = -1;
       insulin.id = -1;
@@ -58,13 +55,29 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
       try {
         sugarLevel = sugarLevels.firstWhere((s) => s.datetime == insulin.datetime);
       } catch (e) {
-        sugarLevel = Sugar(notes: "");
+        sugarLevel = Sugar();
       }
     } else {
-      sugarLevel = Sugar(notes: "");
+      sugarLevel = Sugar();
     }
     String startingValue = sugarLevel.level > 0 ? sugarLevel.level.toString() : "";
     _sugarLevelController.text = startingValue;
+    setState(() {});
+  }
+
+  void initInsulinUnits() async {
+    List<Insulin> insulinData = await InsulinAPI.selectAll();
+    if (insulinData.isNotEmpty) {
+      try {
+        insulin = insulinData.firstWhere((i) => i.datetime == sugarLevel.datetime);
+      } catch (e) {
+        insulin = Insulin();
+      }
+    } else {
+      insulin = Insulin();
+    }
+    String startingValue = insulin.units > 0 ? insulin.units.toString() : "";
+    _insulinController.text = startingValue;
     setState(() {});
   }
 
@@ -103,10 +116,18 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   }
 
   Widget title() {
+    String title = "";
+    if (widget.insulin == null && widget.sugar == null) {
+      title = "Insulin & sugar entry";
+    } else if (widget.useAsTemplate) {
+      title = "Create entry from template";
+    } else {
+      title = "Edit insulin & sugar entry";
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Text(
-        "Insulin entry",
+        title,
         style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
       ),
     );
@@ -150,7 +171,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
           _prepareInsulinCategory();
           await _saveData();
           Future.delayed(const Duration(milliseconds: 100), () {
-            if (context.mounted) Navigator.pop(context, insulin);
+            if (context.mounted) Navigator.pop(context, widget.sugar ?? widget.insulin);
           });
         }
       },
@@ -173,8 +194,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   }
 
   Future<int> _saveSugarLevel() async {
+    int sugarId = sugarLevel.id;
     if (sugarLevel.level > 0) {
-      int sugarId = sugarLevel.id;
       if (widget.useAsTemplate || sugarId == -1) {
         sugarLevel.id = -1;
         sugarId = await SugarAPI.insert(sugarLevel);
@@ -185,7 +206,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     } else {
       if (sugarLevel.id != -1) {
         //show confirmation dialog asking if they want to delete sugar level
-        bool? delete = await showDialog(
+        await showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text("Delete sugar level?"),
@@ -196,71 +217,96 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
                 child: const Text("No"),
               ),
               TextButton(
-                onPressed: () => Navigator.pop(context, true),
+                onPressed: () async {
+                  // check if sugar level is in a meal
+                  Meal meal = await MealAPI.selectBySugarId(sugarLevel);
+                  if (meal.id != -1) {
+                    // show dialog saying couldn't delete
+                    if (context.mounted) {
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Cannot delete sugar level"),
+                          content: const Text("Sugar level is in a meal, cannot delete it"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Ok"),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  } else {
+                    await SugarAPI.delete(sugarLevel);
+                  }
+                  if (context.mounted) Navigator.pop(context);
+                },
                 child: const Text("Delete"),
               ),
             ],
           ),
         );
-        if (delete != null && delete) {
-          // ignore: use_build_context_synchronously
-          bool? confirmed = await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text("Are you sure?"),
-              content: const Text("This action cannot be undone."),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text("No"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text("Delete"),
-                ),
-              ],
-            ),
-          );
-          if (confirmed != null && confirmed) {
-            // check if sugar level is in a meal
-            Meal meal = await MealAPI.selectBySugarId(sugarLevel);
-            if (meal.id != -1) {
-              // show dialog saying couldn't delete
-              if (context.mounted) {
-                await showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text("Cannot delete sugar level"),
-                    content: const Text("Sugar level is in a meal, cannot delete it"),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text("Ok"),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            } else {
-              await SugarAPI.delete(sugarLevel);
-            }
-          }
-        }
       }
     }
-    return -1;
+    return sugarId;
   }
 
   Future<int> _saveInsulin() async {
     int insulinId = insulin.id;
-    if (widget.useAsTemplate || insulinId == -1) {
-      try {
-        insulinId = await InsulinAPI.insert(insulin);
-      } catch (e) {
+    if (insulin.units > 0) {
+      if (widget.useAsTemplate || insulinId == -1) {
+        try {
+          insulin.id = -1;
+          insulinId = await InsulinAPI.insert(insulin);
+        } catch (e) {
+          await InsulinAPI.update(insulin);
+        }
+      } else {
         await InsulinAPI.update(insulin);
       }
-    } else {
-      await InsulinAPI.update(insulin);
+    } else if (insulin.id != -1) {
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Insulin units are 0"),
+          content: const Text("Insulin units are 0, do you want to delete the entry?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                // check if insulin is in a meal
+                Meal meal = await MealAPI.selectByInsulinId(insulin);
+                if (meal.id != -1) {
+                  // show dialog saying couldn't delete
+                  if (context.mounted) {
+                    await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Cannot delete insulin"),
+                        content: const Text("Insulin is in a meal, cannot delete it"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Ok"),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                } else {
+                  await InsulinAPI.delete(insulin);
+                }
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: const Text("Delete"),
+            ),
+          ],
+        ),
+      );
     }
     return insulinId;
   }
