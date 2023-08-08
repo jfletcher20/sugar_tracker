@@ -31,14 +31,44 @@ class _SugarDataWidgetState extends State<SugarDataWidget> {
   }
 
   Widget _sugarLevel() {
+    bool cond = widget.sugar.notes.toLowerCase().contains("libre");
     return SizedBox(
       width: 60,
       child: Center(
-        child: Text(
-          widget.sugar.level.toString(),
-          style: const TextStyle(fontSize: 18),
+        child: InkWell(
+          onTap: widget.sugar.notes == ""
+              ? null
+              : () => showNotesDialog("Sugar level notes", widget.sugar.notes),
+          child: Text(
+            widget.sugar.level.toString(),
+            style: TextStyle(
+              fontSize: 18,
+              decoration: widget.sugar.notes == "" ? null : TextDecoration.underline,
+              decorationColor: cond ? Colors.redAccent[400]! : null,
+              decorationThickness: cond ? 2 : 1,
+              decorationStyle: cond ? TextDecorationStyle.wavy : null,
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  void showNotesDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 

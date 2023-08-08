@@ -57,7 +57,40 @@ class _InsulinDataWidgetState extends State<InsulinDataWidget> {
               );
               String sugarLevel = sugar.id != -1 ? sugar.level.toString() : "";
               sugar.level == 0 ? sugarLevel = "" : null;
-              return Text(sugarLevel);
+              bool cond = sugar.notes.toLowerCase().contains("libre");
+              void showNotesDialog(String title, String content) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text(title),
+                      content: Text(content),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+
+              return InkWell(
+                onTap: sugar.notes == ""
+                    ? null
+                    : () => showNotesDialog("Sugar level notes", sugar.notes),
+                child: Text(
+                  sugarLevel,
+                  style: TextStyle(
+                    fontSize: 18,
+                    decoration: sugar.notes == "" ? null : TextDecoration.underline,
+                    decorationColor: cond ? Colors.redAccent[400]! : null,
+                    decorationThickness: cond ? 2 : 1,
+                    decorationStyle: cond ? TextDecorationStyle.wavy : null,
+                  ),
+                ),
+              );
             } else {
               return const Text("");
             }

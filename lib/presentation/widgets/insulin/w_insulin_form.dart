@@ -91,7 +91,10 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
           child: Column(
             children: [
               title(),
-              DateTimeSelectorWidget(key: dateTimeSelectorKey, initialDateTime: insulin.datetime),
+              DateTimeSelectorWidget(
+                key: dateTimeSelectorKey,
+                initialDateTime: (widget.sugar != null ? sugarLevel.datetime : insulin.datetime),
+              ),
               const SizedBox(height: 24),
               FutureBuilder(
                 future: loadInsulinData(),
