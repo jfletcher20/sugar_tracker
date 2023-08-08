@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile {
+  static bool dateAsDayOfWeek = true;
   static const String _weightKey = "weight";
   static const String _dividersKey = "dividers";
   static double weight = 60;
@@ -36,5 +37,18 @@ class Profile {
   static Future<void> setDividers(List<String> newDividers) async {
     _dividers = newDividers;
     await (await SharedPreferences.getInstance()).setStringList(_dividersKey, newDividers);
+  }
+
+  // set and get date format
+  static Future<bool> get futureDateAsDayOfWeek async {
+    bool storedDateAsDayOfWeek =
+        (await SharedPreferences.getInstance()).getBool("dateAsDayOfWeek") ?? dateAsDayOfWeek;
+    dateAsDayOfWeek = storedDateAsDayOfWeek;
+    return storedDateAsDayOfWeek;
+  }
+
+  static Future<void> setDateAsDayOfWeek(bool newDateAsDayOfWeek) async {
+    dateAsDayOfWeek = newDateAsDayOfWeek;
+    await (await SharedPreferences.getInstance()).setBool("dateAsDayOfWeek", newDateAsDayOfWeek);
   }
 }

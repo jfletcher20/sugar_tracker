@@ -16,36 +16,31 @@ class TableEditorWidget extends StatefulWidget {
 class _TableEditorWidgetState extends State<TableEditorWidget> {
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () async {
-        await dialog();
-        if (context.mounted) setState(() {});
-      },
-      icon: const Icon(Icons.table_chart),
-    );
+    return Scaffold(appBar: AppBar(title: const Text("Table editor")), body: alert());
   }
 
   TextEditingController tableNameController = TextEditingController();
   Future<dynamic> dialog() {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          const Text("Table editor"),
-          _query(),
-          _debugButton(),
-        ]),
-        content: TextField(
-          controller: tableNameController,
-          decoration: const InputDecoration(hintText: "Table Name"),
-        ),
-        actions: [
-          _export(),
-          _getAll(),
-          _setAll(),
-          _delete(),
-        ],
+    return showDialog(context: context, builder: (context) => alert());
+  }
+
+  Widget alert() {
+    return AlertDialog(
+      title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        const Text("Table editor"),
+        _query(),
+        _debugButton(),
+      ]),
+      content: TextField(
+        controller: tableNameController,
+        decoration: const InputDecoration(hintText: "Table Name"),
       ),
+      actions: [
+        _export(),
+        _getAll(),
+        _setAll(),
+        _delete(),
+      ],
     );
   }
 

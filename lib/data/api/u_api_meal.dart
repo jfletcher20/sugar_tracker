@@ -141,6 +141,15 @@ class MealAPI {
     }
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
+    var ids = result["food_ids"];
+    if (ids == "") {
+      await MealAPI.delete(Meal.fromMap(result));
+      return Meal(
+        sugarLevel: sugar,
+        insulin: insulin,
+        food: [],
+      );
+    }
     List<Food> food = await FoodAPI.selectByIds(result["food_ids"].split(","));
 
     result["food_amounts"].split(",").asMap().forEach((i, amount) {

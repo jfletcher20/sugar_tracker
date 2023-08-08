@@ -10,6 +10,7 @@ void main() async {
   await DB.open();
   await Profile.futureWeight;
   await Profile.futureDividers;
+  await Profile.futureDateAsDayOfWeek;
   runApp(const MainApp());
 }
 

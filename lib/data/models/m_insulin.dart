@@ -1,5 +1,6 @@
 // insulin model has id, name, datetime, type (0=bolus, 1=basal), and notes
 import 'package:flutter/material.dart';
+import 'package:sugar_tracker/data/preferences.dart';
 
 /// Bolus is fast-acting, basal is slow-acting insulin.
 enum InsulinCategory {
@@ -30,6 +31,9 @@ class Insulin {
 
   String get date {
     DateTime local = datetime ?? DateTime.now();
+    if (!Profile.dateAsDayOfWeek) {
+      return "${local.day}.${local.month}.${local.year}";
+    }
     if (local.day == DateTime.now().day) {
       return "Today";
     } else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day) {
