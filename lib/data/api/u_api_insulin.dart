@@ -35,12 +35,11 @@ class InsulinAPI {
   }
 
   static Future<String> export() async {
-    // export table as list of insert commands
     List<Map<String, dynamic>> results = await DB.select("insulin");
     String output = "";
     for (Map<String, dynamic> map in results) {
-      output =
-          "INSERT INTO insulin VALUES(${map["id"]}, '${map["name"]}', '${map["datetime"]}', ${map["units"]}, '${map["insulin_category"]}', '${map["notes"]}');\n";
+      output +=
+          "INSERT INTO insulin VALUES(${map["id"]}, '${map["name"]}', '${map["date"]}', ${map["units"]}, '${map["insulin_category"]}', '${map["notes"]}');\n";
     }
     return output;
   }

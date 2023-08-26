@@ -1,5 +1,6 @@
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
+import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
@@ -160,6 +161,9 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
             break;
           case "food_category":
             exported = await FoodCategoryAPI.export();
+            break;
+          case "insulin":
+            exported = await InsulinAPI.export();
             break;
         }
         // show dialog with text in singlechildscrollview
