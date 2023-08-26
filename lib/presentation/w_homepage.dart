@@ -29,6 +29,7 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: AppBar(title: const Text("Sugar Tracker"), actions: [
         _createMealButton(),
+        _createMeasurementEntryButton(),
         _createFoodItemButton(),
       ]),
       body: SingleChildScrollView(
@@ -47,16 +48,33 @@ class _HomepageState extends State<Homepage> {
           MaterialPageRoute(
             builder: (context) => Scaffold(
               appBar: AppBar(title: const Text("Create an entry")),
-              body: child is MealHistoryWidget
-                  ? MealFormWidget(
-                      meal: Meal(sugarLevel: Sugar(), insulin: Insulin(), food: <Food>[]))
-                  : const InsulinFormWidget(),
+              body: MealFormWidget(
+                meal: Meal(sugarLevel: Sugar(), insulin: Insulin(), food: <Food>[]),
+              ),
             ),
           ),
         );
         if (context.mounted) setState(() {});
       },
-      icon: const Icon(Icons.add),
+      icon: const Icon(Icons.fastfood_outlined),
+    );
+  }
+
+  IconButton _createMeasurementEntryButton() {
+    return IconButton(
+      onPressed: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: const Text("Create an entry")),
+              body: const InsulinFormWidget(),
+            ),
+          ),
+        );
+        if (context.mounted) setState(() {});
+      },
+      icon: const Icon(Icons.query_stats_outlined),
     );
   }
 
@@ -74,7 +92,7 @@ class _HomepageState extends State<Homepage> {
         );
         if (context.mounted) setState(() {});
       },
-      icon: const Icon(Icons.food_bank),
+      icon: const Icon(Icons.food_bank_outlined),
     );
   }
 

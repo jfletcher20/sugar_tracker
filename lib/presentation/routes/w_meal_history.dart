@@ -56,7 +56,13 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
         children: [
           category(meal),
           Row(children: [
-            FoodListView(foods: meal.food, scrollDirection: Axis.horizontal),
+            FittedBox(
+              fit: BoxFit.fitHeight,
+              child: FoodListView(
+                foods: meal.food,
+                scrollDirection: Axis.horizontal,
+              ),
+            ),
             MealDataWidget(meal: meal),
           ]),
         ],

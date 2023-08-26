@@ -11,16 +11,14 @@ class DB {
         onCreate: (database, version) {
       String foodCategoryTable =
           "CREATE TABLE food_category (id INTEGER PRIMARY KEY, name TEXT, picture TEXT, notes TEXT)";
-      // table variables should be oneline for readability
       String foodTable =
           "CREATE TABLE food (id INTEGER PRIMARY KEY, name TEXT, food_category_id INTEGER, carbs REAL, weight REAL, picture TEXT, notes TEXT, amount INTEGER)";
       String sugarTable =
           "CREATE TABLE sugar (id INTEGER PRIMARY KEY, sugar REAL, date TEXT, notes TEXT)";
       String insulinTable =
-          "CREATE TABLE insulin (id INTEGER PRIMARY KEY, name TEXT, date TEXT, insulin_category INTEGER, notes TEXT)";
+          "CREATE TABLE insulin (id INTEGER PRIMARY KEY, name TEXT, date TEXT, units INTEGER, insulin_category INTEGER, notes TEXT)";
       String mealTable =
           "CREATE TABLE meal (id INTEGER PRIMARY KEY, sugar_id INTEGER, food_ids TEXT, food_amounts TEXT, insulin INTEGER, notes TEXT, category INTEGER)";
-      // create table called entire_meal which is a join of sugar and meal
       database.execute(foodCategoryTable);
       database.execute(foodTable);
       database.execute(sugarTable);
@@ -236,7 +234,7 @@ class DB {
 
       // insert 8 insulins with database.insert and random units
       database.insert("insulin", {
-        "name": "Humalog",
+        "name": "Fiasp",
         "date": "2021-10-01 12:00:00",
         "units": 5,
         "insulin_category": 0,
@@ -244,7 +242,7 @@ class DB {
       });
 
       database.insert("insulin", {
-        "name": "Humalog",
+        "name": "Fiasp",
         "date": "2021-10-01 18:00:00",
         "units": 10,
         "insulin_category": 0,
@@ -252,7 +250,7 @@ class DB {
       });
 
       database.insert("insulin", {
-        "name": "Humalog",
+        "name": "Fiasp",
         "date": "2021-10-02 12:00:00",
         "units": 15,
         "insulin_category": 0,
@@ -260,7 +258,7 @@ class DB {
       });
 
       database.insert("insulin", {
-        "name": "Humalog",
+        "name": "Fiasp",
         "date": "2021-10-01 12:00:00",
         "units": 5,
         "insulin_category": 0,
@@ -268,7 +266,7 @@ class DB {
       });
 
       database.insert("insulin", {
-        "name": "Humalog",
+        "name": "Fiasp",
         "date": "2021-10-01 18:00:00",
         "units": 10,
         "insulin_category": 0,
@@ -276,7 +274,7 @@ class DB {
       });
 
       database.insert("insulin", {
-        "name": "Humalog",
+        "name": "Fiasp",
         "date": "2021-10-02 12:00:00",
         "units": 15,
         "insulin_category": 0,
@@ -284,7 +282,7 @@ class DB {
       });
 
       database.insert("insulin", {
-        "name": "Humalog",
+        "name": "Fiasp",
         "date": "2021-10-01 18:00:00",
         "units": 10,
         "insulin_category": 0,
@@ -292,7 +290,15 @@ class DB {
       });
 
       database.insert("insulin", {
-        "name": "Humalog",
+        "name": "Fiasp",
+        "date": "2021-10-02 12:00:00",
+        "units": 15,
+        "insulin_category": 0,
+        "notes": "before lunch",
+      });
+
+      database.insert("insulin", {
+        "name": "Fiasp",
         "date": "2021-10-02 12:00:00",
         "units": 15,
         "insulin_category": 0,

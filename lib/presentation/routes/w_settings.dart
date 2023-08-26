@@ -44,6 +44,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     Icon(dateAsDayOfWeek ? Icons.calendar_month : Icons.calendar_month_outlined),
                 onToggle: (value) {
                   Profile.dateAsDayOfWeek = !dateAsDayOfWeek;
+                  Profile.setDateAsDayOfWeek(Profile.dateAsDayOfWeek);
                   setState(() => dateAsDayOfWeek = !dateAsDayOfWeek);
                 },
                 initialValue: !dateAsDayOfWeek,

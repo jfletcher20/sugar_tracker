@@ -96,6 +96,11 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
                 initialDateTime: (widget.sugar != null ? sugarLevel.datetime : insulin.datetime),
               ),
               const SizedBox(height: 24),
+              const SizedBox(height: 24),
+              _sugarLevelInput(),
+              const SizedBox(height: 24),
+              _insulinInput(),
+              const SizedBox(height: 24),
               FutureBuilder(
                 future: loadInsulinData(),
                 builder: (context, snapshot) {
@@ -105,10 +110,6 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
                   return _insulinCategorySwitchTile(insulin.category);
                 },
               ),
-              const SizedBox(height: 24),
-              _sugarLevelInput(),
-              const SizedBox(height: 24),
-              _insulinInput(),
               const SizedBox(height: 24),
               _submitInsulinButton(),
             ],
@@ -318,8 +319,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     return Stack(
       children: [
         TextFormField(
-          decoration: const InputDecoration(labelText: "Sugar level"),
           autofocus: true,
+          decoration: const InputDecoration(labelText: "Sugar level"),
           controller: _sugarLevelController,
           keyboardType: TextInputType.number,
           inputFormatters: [
@@ -456,11 +457,15 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     );
   }
 
-  Future showInsulinEditor() {
+  Future showInsulinEditor() async {
+    List<Insulin> insulins = await InsulinAPI.selectAll();
+    insulins.sort((a, b) => a.date.compareTo(b.date));
+    String bolus = insulins.firstWhere((i) => i.category == InsulinCategory.bolus).name;
+    String basal = insulins.firstWhere((i) => i.category == InsulinCategory.basal).name;
     final TextEditingController insulinNameController = TextEditingController(
       text: _insulinCategorySelectorKey.currentState!.category == InsulinCategory.bolus
-          ? "Fiasp"
-          : "Tresiba",
+          ? bolus
+          : basal,
     );
     final TextEditingController insulinNotesController = TextEditingController(text: insulin.notes);
     Widget subtitle;
@@ -552,6 +557,7 @@ class _InsulinCategorySelectorState extends State<_InsulinCategorySelector> {
 
   @override
   Widget build(BuildContext context) {
+    var data = ("Bolus", "Basal");
     return SwitchListTile(
       onChanged: (value) {
         value ? category = InsulinCategory.basal : category = InsulinCategory.bolus;
@@ -561,32 +567,9 @@ class _InsulinCategorySelectorState extends State<_InsulinCategorySelector> {
       activeColor: insulinCategoryColor(category),
       inactiveThumbColor: insulinCategoryColor(category),
       tileColor: Colors.redAccent.withOpacity(0.35),
-      title: FutureBuilder(
-        future: () async {
-          List<Insulin> insulinData = await InsulinAPI.selectAll();
-          if (insulinData.isEmpty) {
-            return ("Bolus", "Basal");
-          }
-          insulinData.sort((a, b) => a.date.compareTo(b.date));
-          String bolus = insulinData.firstWhere((i) => i.category == InsulinCategory.bolus).name;
-          String basal = insulinData.firstWhere((i) => i.category == InsulinCategory.basal).name;
-          return (bolus, basal);
-        }(),
-        initialData: ("Bolus", "Basal"),
-        builder: (context, snapshot) {
-          (String bolus, String basal) data = ("Bolus", "Basal");
-          if (snapshot.hasData) {
-            data = snapshot.data as (String, String);
-            return Text(
-              category.index == 0 ? data.$1 : data.$2,
-              style: Theme.of(context).textTheme.titleLarge,
-            );
-          }
-          return Text(
-            category.index == 0 ? data.$1 : data.$2,
-            style: Theme.of(context).textTheme.titleLarge,
-          );
-        },
+      title: Text(
+        category.index == 0 ? data.$1 : data.$2,
+        style: Theme.of(context).textTheme.titleLarge,
       ),
     );
   }
