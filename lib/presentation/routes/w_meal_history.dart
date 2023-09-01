@@ -56,13 +56,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
         children: [
           category(meal),
           Row(children: [
-            FittedBox(
-              fit: BoxFit.fitHeight,
-              child: FoodListView(
-                foods: meal.food,
-                scrollDirection: Axis.horizontal,
-              ),
-            ),
+            FoodListView(foods: meal.food, crossAxisCount: 1),
             MealDataWidget(meal: meal),
           ]),
         ],
@@ -282,12 +276,12 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
 
   Widget categoryStrip(MealCategory category) {
     return Container(
-      width: 8,
-      height: 60,
+      width: 12,
+      height: 72,
       decoration: BoxDecoration(
         color: mealCategoryColor(category),
         borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(16),
+          topRight: Radius.circular(12),
           bottomLeft: Radius.circular(16),
         ),
       ),

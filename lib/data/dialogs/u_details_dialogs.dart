@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import '../../presentation/widgets/food/w_food_card.dart';
 
 class DetailsDialogs {
-  static void mealDetails(BuildContext context, List<Food> foods) async {
+  static void mealDetails(BuildContext context, List<Food> foods, {bool withHandle = true}) async {
     await showModalBottomSheet(
-      showDragHandle: true,
+      showDragHandle: withHandle,
       context: context,
+      // round border top decoration
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (context) => ListView(
         children: [
           for (int i = 0; i < foods.length; i++) FoodCard(food: foods[i]),

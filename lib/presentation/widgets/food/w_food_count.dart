@@ -106,9 +106,7 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
                   child: Text("Add ${food.weight.round()}g"),
                 ),
               TextButton(
-                onPressed: () {
-                  Navigator.pop(context, _amountController.text);
-                },
+                onPressed: () => Navigator.pop(context, _amountController.text),
                 child: const Text("Save"),
               ),
             ],
@@ -130,7 +128,6 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
         border: Border.all(color: Colors.redAccent),
-        // color: Colors.white,
       ),
       child: SizedBox(
         height: widget.autoSize ? null : imgSize,

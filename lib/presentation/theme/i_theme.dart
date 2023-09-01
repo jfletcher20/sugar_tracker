@@ -7,15 +7,11 @@ class ThemeManager {
   }
 
   static ThemeData darkTheme = ThemeData.dark().copyWith(
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Color.fromARGB(255, 183, 0, 0),
-    ),
+    appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 183, 0, 0)),
     buttonTheme: ButtonThemeData(
       buttonColor: Colors.redAccent,
       textTheme: ButtonTextTheme.primary,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       landscapeLayout: BottomNavigationBarLandscapeLayout.spread,
@@ -56,14 +52,8 @@ class ThemeManager {
       ),
     ),
     textTheme: const TextTheme(
-      bodyMedium: TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-      ),
-      titleLarge: TextStyle(
-        color: Colors.white,
-        fontSize: 20,
-      ),
+      bodyMedium: TextStyle(color: Colors.white, fontSize: 18),
+      titleLarge: TextStyle(color: Colors.white, fontSize: 20),
     ),
     inputDecorationTheme: const InputDecorationTheme(
       labelStyle: TextStyle(color: Colors.white),
@@ -73,11 +63,13 @@ class ThemeManager {
         borderSide: BorderSide(color: Colors.red, width: 2),
       ),
     ),
-    scaffoldBackgroundColor: const Color.fromARGB(255, 70, 0, 0),
-    colorScheme: const ColorScheme.dark(
-      primary: Colors.black,
-      secondary: Colors.black,
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: Colors.redAccent,
+      selectionColor: Colors.redAccent,
+      selectionHandleColor: Colors.redAccent,
     ),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 70, 0, 0),
+    colorScheme: const ColorScheme.dark(primary: Colors.black, secondary: Colors.black),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
@@ -89,9 +81,7 @@ class ThemeManager {
         ),
         minimumSize: const Size(300, 32),
         padding: const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
     ),
   );

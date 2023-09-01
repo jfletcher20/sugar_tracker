@@ -190,7 +190,7 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
 
   IconButton _useAsTemplate(BuildContext context, Insulin insulin) {
     return IconButton(
-      icon: const Icon(Icons.food_bank),
+      icon: const Icon(Icons.plus_one),
       onPressed: () async {
         Insulin? result = await Navigator.pushReplacement(
           context,

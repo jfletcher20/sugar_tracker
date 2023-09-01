@@ -63,9 +63,9 @@ class FoodListView extends StatelessWidget {
       ),
       children: foods.map((food) {
         return InkWell(
-          onTap: () => DetailsDialogs.mealDetails(context, foods),
+          onTap: () => DetailsDialogs.mealDetails(context, foods, withHandle: !showCounter),
           child: !showCounter
-              ? Card(child: Column(children: [img(food)]))
+              ? FoodCountWidget(food: food, autoSize: true, modifiable: false, showAmount: false)
               : FoodCountWidget(food: food, autoSize: true),
         );
       }).toList(),

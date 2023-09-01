@@ -186,8 +186,11 @@ class _MealFormWidgetState extends State<MealFormWidget> {
         meal.food = await showModalBottomSheet(
           context: context,
           shape: _modalDecoration,
-          showDragHandle: true,
-          builder: (context) => Card(child: FoodSelectorWidget(meal: meal)),
+          showDragHandle: false,
+          builder: (context) => Container(
+            margin: const EdgeInsets.only(top: 32),
+            child: Card(child: FoodSelectorWidget(meal: meal)),
+          ),
         );
         meal.category;
         setState(() {});
