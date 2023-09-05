@@ -6,8 +6,9 @@ class DB {
   static String rootPicturePath = "assets/images";
   static String rootFoodPicturePath = "$rootPicturePath/food";
   static String foodCategoryPicturePath = "$rootPicturePath/food_category";
+  static String dbName = "st.db";
   static Future open() async {
-    db = await openDatabase(join(await getDatabasesPath(), "st.db"), version: 1,
+    db = await openDatabase(join(await getDatabasesPath(), dbName), version: 1,
         onCreate: (database, version) {
       String foodCategoryTable =
           "CREATE TABLE food_category (id INTEGER PRIMARY KEY, name TEXT, picture TEXT, notes TEXT)";
