@@ -176,9 +176,7 @@ class _InsulinDataWidgetState extends State<InsulinDataWidget> {
     return TextSpan(
       text: widget.insulin.time,
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: insulinCategoryColor(
-              widget.insulin.category,
-            ),
+            color: insulinCategoryColor(widget.insulin.category),
           ),
     );
   }

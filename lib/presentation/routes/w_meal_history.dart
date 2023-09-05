@@ -234,7 +234,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
 
   IconButton _useAsTemplate(BuildContext context, Meal meal) {
     return IconButton(
-      icon: const Icon(Icons.food_bank),
+      icon: const Icon(Icons.plus_one),
       onPressed: () async {
         Meal? result = await Navigator.pushReplacement(
           context,

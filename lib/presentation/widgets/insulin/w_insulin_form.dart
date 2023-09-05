@@ -167,6 +167,9 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     return _InsulinCategorySelector(key: _insulinCategorySelectorKey, category: category);
   }
 
+  (Sugar?, Insulin?) get submittedData =>
+      (sugarLevel.id == -1 ? null : sugarLevel, insulin.id == -1 ? null : insulin);
+
   ElevatedButton _submitInsulinButton() {
     return ElevatedButton(
       onPressed: () async {
@@ -174,9 +177,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
           _prepareDateTime();
           _prepareInsulinCategory();
           await _saveData();
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (context.mounted) Navigator.pop(context, widget.sugar ?? widget.insulin);
-          });
+          if (context.mounted) Navigator.pop(context, submittedData);
         }
       },
       child: const Text("Submit"),

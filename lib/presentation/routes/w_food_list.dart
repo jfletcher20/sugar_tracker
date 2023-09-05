@@ -12,7 +12,7 @@ class FoodListWidget extends StatefulWidget {
   State<FoodListWidget> createState() => _FoodListWidgetState();
 }
 
-class _FoodListWidgetState extends State<FoodListWidget> {
+class _FoodListWidgetState extends State<FoodListWidget> with AutomaticKeepAliveClientMixin {
   final GlobalKey<FoodCategoryGridViewState> foodCategoryKey = GlobalKey();
   bool loadFoods = true;
   List<Food> foods = [];
@@ -26,9 +26,8 @@ class _FoodListWidgetState extends State<FoodListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [_foodCategoryFilter(), _foodListBuilder()],
-    );
+    super.build(context);
+    return Column(children: [_foodCategoryFilter(), _foodListBuilder()]);
   }
 
   FutureBuilder _foodListBuilder() {
@@ -95,4 +94,7 @@ class _FoodListWidgetState extends State<FoodListWidget> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

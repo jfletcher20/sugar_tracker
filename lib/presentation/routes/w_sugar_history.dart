@@ -192,13 +192,13 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
 
   IconButton _useAsTemplate(BuildContext context, Sugar sugar) {
     return IconButton(
-      icon: const Icon(Icons.food_bank),
+      icon: const Icon(Icons.plus_one),
       onPressed: () async {
         Insulin? result = await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
-              appBar: AppBar(title: const Text("Insulin from template")),
+              appBar: AppBar(title: const Text("Entry from template")),
               body: InsulinFormWidget(sugar: sugar, useAsTemplate: true),
             ),
           ),

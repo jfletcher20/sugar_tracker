@@ -7,7 +7,7 @@ class ThemeManager {
   }
 
   static ThemeData darkTheme = ThemeData.dark().copyWith(
-    appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 183, 0, 0)),
+    appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 163, 0, 0)),
     buttonTheme: ButtonThemeData(
       buttonColor: Colors.redAccent,
       textTheme: ButtonTextTheme.primary,

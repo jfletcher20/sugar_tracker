@@ -21,20 +21,35 @@ class Homepage extends StatefulWidget {
   State<Homepage> createState() => _HomepageState();
 }
 
-class _HomepageState extends State<Homepage> {
-  Widget child = const MealHistoryWidget();
-  int index = 0;
+class _HomepageState extends State<Homepage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 5, vsync: this, initialIndex: 2);
+  }
+
+  Widget wrap(Widget widget) => Scrollbar(child: SingleChildScrollView(child: widget));
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Sugar Tracker"), actions: [
-        _createMealButton(),
         _createMeasurementEntryButton(),
+        _createMealButton(),
         _createFoodItemButton(),
       ]),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: child,
+      body: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _tabController,
+        children: <Widget>[
+          wrap(const SugarHistoryWidget()),
+          wrap(const InsulinHistoryWidget()),
+          wrap(const MealHistoryWidget()),
+          wrap(const FoodListWidget()),
+          wrap(const SettingsWidget()),
+        ],
       ),
       bottomNavigationBar: _bottomNavigation(),
     );
@@ -54,7 +69,6 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
         );
-        if (context.mounted) setState(() {});
       },
       icon: const Icon(Icons.fastfood_outlined),
     );
@@ -63,7 +77,7 @@ class _HomepageState extends State<Homepage> {
   IconButton _createMeasurementEntryButton() {
     return IconButton(
       onPressed: () async {
-        await Navigator.push(
+        (Sugar?, Insulin?)? result = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -72,6 +86,9 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
         );
+        if (result != null) {
+          if (result.$1 != null) {}
+        }
         if (context.mounted) setState(() {});
       },
       icon: const Icon(Icons.query_stats_outlined),
@@ -100,13 +117,8 @@ class _HomepageState extends State<Homepage> {
     return BottomNavigationBar(
       landscapeLayout: BottomNavigationBarLandscapeLayout.spread,
       type: BottomNavigationBarType.shifting,
-      currentIndex: index,
+      currentIndex: _tabController.index,
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.fastfood),
-          label: "Meals",
-          backgroundColor: Colors.black,
-        ),
         BottomNavigationBarItem(
           icon: Icon(Icons.query_stats),
           label: "Sugars",
@@ -115,6 +127,11 @@ class _HomepageState extends State<Homepage> {
         BottomNavigationBarItem(
           icon: Icon(Icons.edit_outlined),
           label: "Insulin",
+          backgroundColor: Colors.black,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.fastfood),
+          label: "Meals",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
@@ -128,25 +145,7 @@ class _HomepageState extends State<Homepage> {
           backgroundColor: Colors.black,
         ),
       ],
-      onTap: (index) {
-        setState(() {
-          this.index = index;
-          // shorthand switch for index
-          switch (index) {
-            case 0:
-              child = const MealHistoryWidget();
-            case 1:
-              child = const SugarHistoryWidget();
-            case 2:
-              child = const InsulinHistoryWidget();
-            case 3:
-              child = const FoodListWidget();
-            case 4:
-              child = const SettingsWidget();
-          }
-          // change to fancy short-handswitch
-        });
-      },
+      onTap: (index) => setState(() => _tabController.animateTo(index)),
     );
   }
 }

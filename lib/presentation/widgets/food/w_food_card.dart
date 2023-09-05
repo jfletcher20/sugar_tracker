@@ -262,7 +262,7 @@ class _FoodCardState extends State<FoodCard> {
 
   IconButton _useAsTemplate(BuildContext context, Food food) {
     return IconButton(
-      icon: const Icon(Icons.food_bank),
+      icon: const Icon(Icons.plus_one),
       onPressed: () async {
         Food? result = await Navigator.pushReplacement(
           context,
