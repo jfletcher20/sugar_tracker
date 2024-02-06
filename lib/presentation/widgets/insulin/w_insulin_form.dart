@@ -177,7 +177,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
           _prepareDateTime();
           _prepareInsulinCategory();
           await _saveData();
-          if (context.mounted) Navigator.pop(context, submittedData);
+          (Sugar?, Insulin?) data = submittedData;
+          if (context.mounted) Navigator.pop(context, data);
         }
       },
       child: const Text("Submit"),

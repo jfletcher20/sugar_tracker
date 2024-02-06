@@ -30,7 +30,7 @@ class _HomepageState extends State<Homepage> with SingleTickerProviderStateMixin
     _tabController = TabController(length: 5, vsync: this, initialIndex: 2);
   }
 
-  Widget wrap(Widget widget) => Scrollbar(child: SingleChildScrollView(child: widget));
+  Widget wrap(Widget widget) => Scrollbar(child: widget);
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +77,7 @@ class _HomepageState extends State<Homepage> with SingleTickerProviderStateMixin
   IconButton _createMeasurementEntryButton() {
     return IconButton(
       onPressed: () async {
-        (Sugar?, Insulin?)? result = await Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -86,9 +86,6 @@ class _HomepageState extends State<Homepage> with SingleTickerProviderStateMixin
             ),
           ),
         );
-        if (result != null) {
-          if (result.$1 != null) {}
-        }
         if (context.mounted) setState(() {});
       },
       icon: const Icon(Icons.query_stats_outlined),

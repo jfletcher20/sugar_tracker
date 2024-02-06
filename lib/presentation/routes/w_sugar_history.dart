@@ -8,6 +8,7 @@ import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 
 import 'package:flutter/material.dart';
+import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';
 import 'package:sugar_tracker/presentation/widgets/sugar/w_sugar_data.dart';
 
@@ -18,7 +19,7 @@ class SugarHistoryWidget extends StatefulWidget {
   State<SugarHistoryWidget> createState() => _SugarHistoryWidgetState();
 }
 
-class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
+class _SugarHistoryWidgetState extends State<SugarHistoryWidget> with Paging {
   @override
   Widget build(BuildContext context) {
     Size maxSize = MediaQuery.of(context).size;
@@ -28,13 +29,8 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
           List<Sugar> sugar = snapshot.data as List<Sugar>;
           sugar.sort((a, b) => a.datetime!.compareTo(b.datetime!));
           sugar = sugar.reversed.toList();
-          return SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              children: [
-                for (int i = 0; i < sugar.length; i++) sugarCard(context, sugar[i]),
-              ],
-            ),
+          return scrollable(
+            Column(children: paging(sugar, (context, sugar) => sugarCard(context, sugar))),
           );
         } else {
           return SizedBox(
@@ -194,7 +190,7 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
     return IconButton(
       icon: const Icon(Icons.plus_one),
       onPressed: () async {
-        Insulin? result = await Navigator.pushReplacement(
+        (Sugar?, Insulin?)? result = await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -203,8 +199,8 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
             ),
           ),
         );
-        if (result != null) {
-          setState(() {});
+        if (result?.$1 != null) {
+          setState(() => sugar = result!.$1!);
         }
       },
     );
@@ -214,7 +210,7 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
     return IconButton(
       icon: const Icon(Icons.edit),
       onPressed: () async {
-        Sugar? result = await Navigator.pushReplacement(
+        (Sugar?, Insulin?)? result = await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -223,8 +219,8 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> {
             ),
           ),
         );
-        if (result != null) {
-          setState(() => sugar = result);
+        if (result?.$1 != null) {
+          setState(() => sugar = result!.$1!);
         }
       },
     );

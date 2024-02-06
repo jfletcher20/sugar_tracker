@@ -1,5 +1,6 @@
 import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
+import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meal_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
@@ -17,7 +18,7 @@ class MealHistoryWidget extends StatefulWidget {
   State<MealHistoryWidget> createState() => _MealHistoryWidgetState();
 }
 
-class _MealHistoryWidgetState extends State<MealHistoryWidget> {
+class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
   @override
   Widget build(BuildContext context) {
     Size maxSize = MediaQuery.of(context).size;
@@ -28,13 +29,8 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> {
           meals.removeWhere((element) => element.sugarLevel.datetime == null);
           meals.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
           meals = meals.reversed.toList();
-          return SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              children: [
-                for (int i = 0; i < meals.length; i++) mealCard(context, meals[i]),
-              ],
-            ),
+          return scrollable(
+            Column(children: paging(meals, (context, meal) => mealCard(context, meal))),
           );
         } else {
           return SizedBox(

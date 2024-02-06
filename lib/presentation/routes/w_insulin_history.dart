@@ -4,6 +4,8 @@ import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
+import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_data.dart';
 
 import 'package:flutter/material.dart';
@@ -16,7 +18,7 @@ class InsulinHistoryWidget extends StatefulWidget {
   State<InsulinHistoryWidget> createState() => _InsulinHistoryWidgetState();
 }
 
-class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
+class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> with Paging {
   @override
   Widget build(BuildContext context) {
     Size maxSize = MediaQuery.of(context).size;
@@ -26,13 +28,8 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
           List<Insulin> insulin = snapshot.data as List<Insulin>;
           insulin.sort((a, b) => a.datetime!.compareTo(b.datetime!));
           insulin = insulin.reversed.toList();
-          return SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              children: [
-                for (int i = 0; i < insulin.length; i++) insulinCard(context, insulin[i]),
-              ],
-            ),
+          return scrollable(
+            Column(children: paging(insulin, (context, insulin) => insulinCard(context, insulin))),
           );
         } else {
           return SizedBox(
@@ -192,7 +189,7 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
     return IconButton(
       icon: const Icon(Icons.plus_one),
       onPressed: () async {
-        Insulin? result = await Navigator.pushReplacement(
+        (Sugar?, Insulin?)? result = await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -201,8 +198,8 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
             ),
           ),
         );
-        if (result != null) {
-          setState(() {});
+        if (result?.$2 != null) {
+          setState(() => insulin = result!.$2!);
         }
       },
     );
@@ -212,7 +209,7 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
     return IconButton(
       icon: const Icon(Icons.edit),
       onPressed: () async {
-        Insulin? result = await Navigator.pushReplacement(
+        (Sugar?, Insulin?)? result = await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -221,8 +218,8 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> {
             ),
           ),
         );
-        if (result != null) {
-          setState(() => insulin = result);
+        if (result?.$2 != null) {
+          setState(() => insulin = result!.$2!);
         }
       },
     );

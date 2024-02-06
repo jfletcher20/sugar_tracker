@@ -282,7 +282,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         );
         String message = savePath == null
             ? "Didn't save backup."
-            : "Backup saved as ${savePath.split("/").last}.";
+            : "Backup for saved as ${savePath.split("/").last}.";
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
         return;
@@ -322,15 +322,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         ),
         actions: [
           TextButton(
-            onPressed: () async {
-              Navigator.pop(context, await loadFile());
-            },
+            onPressed: () async => Navigator.pop(context, await loadFile()),
             child: const Text("Yes"),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("No"),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
         ],
       ),
     );
