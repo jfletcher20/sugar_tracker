@@ -27,7 +27,20 @@ class _FoodListWidgetState extends State<FoodListWidget> with AutomaticKeepAlive
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(children: [_foodCategoryFilter(), _foodListBuilder()]);
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              const SizedBox(height: 64 + 12),
+              _foodListBuilder(),
+            ],
+          ),
+        ),
+        _foodCategoryFilter(),
+      ],
+    );
   }
 
   FutureBuilder _foodListBuilder() {

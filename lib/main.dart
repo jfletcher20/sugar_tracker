@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/presentation/theme/i_theme.dart';
 import 'package:sugar_tracker/presentation/w_homepage.dart';
@@ -19,6 +20,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeManager.lightTheme,
