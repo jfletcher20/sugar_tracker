@@ -77,20 +77,15 @@ class _SugarDataWidgetState extends State<SugarDataWidget> {
       width: 30,
       child: Center(
         child: FutureBuilder(
-          future: InsulinAPI.selectAll(),
+          future: InsulinAPI.selectByDate(widget.sugar.datetime!),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              List<Insulin> insulins = snapshot.data as List<Insulin>;
-              Insulin insulin = insulins.firstWhere(
-                (element) => element.datetime == widget.sugar.datetime,
-                orElse: () => Insulin(),
-              );
+              Insulin insulin = snapshot.data as Insulin;
               String units = insulin.id != -1 ? insulin.units.toString() : "";
               insulin.units == 0 ? units = "" : null;
               return Text(units);
-            } else {
+            } else
               return const Text("");
-            }
           },
         ),
       ),

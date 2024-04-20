@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 
 class MealHistoryWidget extends StatefulWidget {
   const MealHistoryWidget({super.key});
-
   @override
   State<MealHistoryWidget> createState() => _MealHistoryWidgetState();
 }
@@ -21,7 +20,6 @@ class MealHistoryWidget extends StatefulWidget {
 class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
   @override
   Widget build(BuildContext context) {
-    Size maxSize = MediaQuery.of(context).size;
     return FutureBuilder(
       builder: (builder, snapshot) {
         if (snapshot.hasData) {
@@ -34,8 +32,8 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
           );
         } else {
           return SizedBox(
-            height: maxSize.height,
-            width: maxSize.width,
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
             child: const Center(child: CircularProgressIndicator()),
           );
         }
@@ -93,9 +91,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
               ),
             ),
           );
-          if (result != null && result) {
-            setState(() {});
-          }
+          if (result != null && result) setState(() {});
         },
       ),
     );
@@ -241,9 +237,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
             ),
           ),
         );
-        if (result != null) {
-          setState(() {});
-        }
+        if (result != null) setState(() {});
       },
     );
   }
@@ -261,11 +255,7 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
             ),
           ),
         );
-        if (result != null) {
-          setState(() {
-            meal = result;
-          });
-        }
+        if (result != null) setState(() => meal = result);
       },
     );
   }

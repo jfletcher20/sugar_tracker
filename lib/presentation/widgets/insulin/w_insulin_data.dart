@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
@@ -47,14 +49,10 @@ class _InsulinDataWidgetState extends State<InsulinDataWidget> {
       width: 60,
       child: Center(
         child: FutureBuilder(
-          future: SugarAPI.selectAll(),
+          future: SugarAPI.selectByDate(widget.insulin.datetime!),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              List<Sugar> sugarLevels = snapshot.data as List<Sugar>;
-              Sugar sugar = sugarLevels.firstWhere(
-                (element) => element.datetime == widget.insulin.datetime,
-                orElse: () => Sugar(),
-              );
+              Sugar sugar = snapshot.data as Sugar;
               String sugarLevel = sugar.id != -1 ? sugar.level.toString() : "";
               sugar.level == 0 ? sugarLevel = "" : null;
               bool cond = sugar.notes.toLowerCase().contains("libre");
@@ -91,9 +89,8 @@ class _InsulinDataWidgetState extends State<InsulinDataWidget> {
                   ),
                 ),
               );
-            } else {
+            } else
               return const Text("");
-            }
           },
         ),
       ),

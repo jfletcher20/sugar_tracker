@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 /* 
       String mealTable = "CREATE TABLE meal("
           "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -45,19 +47,12 @@ class Meal {
 
   double get carbs {
     double total = 0;
-    for (Food f in food) {
-      total += f.amount * ((f.carbs) / 100);
-    }
+    for (Food f in food) total += f.amount * ((f.carbs) / 100);
     return total;
   }
 
-  String get date {
-    return insulin.date;
-  }
-
-  String get time {
-    return insulin.time;
-  }
+  String get date => insulin.date;
+  String get time => insulin.time;
 
   Meal({
     this.id = -1,
@@ -86,9 +81,7 @@ class Meal {
     };
   }
 
-  String foodToCsv() {
-    return food.map((e) => e.id.toString()).join(",");
-  }
+  String foodToCsv() => food.map((e) => e.id.toString()).join(",");
 
   @override
   String toString() {

@@ -1,4 +1,6 @@
 // insulin model has id, name, datetime, type (0=bolus, 1=basal), and notes
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 
@@ -31,14 +33,12 @@ class Insulin {
 
   String get date {
     DateTime local = datetime ?? DateTime.now();
-    if (!Profile.dateAsDayOfWeek) {
-      return "${local.day}.${local.month}.${local.year}";
-    }
-    if (local.day == DateTime.now().day) {
+    if (!Profile.dateAsDayOfWeek) return "${local.day}.${local.month}.${local.year}";
+    if (local.day == DateTime.now().day)
       return "Today";
-    } else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day) {
+    else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day)
       return "Yesterday";
-    } /* else if in the past 7 days return the weekday name like Sunday, Monday, Tuesday...*/ else {
+    /* else if in the past 7 days return the weekday name like Sunday, Monday, Tuesday...*/ else {
       // check that local day is within the past 7 days
       if (local.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
         switch (local.weekday) {
@@ -114,7 +114,5 @@ class Insulin {
   }
 
   @override
-  String toString() {
-    return "$units of $name";
-  }
+  String toString() => "$units of $name";
 }

@@ -5,9 +5,7 @@ import 'package:sugar_tracker/data/models/m_sugar.dart';
 
 class SugarAPI {
   // insert sugar entry into db
-  static Future<int> insert(Sugar sugar) async {
-    return await DB.insert("sugar", sugar.toMap());
-  }
+  static Future<int> insert(Sugar sugar) async => await DB.insert("sugar", sugar.toMap());
 
   // update sugar entry in db
   static Future<int> update(Sugar sugar) async {
@@ -15,9 +13,7 @@ class SugarAPI {
   }
 
   // delete sugar entry from db
-  static Future<int> delete(Sugar sugar) async {
-    return await DB.delete("sugar", sugar.id);
-  }
+  static Future<int> delete(Sugar sugar) async => await DB.delete("sugar", sugar.id);
 
   // select all sugar entries from db
   static Future<List<Sugar>> selectAll() async {
@@ -29,9 +25,15 @@ class SugarAPI {
   static Future<Sugar?> selectById(int id) async {
     List<Map<String, dynamic>> results =
         await DB.db.query("sugar", where: "id = ?", whereArgs: [id]);
-    if (results.isNotEmpty) {
-      return Sugar.fromMap(results.first);
-    }
+    if (results.isNotEmpty) return Sugar.fromMap(results.first);
+    return null;
+  }
+
+  // select sugar entry from db by date
+  static Future<Sugar?> selectByDate(DateTime date) async {
+    List<Map<String, dynamic>> results =
+        await DB.db.query("sugar", where: "date = ?", whereArgs: [date.toIso8601String()]);
+    if (results.isNotEmpty) return Sugar.fromMap(results.first);
     return null;
   }
 

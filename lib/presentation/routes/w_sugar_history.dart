@@ -48,12 +48,7 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> with Paging {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       borderOnForeground: true,
-      child: Stack(
-        children: [
-          category(sugar),
-          SugarDataWidget(sugar: sugar),
-        ],
-      ),
+      child: Stack(children: [category(sugar), SugarDataWidget(sugar: sugar)]),
     );
   }
 
@@ -85,9 +80,7 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> with Paging {
               ),
             ),
           );
-          if (result != null && result) {
-            setState(() {});
-          }
+          if (result != null && result) setState(() {});
         },
       ),
     );

@@ -12,19 +12,13 @@ import 'package:sugar_tracker/data/models/m_sugar.dart';
 
 class MealAPI {
   // insert meal entry into db
-  static Future<int> insert(Meal meal) async {
-    return await DB.insert("meal", meal.toMap());
-  }
+  static Future<int> insert(Meal meal) async => await DB.insert("meal", meal.toMap());
 
   // update meal entry in db
-  static Future<int> update(Meal meal) async {
-    return await DB.update("meal", meal.toMap());
-  }
+  static Future<int> update(Meal meal) async => await DB.update("meal", meal.toMap());
 
   // delete meal entry from db
-  static Future<int> delete(Meal meal) async {
-    return await DB.delete("meal", meal.id);
-  }
+  static Future<int> delete(Meal meal) async => await DB.delete("meal", meal.id);
 
   // select all meal entries from db as meals
   static Future<List<Meal>> selectAll() async {

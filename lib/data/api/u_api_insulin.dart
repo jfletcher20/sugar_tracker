@@ -34,6 +34,14 @@ class InsulinAPI {
     return null;
   }
 
+  // select sugar entry from db by date
+  static Future<Insulin?> selectByDate(DateTime date) async {
+    List<Map<String, dynamic>> results =
+        await DB.db.query("insulin", where: "date = ?", whereArgs: [date.toString()]);
+    if (results.isNotEmpty) return Insulin.fromMap(results.first);
+    return null;
+  }
+
   static Future<String> export() async {
     List<Map<String, dynamic>> results = await DB.select("insulin");
     String output = "";
