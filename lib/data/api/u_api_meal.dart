@@ -70,8 +70,11 @@ class MealAPI {
           ..sort((a, b) => a.datetime.compareTo(b.datetime));
     // check if the current time is between 6am and 2pm, and if the last 5 meals' breakfast entries are all before then
     if (DateTime.now().hour >= 6 && DateTime.now().hour < 14) {
-      Meal breakfastInstance =
-          lastFive.lastWhere((element) => element.category == MealCategory.breakfast);
+      Meal breakfastInstance = lastFive.lastWhere(
+        (element) => element.category == MealCategory.breakfast,
+        orElse: () => Meal.empty(),
+      );
+      if (breakfastInstance.id == -1) return MealCategory.breakfast;
       if (breakfastInstance.datetime.day != DateTime.now().day) {
         return MealCategory.breakfast;
       } else {
@@ -83,7 +86,11 @@ class MealAPI {
     }
     // check for lunch
     else if (DateTime.now().hour >= 12 && DateTime.now().hour < 18) {
-      Meal lunchInstance = lastFive.lastWhere((element) => element.category == MealCategory.lunch);
+      Meal lunchInstance = lastFive.lastWhere(
+        (element) => element.category == MealCategory.lunch,
+        orElse: () => Meal.empty(),
+      );
+      if (lunchInstance.id == -1) return MealCategory.lunch;
       if (lunchInstance.datetime.day != DateTime.now().day) {
         return MealCategory.lunch;
       } else {
@@ -96,8 +103,11 @@ class MealAPI {
 
     // check for dinner
     else if (DateTime.now().hour >= 18 && DateTime.now().hour < 23) {
-      Meal dinnerInstance =
-          lastFive.lastWhere((element) => element.category == MealCategory.dinner);
+      Meal dinnerInstance = lastFive.lastWhere(
+        (element) => element.category == MealCategory.dinner,
+        orElse: () => Meal.empty(),
+      );
+      if (dinnerInstance.id == -1) return MealCategory.dinner;
       if (dinnerInstance.datetime.day != DateTime.now().day) return MealCategory.dinner;
     }
 

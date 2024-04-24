@@ -64,6 +64,15 @@ class Meal {
     this.notes,
   });
 
+  Meal.empty() {
+    id = -1;
+    sugarLevel = Sugar();
+    insulin = Insulin();
+    food = <Food>[];
+    notes = "";
+    category = MealCategory.other;
+  }
+
   Meal.fromMap(Map<String, dynamic> map) {
     id = map["id"];
     notes = map["notes"];
