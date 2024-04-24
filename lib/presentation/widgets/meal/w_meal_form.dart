@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
@@ -22,14 +24,12 @@ class MealFormWidget extends StatefulWidget {
 }
 
 class _MealFormWidgetState extends State<MealFormWidget> {
-  // text controllers for each text field
   late final TextEditingController _sugarLevelController;
   late final TextEditingController _insulinController;
   late final TextEditingController _notesController;
   late Meal meal;
 
   GlobalKey<DateTimeSelectorWidgetState> dateTimeSelectorKey = GlobalKey();
-  // form key
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -64,26 +64,30 @@ class _MealFormWidgetState extends State<MealFormWidget> {
               ),
               const SizedBox(height: 24),
               FutureBuilder(
-                  future: loadLatestMealCategory(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      meal.category = snapshot.data as MealCategory;
-                      if (!widget.useAsTemplate && meal.id == -1) {
-                        _cycleMealCategory();
-                      }
-                      return _mealCategoryDropdown(meal.category);
-                    }
-                    return DropdownButtonFormField(
-                      items: [dropdownMenuItem(MealCategory.other)],
-                      onChanged: (value) => setState(() => meal.category = value),
-                    );
-                  }),
+                future: loadLatestMealCategory(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    meal.category = snapshot.data as MealCategory;
+                    return _mealCategoryDropdown(snapshot.data as MealCategory);
+                  }
+                  return DropdownButtonFormField(
+                    items: [dropdownMenuItem(MealCategory.other)],
+                    onChanged: (value) => setState(() => meal.category = value),
+                  );
+                },
+              ),
               const SizedBox(height: 24),
               _sugarLevelInput(),
               _insulinInput(),
               _notesInput(),
               const SizedBox(height: 16),
-              _foodGrid(),
+              Card(
+                child: FoodListView(
+                  foods: meal.food.where((food) => food.amount > 0).toList(),
+                  crossAxisCount: 3,
+                  showCounter: true,
+                ),
+              ),
               _foodSelectionMenuButton(),
               const SizedBox(height: 8),
               _submitMealButton(),
@@ -94,26 +98,12 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     );
   }
 
-  void _cycleMealCategory() {
-    meal.category = MealCategory.values[(meal.category.index + 1) % 3];
-  }
-
   Widget title() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Text(
         "Meal creation",
         style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Card _foodGrid() {
-    return Card(
-      child: FoodListView(
-        foods: meal.food.where((food) => food.amount > 0).toList(),
-        crossAxisCount: 3,
-        showCounter: true,
       ),
     );
   }
@@ -136,18 +126,9 @@ class _MealFormWidgetState extends State<MealFormWidget> {
   }
 
   Future<MealCategory> loadLatestMealCategory() async {
-    if (meal.id != -1) {
-      return meal.category;
-    }
-    List<Meal> meals = await MealAPI.selectAll();
-    MealCategory result = MealCategory.other;
-    if (meals.isEmpty) {
-      return result;
-    }
-    meals.sort((a, b) => a.date.compareTo(b.date));
-    result = meals.last.category;
-    meal.category = result;
-    return result;
+    return !widget.useAsTemplate && meal.id == -1
+        ? await MealAPI.determineCategory()
+        : meal.category;
   }
 
   final GlobalKey<FormFieldState> _mealCategoryDropdownKey = GlobalKey();
@@ -161,11 +142,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
         dropdownMenuItem(MealCategory.snack),
         dropdownMenuItem(MealCategory.other),
       ],
-      onChanged: (value) {
-        setState(() {
-          meal.category = value;
-        });
-      },
+      onChanged: (value) => setState(() => meal.category = value),
       value: meal.category,
     );
   }
@@ -174,16 +151,15 @@ class _MealFormWidgetState extends State<MealFormWidget> {
     return ElevatedButton(
       onPressed: () async {
         List<Food> foods = await FoodAPI.selectAll();
-        // add all foods to meal where id of food is not in meal
         for (int i = 0; i < foods.length; i++) {
           if (!meal.food.any((element) => element.id == foods[i].id)) {
             meal.food.add(foods[i]);
             meal.food.last.amount = 0;
           }
         }
-        meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
-        // ignore: use_build_context_synchronously
+        // meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
         meal.food = await showModalBottomSheet(
+          // ignore: use_build_context_synchronously
           context: context,
           shape: _modalDecoration,
           showDragHandle: false,

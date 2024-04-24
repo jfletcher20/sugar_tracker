@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
@@ -40,9 +42,8 @@ class FoodCategoryGridViewState extends State<FoodCategoryGridView> {
 
   void initCategories() {
     foodCategories.isEmpty ? foodCategories = widget.foodCategories ?? [] : null;
-    if (_categoryCards.isEmpty) {
+    if (_categoryCards.isEmpty)
       _categoryCards = foodCategories.map((e) => _categoryCard(e)).toList();
-    }
   }
 
   @override
@@ -62,20 +63,16 @@ class FoodCategoryGridViewState extends State<FoodCategoryGridView> {
   FoodCategory get selected {
     for (var element in _categoryCards) {
       var k = (element.key as GlobalKey<FoodCategorySelectorWidgetState>);
-      if (k.currentState!.selected) {
-        return element.foodCategory;
-      }
+      if (k.currentState!.selected) return element.foodCategory;
     }
-    return FoodCategory(name: "Unknown");
+    return _categoryCards.first.foodCategory;
   }
 
   List<FoodCategory> get allSelected {
     List<FoodCategory> selected = [];
     for (var element in _categoryCards) {
       var k = (element.key as GlobalKey<FoodCategorySelectorWidgetState>);
-      if (k.currentState!.selected) {
-        selected.add(element.foodCategory);
-      }
+      if (k.currentState!.selected) selected.add(element.foodCategory);
     }
     return selected;
   }
@@ -125,9 +122,7 @@ class FoodCategoryGridViewState extends State<FoodCategoryGridView> {
         setState(() {
           for (var element in _categoryCards) {
             var k = (element.key as GlobalKey<FoodCategorySelectorWidgetState>);
-            if (element.foodCategory != category) {
-              k.currentState!.setSelected(false);
-            }
+            if (element.foodCategory != category) k.currentState!.setSelected(false);
           }
         });
       },

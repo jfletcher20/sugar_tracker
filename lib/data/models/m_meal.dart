@@ -51,6 +51,7 @@ class Meal {
     return total;
   }
 
+  DateTime get datetime => insulin.datetime!;
   String get date => insulin.date;
   String get time => insulin.time;
 

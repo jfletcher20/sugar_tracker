@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_imagepicker.dart';
@@ -84,11 +86,10 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
         List<FoodCategory> foodCategories = List.empty(growable: true);
         if (snapshot.hasData) {
           foodCategories = snapshot.data as List<FoodCategory>;
-          if (!widget.useAsTemplate && food.id == -1) {
+          if (!widget.useAsTemplate && food.id == -1)
             food.foodCategory = foodCategories.first;
-          } else {
+          else
             food.foodCategory = widget.food.foodCategory;
-          }
         }
         return _categoryGrid(foodCategories);
       },
@@ -146,9 +147,7 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
     return;
   }
 
-  void _prepareFoodCategory() {
-    food.foodCategory = _categoryGridKey.currentState!.selected;
-  }
+  void _prepareFoodCategory() => food.foodCategory = _categoryGridKey.currentState!.selected;
 
   Future<void> _saveData() async {
     food.id = await _saveFood();

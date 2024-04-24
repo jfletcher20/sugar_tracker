@@ -1,5 +1,7 @@
 // api for inserting, updating, deleting, and selecting data from meal table in db
 
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
@@ -58,6 +60,50 @@ class MealAPI {
     return result;
   }
 
+  // determines meal category
+  static Future<MealCategory> determineCategory() async {
+    // get the last 5 meals and cleverly determine if the new one, based on the time of day and the recent meal history, is supposed to be breakfast, lunch, dinner, or snack
+    List<Map<String, dynamic>> lastFiveResults =
+        (await DB.db.rawQuery("SELECT * FROM meal ORDER BY id DESC LIMIT 5"));
+    List<Meal> lastFive =
+        await Future.wait(lastFiveResults.map((e) => parseResultsAndGetSugarInsulinFood(e)))
+          ..sort((a, b) => a.datetime.compareTo(b.datetime));
+    // check if the current time is between 6am and 2pm, and if the last 5 meals' breakfast entries are all before then
+    if (DateTime.now().hour >= 6 && DateTime.now().hour < 14) {
+      Meal breakfastInstance =
+          lastFive.lastWhere((element) => element.category == MealCategory.breakfast);
+      if (breakfastInstance.datetime.day != DateTime.now().day) {
+        return MealCategory.breakfast;
+      } else {
+        int hoursPassed = DateTime.now().hour - breakfastInstance.datetime.hour;
+        if (hoursPassed > 2)
+          return MealCategory.lunch;
+        else if (hoursPassed < 2) return MealCategory.snack;
+      }
+    }
+    // check for lunch
+    else if (DateTime.now().hour >= 12 && DateTime.now().hour < 18) {
+      Meal lunchInstance = lastFive.lastWhere((element) => element.category == MealCategory.lunch);
+      if (lunchInstance.datetime.day != DateTime.now().day) {
+        return MealCategory.lunch;
+      } else {
+        int hoursPassed = DateTime.now().hour - lunchInstance.datetime.hour;
+        if (hoursPassed > 4)
+          return MealCategory.dinner;
+        else if (hoursPassed < 4) return MealCategory.snack;
+      }
+    }
+
+    // check for dinner
+    else if (DateTime.now().hour >= 18 && DateTime.now().hour < 23) {
+      Meal dinnerInstance =
+          lastFive.lastWhere((element) => element.category == MealCategory.dinner);
+      if (dinnerInstance.datetime.day != DateTime.now().day) return MealCategory.dinner;
+    }
+
+    return MealCategory.snack;
+  }
+
   // select meal entry from db by id
   static Future<Meal> selectByFoodId(int foodId) async {
     Map<String, dynamic> result =
@@ -70,6 +116,29 @@ class MealAPI {
     result["food_amounts"].split(",").asMap().forEach((i, amount) {
       food[i].amount = int.parse(amount);
     });
+
+    return Meal.fromMap(result)
+      ..sugarLevel = sugar
+      ..insulin = insulin
+      ..food = food;
+  }
+
+  static Future<Meal> parseResultsAndGetSugarInsulinFood(Map<String, dynamic> result) async {
+    Sugar sugar = Sugar(notes: "Unknown");
+    Insulin insulin = Insulin(notes: "Unknown");
+    List<Food> food = [];
+
+    if (result["sugar_id"] != null)
+      sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");
+    if (result["insulin"] != null)
+      insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
+    if (result["food_ids"] != null) {
+      List<String> ids = result["food_ids"].split(",");
+      food = await FoodAPI.selectByIds(ids);
+      result["food_amounts"].split(",").asMap().forEach((i, amount) {
+        food[i].amount = int.parse(amount);
+      });
+    }
 
     return Meal.fromMap(result)
       ..sugarLevel = sugar
