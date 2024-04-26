@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/presentation/theme/i_theme.dart';
 import 'package:sugar_tracker/presentation/w_homepage.dart';
@@ -12,7 +13,7 @@ void main() async {
   await Profile.futureWeight;
   await Profile.futureDividers;
   await Profile.futureDateAsDayOfWeek;
-  runApp(const MainApp());
+  runApp(const ProviderScope(child: MainApp()));
 }
 
 class MainApp extends StatelessWidget {

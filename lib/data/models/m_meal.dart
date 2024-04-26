@@ -37,6 +37,9 @@ Color mealCategoryColor(MealCategory? category) {
   }[category]!;
 }
 
+final Sugar _defaultSugar = Sugar();
+final Insulin _defaultInsulin = Insulin();
+
 class Meal {
   int id = -1;
   Sugar sugarLevel = Sugar();
@@ -57,12 +60,32 @@ class Meal {
 
   Meal({
     this.id = -1,
-    required this.sugarLevel,
-    required this.food,
-    required this.insulin,
+    List<Food>? food,
+    Insulin? insulin,
+    Sugar? sugarLevel,
     this.category = MealCategory.other,
     this.notes,
-  });
+  })  : food = food ?? <Food>[],
+        insulin = insulin ?? _defaultInsulin,
+        sugarLevel = sugarLevel ?? _defaultSugar;
+
+  Meal copyWith({
+    int? id,
+    List<Food>? food,
+    Insulin? insulin,
+    Sugar? sugarLevel,
+    MealCategory? category,
+    String? notes,
+  }) {
+    return Meal(
+      id: id ?? this.id,
+      food: food ?? this.food,
+      insulin: insulin ?? this.insulin,
+      sugarLevel: sugarLevel ?? this.sugarLevel,
+      category: category ?? this.category,
+      notes: notes ?? this.notes,
+    );
+  }
 
   Meal.empty() {
     id = -1;

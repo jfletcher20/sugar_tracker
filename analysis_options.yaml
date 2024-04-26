@@ -1,1 +1,10 @@
 include: package:flutter_lints/flutter.yaml
+analyzer:
+  plugins:
+    - custom_lint
+
+linter:
+  rules:
+    prefer_const_constructors: true
+    prefer_interpolation_to_compose_strings: true
+    prefer_if_null_operators: true

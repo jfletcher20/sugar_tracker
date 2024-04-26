@@ -87,6 +87,24 @@ class Insulin {
     this.notes = "",
   });
 
+  Insulin copyWith({
+    int? id,
+    String? name,
+    DateTime? datetime,
+    int? units,
+    InsulinCategory? category,
+    String? notes,
+  }) {
+    return Insulin(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      datetime: datetime ?? this.datetime,
+      units: units ?? this.units,
+      category: category ?? this.category,
+      notes: notes ?? this.notes,
+    );
+  }
+
   Insulin.fromMap(Map<String, dynamic> map) {
     id = map['id'];
     name = map['name'];

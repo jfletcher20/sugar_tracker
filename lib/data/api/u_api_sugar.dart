@@ -1,8 +1,7 @@
-// api for inserting, updating, deleting, and selecting data from sugar table in db
-
-import 'package:sugar_tracker/data/api/u_db.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/api/u_db.dart';
 
+// api for inserting, updating, deleting, and selecting data from sugar table in db
 class SugarAPI {
   // insert sugar entry into db
   static Future<int> insert(Sugar sugar) async => await DB.insert("sugar", sugar.toMap());

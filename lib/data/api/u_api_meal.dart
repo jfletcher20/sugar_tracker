@@ -60,7 +60,7 @@ class MealAPI {
     return result;
   }
 
-  // determines meal category
+  // attempt to predict meal category
   static Future<MealCategory> determineCategory() async {
     // get the last 5 meals and cleverly determine if the new one, based on the time of day and the recent meal history, is supposed to be breakfast, lunch, dinner, or snack
     List<Map<String, dynamic>> lastFiveResults =
@@ -68,6 +68,7 @@ class MealAPI {
     List<Meal> lastFive =
         await Future.wait(lastFiveResults.map((e) => parseResultsAndGetSugarInsulinFood(e)))
           ..sort((a, b) => a.datetime.compareTo(b.datetime));
+
     // check if the current time is between 6am and 2pm, and if the last 5 meals' breakfast entries are all before then
     if (DateTime.now().hour >= 6 && DateTime.now().hour < 14) {
       Meal breakfastInstance = lastFive.lastWhere(
@@ -84,6 +85,7 @@ class MealAPI {
         else if (hoursPassed < 2) return MealCategory.snack;
       }
     }
+
     // check for lunch
     else if (DateTime.now().hour >= 12 && DateTime.now().hour < 18) {
       Meal lunchInstance = lastFive.lastWhere(

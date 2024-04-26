@@ -1,5 +1,7 @@
 // create model based on sql command:
 
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 /* "CREATE TABLE food("
           "id INTEGER PRIMARY KEY,"
           "name TEXT,"
@@ -13,6 +15,8 @@
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 
+final FoodCategory _fc = FoodCategory();
+
 class Food {
   int id = -1;
   String name = "Unknown";
@@ -24,23 +28,45 @@ class Food {
   int _amount = 0;
   int get amount => _amount;
   set amount(int value) {
-    if (value >= 0) {
+    if (value >= 0)
       _amount = value;
-    } else {
+    else
       _amount = 0;
-    }
   }
 
   Food({
     this.id = -1,
     this.name = "Unknown",
-    required this.foodCategory,
+    FoodCategory? foodCategory,
     this.carbs = 0,
     this.weight = 0,
     this.picture = "",
-    this.notes,
+    this.notes = "",
     int amount = 0,
-  }) : _amount = amount;
+  })  : _amount = amount,
+        foodCategory = foodCategory ?? _fc;
+
+  Food copyWith({
+    int? id,
+    String? name,
+    FoodCategory? foodCategory,
+    double? carbs,
+    double? weight,
+    String? picture,
+    String? notes,
+    int? amount,
+  }) {
+    return Food(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      foodCategory: foodCategory ?? this.foodCategory,
+      carbs: carbs ?? this.carbs,
+      weight: weight ?? this.weight,
+      picture: picture ?? this.picture,
+      notes: notes ?? this.notes,
+      amount: amount ?? this.amount,
+    );
+  }
 
   Food.fromMap(Map<String, dynamic> map) {
     id = map["id"];

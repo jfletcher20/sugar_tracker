@@ -12,6 +12,7 @@ import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

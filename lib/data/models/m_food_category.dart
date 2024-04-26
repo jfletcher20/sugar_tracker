@@ -19,6 +19,15 @@ class FoodCategory {
     this.notes = "",
   });
 
+  FoodCategory copyWith({int? id, String? name, String? picture, String? notes}) {
+    return FoodCategory(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      picture: picture ?? this.picture,
+      notes: notes ?? this.notes,
+    );
+  }
+
   FoodCategory.fromMap(Map<String, dynamic> map) {
     id = map["id"];
     name = map["name"];

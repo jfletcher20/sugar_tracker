@@ -18,15 +18,20 @@ class Sugar {
 
   Sugar({this.id = -1, this.level = 0, this.datetime, this.notes = ""});
 
+  Sugar copyWith({int? id, double? level, DateTime? datetime, String? notes}) {
+    return Sugar(
+      id: id ?? this.id,
+      level: level ?? this.level,
+      datetime: datetime ?? this.datetime,
+      notes: notes ?? this.notes,
+    );
+  }
+
   String get time {
     String hour = datetime!.hour.toString();
     String minute = datetime!.minute.toString();
-    if (hour.length == 1) {
-      hour = "0$hour";
-    }
-    if (minute.length == 1) {
-      minute = "0$minute";
-    }
+    if (hour.length == 1) hour = "0$hour";
+    if (minute.length == 1) minute = "0$minute";
     return "$hour:$minute";
   }
 
