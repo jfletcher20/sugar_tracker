@@ -8,6 +8,7 @@ class SugarModelState extends StateNotifier<Set<Sugar>> {
   }
 
   Future<void> load() async => setSugars((await SugarAPI.selectAll()).toSet());
+  List<Sugar> getSugars() => state.toList();
 
   Sugar getSugar(int id) {
     return state.firstWhere((t) {
@@ -15,11 +16,17 @@ class SugarModelState extends StateNotifier<Set<Sugar>> {
     }, orElse: () => Sugar());
   }
 
-  Future<Sugar> addSugar(Sugar sugar) async {
+  Sugar getSugarByDatetime(DateTime datetime) {
+    return state.firstWhere((t) {
+      return t.datetime == datetime;
+    }, orElse: () => Sugar());
+  }
+
+  Future<int> addSugar(Sugar sugar) async {
     int id = await SugarAPI.insert(sugar);
     sugar = sugar.copyWith(id: id);
     state = {...state, sugar};
-    return sugar;
+    return id;
   }
 
   Future<void> removeSugar(Sugar sugar) async {
@@ -30,10 +37,10 @@ class SugarModelState extends StateNotifier<Set<Sugar>> {
 
   void setSugars(Set<Sugar> sugars) => state = sugars;
 
-  Future<void> updateSugar(Sugar sugar) async {
-    if (state.where((element) => element.id == sugar.id).isEmpty) return;
+  Future<int> updateSugar(Sugar sugar) async {
+    if (state.where((element) => element.id == sugar.id).isEmpty) return -1;
     state = state.map((m) => m.id == sugar.id ? sugar : m).toSet();
-    await SugarAPI.update(sugar);
+    return await SugarAPI.update(sugar);
   }
 }
 

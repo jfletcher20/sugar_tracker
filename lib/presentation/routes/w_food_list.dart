@@ -1,30 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/api/u_api_food.dart';
-import 'package:sugar_tracker/data/models/m_food.dart';
-import 'package:sugar_tracker/data/models/m_food_category.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
-import 'package:sugar_tracker/presentation/widgets/food/w_food_card.dart';
 import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
+import 'package:sugar_tracker/presentation/widgets/food/w_food_card.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
+import 'package:sugar_tracker/data/models/m_food_category.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
 
-class FoodListWidget extends StatefulWidget {
+import 'package:flutter/material.dart';
+
+class FoodListWidget extends ConsumerStatefulWidget {
   const FoodListWidget({super.key});
 
   @override
-  State<FoodListWidget> createState() => _FoodListWidgetState();
+  ConsumerState<FoodListWidget> createState() => _FoodListWidgetState();
 }
 
-class _FoodListWidgetState extends State<FoodListWidget> with AutomaticKeepAliveClientMixin {
+class _FoodListWidgetState extends ConsumerState<FoodListWidget>
+    with AutomaticKeepAliveClientMixin {
   final GlobalKey<FoodCategoryGridViewState> foodCategoryKey = GlobalKey();
-  bool loadFoods = true;
-  List<Food> foods = [];
-
-  void initFoods(List<Food> foods) {
-    if (loadFoods) {
-      this.foods = foods;
-      foods.sort((a, b) => a.name.compareTo(b.name));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +28,16 @@ class _FoodListWidgetState extends State<FoodListWidget> with AutomaticKeepAlive
           child: Column(
             children: [
               const SizedBox(height: 64 + 12),
-              _foodListBuilder(),
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: ref
+                      .watch(FoodManager.provider.notifier)
+                      .getFilteredFoods(fc)
+                      .map((e) => foodCard(context, e))
+                      .toList(),
+                ),
+              )
             ],
           ),
         ),
@@ -45,18 +46,9 @@ class _FoodListWidgetState extends State<FoodListWidget> with AutomaticKeepAlive
     );
   }
 
-  Widget _foodListBuilder() {
-    return Consumer(builder: (context, ref, child) {
-      initFoods(ref.read(FoodManager.provider.notifier).getFoods());
-      return _foodList();
-    });
-  }
-
-  Widget _foodList() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(children: foods.map((e) => foodCard(context, e)).toList()),
-    );
+  List<FoodCategory> get fc {
+    FoodCategoryGridViewState? foodCategoryGridViewState = foodCategoryKey.currentState;
+    return foodCategoryGridViewState?.allSelected ?? [];
   }
 
   Widget _foodCategoryFilter() {
@@ -70,21 +62,7 @@ class _FoodListWidgetState extends State<FoodListWidget> with AutomaticKeepAlive
           crossAxisCount: 8,
           crossAxisSpacing: 0,
           mainAxisSpacing: 0,
-          onSelect: (category) async {
-            FoodCategoryGridViewState foodCategoryGridViewState = foodCategoryKey.currentState!;
-            List<FoodCategory> fc = foodCategoryGridViewState.allSelected;
-            if (fc.isEmpty) {
-              loadFoods = true;
-              initFoods(await FoodAPI.selectAll());
-              setState(() {});
-            } else {
-              loadFoods = true;
-              initFoods(await FoodAPI.selectAll());
-              foods.retainWhere((food) => fc.any((c) => c.id == food.foodCategory.id));
-              loadFoods = false;
-              if (context.mounted) setState(() => {});
-            }
-          },
+          onSelect: (category) => setState(() {}),
         ),
       ),
     );

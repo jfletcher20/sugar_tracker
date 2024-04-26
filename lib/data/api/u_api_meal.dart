@@ -2,6 +2,7 @@
 
 // ignore_for_file: curly_braces_in_flow_control_structures
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_sugar.dart';
@@ -11,6 +12,7 @@ import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 
 class MealAPI {
   // insert meal entry into db
@@ -23,7 +25,10 @@ class MealAPI {
   static Future<int> delete(Meal meal) async => await DB.delete("meal", meal.id);
 
   // select all meal entries from db as meals
-  static Future<List<Meal>> selectAll() async {
+  static Future<List<Meal>> selectAll({WidgetRef? ref}) async {
+    if (ref != null) if (ref.read(MealManager.provider).isNotEmpty)
+      return ref.read(MealManager.provider.notifier).getMeals();
+
     // get all meals, and for each meal, get the sugar and food
     List<Meal> result = List.empty(growable: true);
     List<Map<String, dynamic>> meals = await DB.select("meal");
@@ -66,8 +71,10 @@ class MealAPI {
     List<Map<String, dynamic>> lastFiveResults =
         (await DB.db.rawQuery("SELECT * FROM meal ORDER BY id DESC LIMIT 5"));
     List<Meal> lastFive =
-        await Future.wait(lastFiveResults.map((e) => parseResultsAndGetSugarInsulinFood(e)))
-          ..sort((a, b) => a.datetime.compareTo(b.datetime));
+        (await Future.wait(lastFiveResults.map((e) => parseResultsAndGetSugarInsulinFood(e))))
+            .where((element) => element.datetime != null)
+            .toList()
+          ..sort((a, b) => a.datetime!.compareTo(b.datetime!));
 
     // check if the current time is between 6am and 2pm, and if the last 5 meals' breakfast entries are all before then
     if (DateTime.now().hour >= 6 && DateTime.now().hour < 14) {
@@ -76,10 +83,10 @@ class MealAPI {
         orElse: () => Meal.empty(),
       );
       if (breakfastInstance.id == -1) return MealCategory.breakfast;
-      if (breakfastInstance.datetime.day != DateTime.now().day) {
+      if (breakfastInstance.datetime!.day != DateTime.now().day) {
         return MealCategory.breakfast;
       } else {
-        int hoursPassed = DateTime.now().hour - breakfastInstance.datetime.hour;
+        int hoursPassed = DateTime.now().hour - breakfastInstance.datetime!.hour;
         if (hoursPassed > 2)
           return MealCategory.lunch;
         else if (hoursPassed < 2) return MealCategory.snack;
@@ -93,10 +100,10 @@ class MealAPI {
         orElse: () => Meal.empty(),
       );
       if (lunchInstance.id == -1) return MealCategory.lunch;
-      if (lunchInstance.datetime.day != DateTime.now().day) {
+      if (lunchInstance.datetime!.day != DateTime.now().day) {
         return MealCategory.lunch;
       } else {
-        int hoursPassed = DateTime.now().hour - lunchInstance.datetime.hour;
+        int hoursPassed = DateTime.now().hour - lunchInstance.datetime!.hour;
         if (hoursPassed > 4)
           return MealCategory.dinner;
         else if (hoursPassed < 4) return MealCategory.snack;
@@ -110,14 +117,18 @@ class MealAPI {
         orElse: () => Meal.empty(),
       );
       if (dinnerInstance.id == -1) return MealCategory.dinner;
-      if (dinnerInstance.datetime.day != DateTime.now().day) return MealCategory.dinner;
+      if (dinnerInstance.datetime!.day != DateTime.now().day) return MealCategory.dinner;
     }
 
     return MealCategory.snack;
   }
 
   // select meal entry from db by id
-  static Future<Meal> selectByFoodId(int foodId) async {
+  static Future<Meal> selectByFoodId(int foodId, {WidgetRef? ref}) async {
+    if (ref != null) {
+      Meal meal = ref.read(MealManager.provider.notifier).getMealByFoodId(foodId);
+      if (meal.id != -1) return meal;
+    }
     Map<String, dynamic> result =
         (await DB.db.rawQuery("SELECT * FROM meal WHERE food_ids = ?", [foodId.toString()])).first;
 

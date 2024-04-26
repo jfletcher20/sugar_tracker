@@ -1,17 +1,15 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-
-import 'package:sugar_tracker/data/api/u_api_food.dart';
-import 'package:sugar_tracker/data/api/u_api_insulin.dart';
-import 'package:sugar_tracker/data/api/u_api_meal.dart';
-import 'package:sugar_tracker/data/api/u_api_sugar.dart';
-import 'package:sugar_tracker/data/models/m_food.dart';
-import 'package:sugar_tracker/data/models/m_insulin.dart';
-import 'package:sugar_tracker/data/preferences.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
+import 'package:sugar_tracker/data/preferences.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -152,10 +150,10 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
   ElevatedButton _foodSelectionMenuButton() {
     return ElevatedButton(
       onPressed: () async {
-        List<Food> foods = await FoodAPI.selectAll();
+        Set<Food> foods = ref.watch(FoodManager.provider);
         for (int i = 0; i < foods.length; i++) {
-          if (!meal.food.any((element) => element.id == foods[i].id)) {
-            meal.food.add(foods[i]);
+          if (!meal.food.any((element) => element.id == foods.elementAt(i).id)) {
+            meal.food.add(foods.elementAt(i));
             meal.food.last.amount = 0;
           }
         }
@@ -227,11 +225,10 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
 
   Future<int> _saveSugarLevel() async {
     int sugarId = meal.sugarLevel.id;
-    if (widget.useAsTemplate || sugarId == -1) {
-      sugarId = await SugarAPI.insert(meal.sugarLevel);
-    } else {
-      await SugarAPI.update(meal.sugarLevel);
-    }
+    if (widget.useAsTemplate || sugarId == -1)
+      sugarId = await ref.read(SugarManager.provider.notifier).addSugar(meal.sugarLevel);
+    else
+      await ref.read(SugarManager.provider.notifier).updateSugar(meal.sugarLevel);
     return sugarId;
   }
 
@@ -239,23 +236,21 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     int insulinId = meal.insulin.id;
     if (widget.useAsTemplate || insulinId == -1) {
       try {
-        insulinId = await InsulinAPI.insert(meal.insulin);
+        insulinId = await ref.read(InsulinManager.provider.notifier).addInsulin(meal.insulin);
       } catch (e) {
-        await InsulinAPI.update(meal.insulin);
+        await ref.read(InsulinManager.provider.notifier).updateInsulin(meal.insulin);
       }
-    } else {
-      await InsulinAPI.update(meal.insulin);
-    }
+    } else
+      await ref.read(InsulinManager.provider.notifier).updateInsulin(meal.insulin);
     return insulinId;
   }
 
   Future<int> _saveMeal() async {
     int mealId = meal.id;
-    if (widget.useAsTemplate || mealId == -1) {
-      mealId = await MealAPI.insert(meal);
-    } else {
-      await MealAPI.update(meal);
-    }
+    if (widget.useAsTemplate || mealId == -1)
+      mealId = await ref.read(MealManager.provider.notifier).addMeal(meal);
+    else
+      await ref.read(MealManager.provider.notifier).updateMeal(meal);
     return mealId;
   }
 
@@ -379,7 +374,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
               onPressed: () async {
                 String insulinName = meal.insulin.name;
                 if (insulinName == "Unknown") {
-                  List<Insulin> insulins = await InsulinAPI.selectAll();
+                  List<Insulin> insulins = ref.watch(InsulinManager.provider).toList();
                   if (insulins.isNotEmpty) {
                     insulins.sort((a, b) => a.datetime!.compareTo(b.datetime!));
                     insulinName = insulins.last.name;

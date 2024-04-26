@@ -1,16 +1,19 @@
-import 'package:sugar_tracker/data/api/u_api_insulin.dart';
-import 'package:sugar_tracker/data/api/u_api_meal.dart';
-import 'package:sugar_tracker/data/api/u_api_sugar.dart';
+// ignore_for_file: curly_braces_in_flow_control_structures
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 import 'package:sugar_tracker/data/preferences.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class InsulinFormWidget extends StatefulWidget {
+class InsulinFormWidget extends ConsumerStatefulWidget {
   final Insulin? insulin;
   final Sugar? sugar;
   final bool useAsTemplate;
@@ -18,10 +21,10 @@ class InsulinFormWidget extends StatefulWidget {
   const InsulinFormWidget({super.key, this.insulin, this.sugar, this.useAsTemplate = false});
 
   @override
-  State<InsulinFormWidget> createState() => _InsulinFormWidgetState();
+  ConsumerState<InsulinFormWidget> createState() => _InsulinFormWidgetState();
 }
 
-class _InsulinFormWidgetState extends State<InsulinFormWidget> {
+class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
   // text controllers for each text field
   late final TextEditingController _sugarLevelController;
   late final TextEditingController _insulinController;
@@ -50,32 +53,14 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   }
 
   void initSugarLevel() async {
-    List<Sugar> sugarLevels = await SugarAPI.selectAll();
-    if (sugarLevels.isNotEmpty) {
-      try {
-        sugarLevel = sugarLevels.firstWhere((s) => s.datetime == insulin.datetime);
-      } catch (e) {
-        sugarLevel = Sugar();
-      }
-    } else {
-      sugarLevel = Sugar();
-    }
+    sugarLevel = ref.read(SugarManager.provider.notifier).getSugarByDatetime(insulin.datetime!);
     String startingValue = sugarLevel.level > 0 ? sugarLevel.level.toString() : "";
     _sugarLevelController.text = startingValue;
     setState(() {});
   }
 
   void initInsulinUnits() async {
-    List<Insulin> insulinData = await InsulinAPI.selectAll();
-    if (insulinData.isNotEmpty) {
-      try {
-        insulin = insulinData.firstWhere((i) => i.datetime == sugarLevel.datetime);
-      } catch (e) {
-        insulin = Insulin();
-      }
-    } else {
-      insulin = Insulin();
-    }
+    insulin = ref.read(InsulinManager.provider.notifier).getInsulinByDatetime(sugarLevel.datetime);
     String startingValue = insulin.units > 0 ? insulin.units.toString() : "";
     _insulinController.text = startingValue;
     setState(() {});
@@ -138,10 +123,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
   }
 
   Future<InsulinCategory> loadInsulinData() async {
-    if (insulin.id != -1 || widget.useAsTemplate) {
-      return insulin.category;
-    }
-    List<Insulin> insulinData = await InsulinAPI.selectAll();
+    if (insulin.id != -1 || widget.useAsTemplate) return insulin.category;
+    List<Insulin> insulinData = ref.watch(InsulinManager.provider).toList();
     InsulinCategory result = InsulinCategory.bolus;
     // if datetimeselectorkey's time is between 9:55pm and 10:35pm, set category to basal
     if ((dateTimeSelectorKey.currentState!.datetime.hour >= 21 &&
@@ -153,9 +136,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
       insulin.name = insulinData.firstWhere((i) => i.category == result).name;
       return result;
     }
-    if (insulinData.isEmpty) {
-      return result;
-    }
+    if (insulinData.isEmpty) return result;
     insulinData.sort((a, b) => a.date.compareTo(b.date));
     insulinData = insulinData.reversed.toList();
     insulin.name = insulinData.firstWhere((element) => element.category == result).name;
@@ -204,10 +185,9 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     if (sugarLevel.level > 0) {
       if (widget.useAsTemplate || sugarId == -1) {
         sugarLevel.id = -1;
-        sugarId = await SugarAPI.insert(sugarLevel);
-      } else {
-        await SugarAPI.update(sugarLevel);
-      }
+        sugarId = await ref.read(SugarManager.provider.notifier).addSugar(sugarLevel);
+      } else
+        await ref.read(SugarManager.provider.notifier).updateSugar(sugarLevel);
       return sugarId;
     } else {
       if (sugarLevel.id != -1) {
@@ -225,7 +205,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
               TextButton(
                 onPressed: () async {
                   // check if sugar level is in a meal
-                  Meal meal = await MealAPI.selectBySugarId(sugarLevel);
+                  Meal meal = ref.read(MealManager.provider.notifier).getMealBySugarId(sugarLevel);
                   if (meal.id != -1) {
                     // show dialog saying couldn't delete
                     if (context.mounted) {
@@ -243,9 +223,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
                         ),
                       );
                     }
-                  } else {
-                    await SugarAPI.delete(sugarLevel);
-                  }
+                  } else
+                    await ref.read(SugarManager.provider.notifier).removeSugar(sugarLevel);
                   if (context.mounted) Navigator.pop(context);
                 },
                 child: const Text("Delete"),
@@ -264,13 +243,12 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
       if (widget.useAsTemplate || insulinId == -1) {
         try {
           insulin.id = -1;
-          insulinId = await InsulinAPI.insert(insulin);
+          insulinId = await ref.read(InsulinManager.provider.notifier).addInsulin(insulin);
         } catch (e) {
-          await InsulinAPI.update(insulin);
+          await ref.read(InsulinManager.provider.notifier).updateInsulin(insulin);
         }
-      } else {
-        await InsulinAPI.update(insulin);
-      }
+      } else
+        await ref.read(InsulinManager.provider.notifier).updateInsulin(insulin);
     } else if (insulin.id != -1) {
       await showDialog(
         context: context,
@@ -285,7 +263,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
             TextButton(
               onPressed: () async {
                 // check if insulin is in a meal
-                Meal meal = await MealAPI.selectByInsulinId(insulin);
+                Meal meal =
+                    await ref.read(MealManager.provider.notifier).getMealByInsulinId(insulin);
                 if (meal.id != -1) {
                   // show dialog saying couldn't delete
                   if (context.mounted) {
@@ -304,7 +283,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
                     );
                   }
                 } else {
-                  await InsulinAPI.delete(insulin);
+                  await ref.read(InsulinManager.provider.notifier).removeInsulin(insulin);
                 }
                 if (context.mounted) Navigator.pop(context);
               },
@@ -410,9 +389,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
             child: IconButton(
               icon: const Icon(Icons.edit_outlined),
-              onPressed: () async {
-                showInsulinEditor();
-              },
+              onPressed: showInsulinEditor,
             ),
           ),
         )
@@ -459,8 +436,8 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
     );
   }
 
-  Future showInsulinEditor() async {
-    List<Insulin> insulins = await InsulinAPI.selectAll();
+  Future showInsulinEditor() {
+    List<Insulin> insulins = ref.watch(InsulinManager.provider).toList();
     insulins.sort((a, b) => a.date.compareTo(b.date));
     String bolus = insulins.firstWhere((i) => i.category == InsulinCategory.bolus).name;
     String basal = insulins.firstWhere((i) => i.category == InsulinCategory.basal).name;
@@ -481,6 +458,7 @@ class _InsulinFormWidgetState extends State<InsulinFormWidget> {
       ],
     );
     return showModalBottomSheet(
+      // ignore: use_build_context_synchronously
       context: context,
       showDragHandle: true,
       shape: _modalDecoration,

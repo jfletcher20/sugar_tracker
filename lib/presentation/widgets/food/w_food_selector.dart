@@ -1,10 +1,10 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-
 import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_counter.dart';
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
+
 import 'package:flutter/material.dart';
 
 class FoodSelectorWidget extends StatefulWidget {

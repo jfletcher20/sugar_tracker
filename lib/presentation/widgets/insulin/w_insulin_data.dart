@@ -1,21 +1,22 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-
-import 'package:flutter/material.dart';
-import 'package:sugar_tracker/data/api/u_api_meal.dart';
-import 'package:sugar_tracker/data/api/u_api_sugar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 
-class InsulinDataWidget extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
+
+class InsulinDataWidget extends ConsumerStatefulWidget {
   final Insulin insulin;
   const InsulinDataWidget({super.key, required this.insulin});
 
   @override
-  State<InsulinDataWidget> createState() => _InsulinDataWidgetState();
+  ConsumerState<InsulinDataWidget> createState() => _InsulinDataWidgetState();
 }
 
-class _InsulinDataWidgetState extends State<InsulinDataWidget> {
+class _InsulinDataWidgetState extends ConsumerState<InsulinDataWidget> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -45,78 +46,59 @@ class _InsulinDataWidgetState extends State<InsulinDataWidget> {
   }
 
   Widget _sugarLevel() {
+    Sugar sugar =
+        ref.read(SugarManager.provider.notifier).getSugarByDatetime(widget.insulin.datetime!);
+    String sugarLevel = sugar.id != -1 ? sugar.level.toString() : "";
+    sugar.level == 0 ? sugarLevel = "" : null;
+    bool cond = sugar.notes.toLowerCase().contains("libre");
+    void showNotesDialog(String title, String content) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return SizedBox(
       width: 60,
       child: Center(
-        child: FutureBuilder(
-          future: SugarAPI.selectByDate(widget.insulin.datetime!),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              Sugar sugar = snapshot.data as Sugar;
-              String sugarLevel = sugar.id != -1 ? sugar.level.toString() : "";
-              sugar.level == 0 ? sugarLevel = "" : null;
-              bool cond = sugar.notes.toLowerCase().contains("libre");
-              void showNotesDialog(String title, String content) {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text(title),
-                      content: Text(content),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text("OK"),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }
-
-              return InkWell(
-                onTap: sugar.notes == ""
-                    ? null
-                    : () => showNotesDialog("Sugar level notes", sugar.notes),
-                child: Text(
-                  sugarLevel,
-                  style: TextStyle(
-                    fontSize: 18,
-                    decoration: sugar.notes == "" ? null : TextDecoration.underline,
-                    decorationColor: cond ? Colors.redAccent[400]! : null,
-                    decorationThickness: cond ? 2 : 1,
-                    decorationStyle: cond ? TextDecorationStyle.wavy : null,
-                  ),
-                ),
-              );
-            } else
-              return const Text("");
-          },
+        child: InkWell(
+          onTap: sugar.notes == "" ? null : () => showNotesDialog("Sugar level notes", sugar.notes),
+          child: Text(
+            sugarLevel,
+            style: TextStyle(
+              fontSize: 18,
+              decoration: sugar.notes == "" ? null : TextDecoration.underline,
+              decorationColor: cond ? Colors.redAccent[400]! : null,
+              decorationThickness: cond ? 2 : 1,
+              decorationStyle: cond ? TextDecorationStyle.wavy : null,
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget _carbs() {
+    Meal meal = ref.read(MealManager.provider.notifier).getMealByInsulinId(widget.insulin);
     return SizedBox(
       width: 60,
       child: Center(
-        child: FutureBuilder(
-          future: MealAPI.selectByInsulinId(widget.insulin),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              Meal meal = snapshot.data as Meal;
-              String carbs = meal.id != -1 ? "${meal.carbs.round()}g" : "";
-              return Text(
-                carbs,
-                style: TextStyle(
-                  color: meal.id == -1 ? Colors.white : mealCategoryColor(meal.category),
-                ),
-              );
-            } else {
-              return const Text("");
-            }
-          },
+        child: Text(
+          meal.carbsDisplay,
+          style: TextStyle(
+            color: meal.id == -1 ? Colors.white : mealCategoryColor(meal.category),
+          ),
         ),
       ),
     );

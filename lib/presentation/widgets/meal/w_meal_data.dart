@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
+
+import 'package:flutter/material.dart';
 
 class MealDataWidget extends StatelessWidget {
   final Meal meal;

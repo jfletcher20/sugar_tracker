@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/models/m_food_category.dart';
 
 class FoodModelState extends StateNotifier<Set<Food>> {
   FoodModelState() : super(const {}) {
@@ -9,7 +10,16 @@ class FoodModelState extends StateNotifier<Set<Food>> {
 
   Future<void> load() async => setFoods((await FoodAPI.selectAll()).toSet());
 
-  List<Food> getFoods() => state.toList();
+  List<Food> getFoods() {
+    var sorted = state.toList()..sort((a, b) => a.name.compareTo(b.name));
+    return sorted;
+  }
+
+  List<Food> getFilteredFoods(List<FoodCategory> foodCategories) {
+    var foods = state.toList();
+    if (foodCategories.isEmpty) return foods;
+    return foods..retainWhere((food) => foodCategories.any((c) => c.id == food.foodCategory.id));
+  }
 
   Food getFood(int id) {
     return state.firstWhere((t) {
@@ -17,11 +27,11 @@ class FoodModelState extends StateNotifier<Set<Food>> {
     }, orElse: () => Food());
   }
 
-  Future<Food> addFood(Food food) async {
+  Future<int> addFood(Food food) async {
     int id = await FoodAPI.insert(food);
     food = food.copyWith(id: id);
     state = {...state, food};
-    return food;
+    return id;
   }
 
   Future<void> removeFood(Food food) async {
@@ -32,10 +42,10 @@ class FoodModelState extends StateNotifier<Set<Food>> {
 
   void setFoods(Set<Food> foods) => state = foods;
 
-  Future<void> updateFood(Food food) async {
-    if (state.where((element) => element.id == food.id).isEmpty) return;
+  Future<int> updateFood(Food food) async {
+    if (state.where((element) => element.id == food.id).isEmpty) return -1;
     state = state.map((m) => m.id == food.id ? food : m).toSet();
-    await FoodAPI.update(food);
+    return await FoodAPI.update(food);
   }
 }
 

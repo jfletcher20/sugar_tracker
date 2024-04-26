@@ -1,44 +1,35 @@
-import 'package:sugar_tracker/data/api/u_api_insulin.dart';
-import 'package:sugar_tracker/data/api/u_api_sugar.dart';
-import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meal_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
-import 'package:sugar_tracker/data/api/u_api_meal.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
-import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
-class MealHistoryWidget extends StatefulWidget {
+class MealHistoryWidget extends ConsumerStatefulWidget {
   const MealHistoryWidget({super.key});
   @override
-  State<MealHistoryWidget> createState() => _MealHistoryWidgetState();
+  ConsumerState<MealHistoryWidget> createState() => _MealHistoryWidgetState();
 }
 
-class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
+class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Paging {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      builder: (builder, snapshot) {
-        if (snapshot.hasData) {
-          List<Meal> meals = snapshot.data as List<Meal>;
-          meals.removeWhere((element) => element.sugarLevel.datetime == null);
-          meals.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
-          meals = meals.reversed.toList();
-          return scrollable(
-            Column(children: paging(meals, (context, meal) => mealCard(context, meal))),
-          );
-        } else {
-          return SizedBox(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: const Center(child: CircularProgressIndicator()),
-          );
-        }
-      },
-      future: MealAPI.selectAll(),
+    List<Meal> meals = ref
+        .watch(MealManager.provider.notifier)
+        .getMeals()
+        .where((element) => element.sugarLevel.datetime != null)
+        .toList();
+    meals.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
+    meals = meals.reversed.toList();
+    return scrollable(
+      Column(children: paging(meals, (context, meal) => mealCard(context, meal))),
     );
   }
 
@@ -116,9 +107,9 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
                 label: "Everything",
                 icon: Icons.delete_forever,
                 onTap: () async {
-                  await SugarAPI.delete(meal.sugarLevel);
-                  await InsulinAPI.delete(meal.insulin);
-                  await MealAPI.delete(meal);
+                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
+                  await ref.read(SugarManager.provider.notifier).removeSugar(meal.sugarLevel);
+                  await ref.read(InsulinManager.provider.notifier).removeInsulin(meal.insulin);
                   if (context.mounted) Navigator.pop(context);
                 },
               ),
@@ -126,8 +117,8 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
                 label: "Meal and sugar",
                 icon: Icons.query_stats,
                 onTap: () async {
-                  await MealAPI.delete(meal);
-                  await SugarAPI.delete(meal.sugarLevel);
+                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
+                  await ref.read(SugarManager.provider.notifier).removeSugar(meal.sugarLevel);
                   if (context.mounted) Navigator.pop(context);
                 },
               ),
@@ -135,8 +126,8 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
                 label: "Meal and insulin",
                 icon: Icons.edit_outlined,
                 onTap: () async {
-                  await MealAPI.delete(meal);
-                  await InsulinAPI.delete(meal.insulin);
+                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
+                  await ref.read(InsulinManager.provider.notifier).removeInsulin(meal.insulin);
                   if (context.mounted) Navigator.pop(context);
                 },
               ),
@@ -144,16 +135,14 @@ class _MealHistoryWidgetState extends State<MealHistoryWidget> with Paging {
                 label: "Only meal",
                 icon: Icons.fastfood,
                 onTap: () async {
-                  await MealAPI.delete(meal);
+                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
                   if (context.mounted) Navigator.pop(context);
                 },
               ),
               _optionTile(
                 label: "Cancel",
                 icon: Icons.cancel,
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () => Navigator.pop(context),
               ),
             ],
           ),

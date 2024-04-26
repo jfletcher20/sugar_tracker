@@ -1,25 +1,26 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 
 import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/presentation/widgets/w_imagepicker.dart';
-import 'package:sugar_tracker/data/api/u_api_food_category.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
-import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class FoodFormWidget extends StatefulWidget {
+class FoodFormWidget extends ConsumerStatefulWidget {
   final Food food;
   final bool useAsTemplate;
   const FoodFormWidget({super.key, required this.food, this.useAsTemplate = false});
   @override
-  State<FoodFormWidget> createState() => _FoodFormWidgetState();
+  ConsumerState<FoodFormWidget> createState() => _FoodFormWidgetState();
 }
 
-class _FoodFormWidgetState extends State<FoodFormWidget> {
+class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
   // text controllers for each text field
   late final TextEditingController _nameController;
   late final TextEditingController _carbsController;
@@ -80,20 +81,13 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
   }
 
   Widget _categories() {
-    return FutureBuilder(
-      future: FoodCategoryAPI.selectAll(),
-      builder: (context, snapshot) {
-        List<FoodCategory> foodCategories = List.empty(growable: true);
-        if (snapshot.hasData) {
-          foodCategories = snapshot.data as List<FoodCategory>;
-          if (!widget.useAsTemplate && food.id == -1)
-            food.foodCategory = foodCategories.first;
-          else
-            food.foodCategory = widget.food.foodCategory;
-        }
-        return _categoryGrid(foodCategories);
-      },
-    );
+    List<FoodCategory> foodCategories =
+        ref.read(FoodCategoryManager.provider.notifier).getFoodCategories();
+    if (!widget.useAsTemplate && food.id == -1)
+      food.foodCategory = foodCategories.first;
+    else
+      food.foodCategory = widget.food.foodCategory;
+    return _categoryGrid(foodCategories);
   }
 
   Widget title() {
@@ -151,16 +145,14 @@ class _FoodFormWidgetState extends State<FoodFormWidget> {
 
   Future<void> _saveData() async {
     food.id = await _saveFood();
-    return;
   }
 
   Future<int> _saveFood() async {
     int foodId = food.id;
-    if (widget.useAsTemplate || foodId == -1) {
-      foodId = await FoodAPI.insert(food);
-    } else {
-      await FoodAPI.update(food);
-    }
+    if (widget.useAsTemplate || foodId == -1)
+      foodId = await ref.read(FoodManager.provider.notifier).addFood(food);
+    else
+      await ref.read(FoodManager.provider.notifier).updateFood(food);
     return foodId;
   }
 

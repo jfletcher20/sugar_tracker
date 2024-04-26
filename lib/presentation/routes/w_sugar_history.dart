@@ -1,46 +1,33 @@
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:sugar_tracker/data/api/u_api_insulin.dart';
-import 'package:sugar_tracker/data/api/u_api_meal.dart';
-import 'package:sugar_tracker/data/api/u_api_sugar.dart';
-import 'package:sugar_tracker/data/models/m_insulin.dart';
-import 'package:sugar_tracker/data/models/m_meal.dart';
-import 'package:sugar_tracker/data/models/m_sugar.dart';
-
-import 'package:flutter/material.dart';
-import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';
 import 'package:sugar_tracker/presentation/widgets/sugar/w_sugar_data.dart';
+import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
+import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/models/m_meal.dart';
 
-class SugarHistoryWidget extends StatefulWidget {
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+
+class SugarHistoryWidget extends ConsumerStatefulWidget {
   const SugarHistoryWidget({super.key});
 
   @override
-  State<SugarHistoryWidget> createState() => _SugarHistoryWidgetState();
+  ConsumerState<SugarHistoryWidget> createState() => _SugarHistoryWidgetState();
 }
 
-class _SugarHistoryWidgetState extends State<SugarHistoryWidget> with Paging {
+class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Paging {
   @override
   Widget build(BuildContext context) {
-    Size maxSize = MediaQuery.of(context).size;
-    return FutureBuilder(
-      builder: (builder, snapshot) {
-        if (snapshot.hasData) {
-          List<Sugar> sugar = snapshot.data as List<Sugar>;
-          sugar.sort((a, b) => a.datetime!.compareTo(b.datetime!));
-          sugar = sugar.reversed.toList();
-          return scrollable(
-            Column(children: paging(sugar, (context, sugar) => sugarCard(context, sugar))),
-          );
-        } else {
-          return SizedBox(
-            height: maxSize.height,
-            width: maxSize.width,
-            child: const Center(child: CircularProgressIndicator()),
-          );
-        }
-      },
-      future: SugarAPI.selectAll(),
+    List<Sugar> sugar = ref.watch(SugarManager.provider).toList();
+    sugar.sort((a, b) => a.datetime!.compareTo(b.datetime!));
+    sugar = sugar.reversed.toList();
+    return scrollable(
+      Column(children: paging(sugar, (context, sugar) => sugarCard(context, sugar))),
     );
   }
 
@@ -110,7 +97,7 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> with Paging {
         );
         if (result != null && result) {
           // await MealAPI.delete(insulin);
-          Meal meal = await MealAPI.selectBySugarId(sugar);
+          Meal meal = ref.watch(MealManager.provider.notifier).getMealBySugarId(sugar);
           if (meal.id != -1) {
             // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
@@ -119,9 +106,8 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> with Paging {
                 duration: Duration(seconds: 2),
               ),
             );
-          } else {
-            await SugarAPI.delete(sugar);
-          }
+          } else
+            await ref.read(SugarManager.provider.notifier).removeSugar(sugar);
           if (context.mounted) setState(() {});
         }
         if (context.mounted) Navigator.pop(context, true);
@@ -235,10 +221,10 @@ class _SugarHistoryWidgetState extends State<SugarHistoryWidget> with Paging {
                 : Icon(insulinCategoryIcon(snapshot.data as InsulinCategory)),
       ),
       future: () async {
-        Meal meal = await MealAPI.selectBySugarId(sugar);
+        Meal meal = ref.read(MealManager.provider.notifier).getMealBySugarId(sugar);
         dynamic val = meal.id == -1 ? null : meal.category;
         if (val == null) {
-          List<Insulin> insulins = await InsulinAPI.selectAll();
+          Set<Insulin> insulins = ref.watch(InsulinManager.provider);
           Insulin insulin =
               insulins.firstWhere((e) => e.datetime == sugar.datetime, orElse: () => Insulin());
           val = insulin.id == -1 ? null : insulin.category;

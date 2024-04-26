@@ -13,6 +13,7 @@ class ThemeManager {
       textTheme: ButtonTextTheme.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(color: Colors.white),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       landscapeLayout: BottomNavigationBarLandscapeLayout.spread,
       backgroundColor: Colors.black,

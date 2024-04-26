@@ -1,12 +1,14 @@
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:sugar_tracker/data/api/u_api_food.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
-import 'package:sugar_tracker/data/models/m_food.dart';
-import 'package:flutter/material.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
 
-class FoodCard extends StatefulWidget {
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class FoodCard extends ConsumerStatefulWidget {
   final Food food;
   final Set<int> columns;
   final bool modifiable, showAmount, showAdditionalOptions;
@@ -20,10 +22,10 @@ class FoodCard extends StatefulWidget {
   });
 
   @override
-  State<FoodCard> createState() => _FoodCardState();
+  ConsumerState<FoodCard> createState() => _FoodCardState();
 }
 
-class _FoodCardState extends State<FoodCard> {
+class _FoodCardState extends ConsumerState<FoodCard> {
   late Food food;
   @override
   void initState() {
@@ -192,9 +194,7 @@ class _FoodCardState extends State<FoodCard> {
                 child: const Text("Cancel"),
               ),
               TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.red,
-                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
                 onPressed: () => Navigator.pop(context, true),
                 child: const Text("Delete"),
               ),
@@ -202,7 +202,7 @@ class _FoodCardState extends State<FoodCard> {
           ),
         );
         if (result != null && result) {
-          await FoodAPI.delete(food);
+          ref.read(FoodManager.provider.notifier).removeFood(food);
           if (context.mounted) setState(() {});
         }
         if (context.mounted) Navigator.pop(context, true);

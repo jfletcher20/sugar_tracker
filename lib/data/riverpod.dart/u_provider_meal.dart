@@ -2,7 +2,9 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
+import 'package:sugar_tracker/data/models/m_sugar.dart';
 
 class MealModelState extends StateNotifier<Set<Meal>> {
   MealModelState() : super(const {}) {
@@ -10,6 +12,12 @@ class MealModelState extends StateNotifier<Set<Meal>> {
   }
 
   Future<void> load() async => setMeals((await MealAPI.selectAll()).toSet());
+
+  List<Meal> getMeals() {
+    var sorted = state.where((element) => element.datetime != null).toList()
+      ..sort((a, b) => a.datetime!.compareTo(b.datetime!));
+    return sorted;
+  }
 
   Meal getMeal(int id) {
     return state.firstWhere((t) {
@@ -24,8 +32,8 @@ class MealModelState extends StateNotifier<Set<Meal>> {
   }
 
   Future<MealCategory> determineCategory() async {
-    List<Meal> meals = state.toList();
-    meals.sort((a, b) => a.datetime.compareTo(b.datetime));
+    List<Meal> meals = state.where((element) => element.datetime != null).toList();
+    meals.sort((a, b) => a.datetime!.compareTo(b.datetime!));
 
     // check if the current time is between 6am and 2pm, and if the last 5 meals' breakfast entries are all before then
     if (DateTime.now().hour >= 6 && DateTime.now().hour < 14) {
@@ -34,10 +42,10 @@ class MealModelState extends StateNotifier<Set<Meal>> {
         orElse: () => Meal.empty(),
       );
       if (breakfastInstance.id == -1) return MealCategory.breakfast;
-      if (breakfastInstance.datetime.day != DateTime.now().day) {
+      if (breakfastInstance.datetime!.day != DateTime.now().day) {
         return MealCategory.breakfast;
       } else {
-        int hoursPassed = DateTime.now().hour - breakfastInstance.datetime.hour;
+        int hoursPassed = DateTime.now().hour - breakfastInstance.datetime!.hour;
         if (hoursPassed > 2)
           return MealCategory.lunch;
         else if (hoursPassed < 2) return MealCategory.snack;
@@ -51,10 +59,10 @@ class MealModelState extends StateNotifier<Set<Meal>> {
         orElse: () => Meal.empty(),
       );
       if (lunchInstance.id == -1) return MealCategory.lunch;
-      if (lunchInstance.datetime.day != DateTime.now().day) {
+      if (lunchInstance.datetime!.day != DateTime.now().day) {
         return MealCategory.lunch;
       } else {
-        int hoursPassed = DateTime.now().hour - lunchInstance.datetime.hour;
+        int hoursPassed = DateTime.now().hour - lunchInstance.datetime!.hour;
         if (hoursPassed > 4)
           return MealCategory.dinner;
         else if (hoursPassed < 4) return MealCategory.snack;
@@ -68,17 +76,17 @@ class MealModelState extends StateNotifier<Set<Meal>> {
         orElse: () => Meal.empty(),
       );
       if (dinnerInstance.id == -1) return MealCategory.dinner;
-      if (dinnerInstance.datetime.day != DateTime.now().day) return MealCategory.dinner;
+      if (dinnerInstance.datetime!.day != DateTime.now().day) return MealCategory.dinner;
     }
 
     return MealCategory.snack;
   }
 
-  Future<Meal> addMeal(Meal meal) async {
+  Future<int> addMeal(Meal meal) async {
     int id = await MealAPI.insert(meal);
     meal = meal.copyWith(id: id);
     state = {...state, meal};
-    return meal;
+    return id;
   }
 
   Future<void> removeMeal(Meal meal) async {
@@ -89,10 +97,19 @@ class MealModelState extends StateNotifier<Set<Meal>> {
 
   void setMeals(Set<Meal> meals) => state = meals;
 
-  Future<void> updateMeal(Meal meal) async {
-    if (state.where((element) => element.id == meal.id).isEmpty) return;
+  Future<int> updateMeal(Meal meal) async {
+    if (state.where((element) => element.id == meal.id).isEmpty) return -1;
     state = state.map((m) => m.id == meal.id ? meal : m).toSet();
-    await MealAPI.update(meal);
+    return await MealAPI.update(meal);
+  }
+
+  Meal getMealByInsulinId(Insulin insulin) {
+    return state.firstWhere((element) => element.insulin.id == insulin.id, orElse: () => Meal());
+  }
+
+  Meal getMealBySugarId(Sugar sugarLevel) {
+    return state.firstWhere((element) => element.sugarLevel.id == sugarLevel.id,
+        orElse: () => Meal());
   }
 }
 

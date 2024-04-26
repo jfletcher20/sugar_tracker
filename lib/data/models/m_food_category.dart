@@ -1,10 +1,14 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 /* String foodCategoryTable = "CREATE TABLE food_category("
           "id INTEGER PRIMARY KEY AUTOINCREMENT,"
           "name TEXT,"
           "picture TEXT,"
           ")"; */
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 
 class FoodCategory {
   int id = -1;
@@ -35,8 +39,12 @@ class FoodCategory {
     notes = map["notes"];
   }
 
-  Future<void> fromId(int id) async {
-    FoodCategory category = await FoodCategoryAPI.selectById(id) ?? FoodCategory(name: "Unknown");
+  Future<void> fromId(int id, {WidgetRef? ref}) async {
+    FoodCategory category;
+    if (ref != null)
+      category = ref.read(FoodCategoryManager.provider.notifier).getFoodCategory(id);
+    else
+      category = await FoodCategoryAPI.selectById(id) ?? FoodCategory(name: "Unknown");
     this.id = category.id;
     name = category.name;
     picture = category.picture;

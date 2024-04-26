@@ -1,11 +1,12 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
+import 'package:sugar_tracker/presentation/widgets/food_category/w_food_category_selector.dart';
+import 'package:sugar_tracker/data/models/m_food_category.dart';
 
 import 'package:flutter/material.dart';
-import 'package:sugar_tracker/data/api/u_api_food_category.dart';
-import 'package:sugar_tracker/data/models/m_food_category.dart';
-import 'package:sugar_tracker/presentation/widgets/food_category/w_food_category_selector.dart';
 
-class FoodCategoryGridView extends StatefulWidget {
+class FoodCategoryGridView extends ConsumerStatefulWidget {
   final List<FoodCategory>? foodCategories;
   final FoodCategory? initialCategory;
   final bool multiSelect;
@@ -27,10 +28,10 @@ class FoodCategoryGridView extends StatefulWidget {
   });
 
   @override
-  State<FoodCategoryGridView> createState() => FoodCategoryGridViewState();
+  ConsumerState<FoodCategoryGridView> createState() => FoodCategoryGridViewState();
 }
 
-class FoodCategoryGridViewState extends State<FoodCategoryGridView> {
+class FoodCategoryGridViewState extends ConsumerState<FoodCategoryGridView> {
   List<FoodCategorySelectorWidget> _categoryCards = List.empty(growable: true);
   List<FoodCategory> foodCategories = [];
 
@@ -78,7 +79,7 @@ class FoodCategoryGridViewState extends State<FoodCategoryGridView> {
   }
 
   Future<List<FoodCategory>> getFoodCategories() async {
-    return widget.foodCategories ?? await FoodCategoryAPI.selectAll();
+    return widget.foodCategories ?? ref.watch(FoodCategoryManager.provider).toList();
   }
 
   Widget get gridView {

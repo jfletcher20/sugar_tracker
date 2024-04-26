@@ -54,7 +54,7 @@ class Meal {
     return total;
   }
 
-  DateTime get datetime => insulin.datetime!;
+  DateTime? get datetime => insulin.datetime!;
   String get date => insulin.date;
   String get time => insulin.time;
 
@@ -138,5 +138,9 @@ class Meal {
     meal += "Σ Carbs: ${carbs.round()}\n";
     meal += "Insulin units taken: $insulin";
     return meal;
+  }
+
+  String get carbsDisplay {
+    return id != -1 ? "${carbs.round()}g" : "";
   }
 }

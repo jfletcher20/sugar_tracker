@@ -1,19 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:sugar_tracker/data/api/u_api_insulin.dart';
-import 'package:sugar_tracker/data/api/u_api_meal.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
-import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/models/m_meal.dart';
 
-class SugarDataWidget extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+
+class SugarDataWidget extends ConsumerStatefulWidget {
   final Sugar sugar;
   const SugarDataWidget({super.key, required this.sugar});
 
   @override
-  State<SugarDataWidget> createState() => _SugarDataWidgetState();
+  ConsumerState<SugarDataWidget> createState() => _SugarDataWidgetState();
 }
 
-class _SugarDataWidgetState extends State<SugarDataWidget> {
+class _SugarDataWidgetState extends ConsumerState<SugarDataWidget> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -73,45 +75,21 @@ class _SugarDataWidgetState extends State<SugarDataWidget> {
   }
 
   Widget _insulin() {
-    return SizedBox(
-      width: 30,
-      child: Center(
-        child: FutureBuilder(
-          future: InsulinAPI.selectByDate(widget.sugar.datetime!),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              Insulin insulin = snapshot.data as Insulin;
-              String units = insulin.id != -1 ? insulin.units.toString() : "";
-              insulin.units == 0 ? units = "" : null;
-              return Text(units);
-            } else
-              return const Text("");
-          },
-        ),
-      ),
-    );
+    Insulin insulin =
+        ref.read(InsulinManager.provider.notifier).getInsulinByDatetime(widget.sugar.datetime!);
+    return SizedBox(width: 30, child: Center(child: Text(insulin.unitsDisplay)));
   }
 
   Widget _carbs() {
+    Meal meal = ref.read(MealManager.provider.notifier).getMealBySugarId(widget.sugar);
     return SizedBox(
       width: 60,
       child: Center(
-        child: FutureBuilder(
-          future: MealAPI.selectBySugarId(widget.sugar),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              Meal meal = snapshot.data as Meal;
-              String carbs = meal.id != -1 ? "${meal.carbs.round()}g" : "";
-              return Text(
-                carbs,
-                style: TextStyle(
-                  color: meal.id == -1 ? Colors.white : mealCategoryColor(meal.category),
-                ),
-              );
-            } else {
-              return const Text("");
-            }
-          },
+        child: Text(
+          meal.carbsDisplay,
+          style: TextStyle(
+            color: meal.id == -1 ? Colors.white : mealCategoryColor(meal.category),
+          ),
         ),
       ),
     );
@@ -120,7 +98,7 @@ class _SugarDataWidgetState extends State<SugarDataWidget> {
   Widget title(BuildContext context) {
     return FutureBuilder(
       future: () async {
-        List<Insulin> insulins = await InsulinAPI.selectAll();
+        Set<Insulin> insulins = ref.read(InsulinManager.provider);
         Insulin insulin = insulins.firstWhere(
           (element) => element.datetime == widget.sugar.datetime,
           orElse: () => Insulin(),

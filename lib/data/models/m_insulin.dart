@@ -131,6 +131,12 @@ class Insulin {
     return output;
   }
 
+  String get unitsDisplay {
+    if (id == -1) return "";
+    if (units == 0) return "";
+    return units.toString();
+  }
+
   @override
   String toString() => "$units of $name";
 }

@@ -17,11 +17,17 @@ class InsulinModelState extends StateNotifier<Set<Insulin>> {
     }, orElse: () => Insulin());
   }
 
-  Future<Insulin> addInsulin(Insulin insulin) async {
+  Insulin getInsulinByDatetime(DateTime? datetime) {
+    return state.firstWhere((t) {
+      return t.datetime == datetime;
+    }, orElse: () => Insulin());
+  }
+
+  Future<int> addInsulin(Insulin insulin) async {
     int id = await InsulinAPI.insert(insulin);
     insulin = insulin.copyWith(id: id);
     state = {...state, insulin};
-    return insulin;
+    return id;
   }
 
   Future<void> removeInsulin(Insulin insulin) async {
