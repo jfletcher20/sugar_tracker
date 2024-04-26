@@ -86,7 +86,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
           ),
         );
-        if (context.mounted) setState(() {});
       },
       icon: const Icon(Icons.query_stats_outlined),
     );

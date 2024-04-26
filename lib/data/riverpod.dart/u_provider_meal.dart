@@ -11,7 +11,8 @@ class MealModelState extends StateNotifier<Set<Meal>> {
     load();
   }
 
-  Future<void> load() async => setMeals((await MealAPI.selectAll()).toSet());
+  Future<void> load({WidgetRef? ref}) async =>
+      setMeals((await MealAPI.selectAll(ref: ref)).toSet());
 
   List<Meal> getMeals() {
     var sorted = state.where((element) => element.datetime != null).toList()

@@ -158,8 +158,6 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
           _prepareDateTime();
           _prepareInsulinCategory();
           await _saveData();
-          (Sugar?, Insulin?) data = submittedData;
-          if (context.mounted) Navigator.pop(context, data);
         }
       },
       child: const Text("Submit"),
@@ -263,8 +261,7 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
             TextButton(
               onPressed: () async {
                 // check if insulin is in a meal
-                Meal meal =
-                    await ref.read(MealManager.provider.notifier).getMealByInsulinId(insulin);
+                Meal meal = ref.read(MealManager.provider.notifier).getMealByInsulinId(insulin);
                 if (meal.id != -1) {
                   // show dialog saying couldn't delete
                   if (context.mounted) {

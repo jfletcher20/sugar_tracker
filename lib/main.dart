@@ -35,9 +35,8 @@ class MainApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeManager.lightTheme,
       darkTheme: ThemeManager.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       home: Consumer(
         builder: (context, ref, child) {
           Future loadDB() async {
@@ -45,7 +44,7 @@ class MainApp extends StatelessWidget {
             await ref.read(InsulinManager.provider.notifier).load();
             await ref.read(FoodCategoryManager.provider.notifier).load();
             await ref.read(FoodManager.provider.notifier).load();
-            await ref.read(MealManager.provider.notifier).load();
+            await ref.read(MealManager.provider.notifier).load(ref: ref);
           }
 
           return FutureBuilder(

@@ -1,10 +1,11 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';
 import 'package:sugar_tracker/presentation/widgets/sugar/w_sugar_data.dart';
-import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
@@ -20,32 +21,69 @@ class SugarHistoryWidget extends ConsumerStatefulWidget {
   ConsumerState<SugarHistoryWidget> createState() => _SugarHistoryWidgetState();
 }
 
-class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Paging {
+class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    ref.watch(MealManager.provider); // to watch for changes to the meal list
     List<Sugar> sugar = ref.watch(SugarManager.provider).toList();
     sugar.sort((a, b) => a.datetime!.compareTo(b.datetime!));
     sugar = sugar.reversed.toList();
-    return scrollable(
-      Column(children: paging(sugar, (context, sugar) => sugarCard(context, sugar))),
+    return Scrollbar(
+      controller: _scrollController,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        child: ListView(
+          children: sugar.map((sugar) => SugarLevelCard(sugar: sugar)).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class SugarLevelCard extends StatelessWidget {
+  final Sugar sugar;
+  const SugarLevelCard({super.key, required this.sugar});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          borderOnForeground: true,
+          child: Stack(
+            children: [
+              category(sugar, ref, context),
+              SugarDataWidget(sugar: sugar),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Card sugarCard(BuildContext context, Sugar sugar) {
+  Card sugarCard(BuildContext context, Sugar sugar, WidgetRef ref) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       borderOnForeground: true,
-      child: Stack(children: [category(sugar), SugarDataWidget(sugar: sugar)]),
+      child: Stack(children: [category(sugar, ref, context), SugarDataWidget(sugar: sugar)]),
     );
   }
 
-  Widget category(Sugar sugar) {
+  Widget category(Sugar sugar, WidgetRef ref, BuildContext context) {
     return Positioned(
       right: 0,
       child: InkWell(
-        child: categoryStrip(sugar),
+        child: categoryStrip(sugar, ref),
         onTap: () async {
-          bool? result = await showModalBottomSheet(
+          await showModalBottomSheet(
             shape: _modalDecoration,
             showDragHandle: true,
             context: context,
@@ -59,7 +97,7 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Pa
                 children: [
                   _useAsTemplate(context, sugar),
                   _edit(context, sugar),
-                  _delete(context, sugar),
+                  _delete(context, sugar, ref),
                   _share(context, sugar),
                   _copy(context, sugar),
                   _exportToCsv(context, sugar),
@@ -67,13 +105,12 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Pa
               ),
             ),
           );
-          if (result != null && result) setState(() {});
         },
       ),
     );
   }
 
-  IconButton _delete(BuildContext context, Sugar sugar) {
+  IconButton _delete(BuildContext context, Sugar sugar, WidgetRef ref) {
     return IconButton(
       icon: const Icon(Icons.delete),
       onPressed: () async {
@@ -108,7 +145,6 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Pa
             );
           } else
             await ref.read(SugarManager.provider.notifier).removeSugar(sugar);
-          if (context.mounted) setState(() {});
         }
         if (context.mounted) Navigator.pop(context, true);
       },
@@ -169,7 +205,7 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Pa
     return IconButton(
       icon: const Icon(Icons.plus_one),
       onPressed: () async {
-        (Sugar?, Insulin?)? result = await Navigator.pushReplacement(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -178,9 +214,6 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Pa
             ),
           ),
         );
-        if (result?.$1 != null) {
-          setState(() => sugar = result!.$1!);
-        }
       },
     );
   }
@@ -189,7 +222,7 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Pa
     return IconButton(
       icon: const Icon(Icons.edit),
       onPressed: () async {
-        (Sugar?, Insulin?)? result = await Navigator.pushReplacement(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -198,14 +231,11 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Pa
             ),
           ),
         );
-        if (result?.$1 != null) {
-          setState(() => sugar = result!.$1!);
-        }
       },
     );
   }
 
-  Widget categoryStrip(Sugar sugar) {
+  Widget categoryStrip(Sugar sugar, WidgetRef ref) {
     return FutureBuilder(
       builder: (context, snapshot) => Container(
         width: 48,
@@ -221,7 +251,7 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget> with Pa
                 : Icon(insulinCategoryIcon(snapshot.data as InsulinCategory)),
       ),
       future: () async {
-        Meal meal = ref.read(MealManager.provider.notifier).getMealBySugarId(sugar);
+        Meal meal = ref.watch(MealManager.provider.notifier).getMealBySugarId(sugar);
         dynamic val = meal.id == -1 ? null : meal.category;
         if (val == null) {
           Set<Insulin> insulins = ref.watch(InsulinManager.provider);

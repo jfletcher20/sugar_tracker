@@ -58,7 +58,8 @@ class FoodAPI {
     List<Food> food = List.empty(growable: true);
     for (String id in ids) {
       food.add(
-          await selectById(int.parse(id)) ?? Food(foodCategory: FoodCategory(name: "Unknown")));
+        await selectById(int.parse(id)) ?? Food(foodCategory: FoodCategory(name: "Unknown")),
+      );
     }
     return food;
   }

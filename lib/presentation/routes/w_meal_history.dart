@@ -4,7 +4,6 @@ import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meal_data.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
-import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,28 +17,45 @@ class MealHistoryWidget extends ConsumerStatefulWidget {
   ConsumerState<MealHistoryWidget> createState() => _MealHistoryWidgetState();
 }
 
-class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Paging {
+class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
-    List<Meal> meals = ref
-        .watch(MealManager.provider.notifier)
-        .getMeals()
-        .where((element) => element.sugarLevel.datetime != null)
-        .toList();
+    super.build(context);
+    List<Meal> meals = ref.watch(MealManager.provider).toList();
+    meals = meals.where((element) => element.sugarLevel.datetime != null).toList();
     meals.sort((a, b) => a.sugarLevel.datetime!.compareTo(b.sugarLevel.datetime!));
     meals = meals.reversed.toList();
-    return scrollable(
-      Column(children: paging(meals, (context, meal) => mealCard(context, meal))),
+    return Scrollbar(
+      controller: _scrollController,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        child: ListView(
+          controller: _scrollController,
+          children: meals.map((meal) => MealCard(meal: meal)).toList(),
+        ),
+      ),
     );
   }
+}
 
-  Card mealCard(BuildContext context, Meal meal) {
+class MealCard extends StatelessWidget {
+  final Meal meal;
+  const MealCard({super.key, required this.meal});
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       borderOnForeground: true,
       child: Stack(
         children: [
-          category(meal),
+          Consumer(builder: (context, ref, child) => category(meal, ref, context)),
           Row(children: [
             FoodListView(foods: meal.food, crossAxisCount: 1),
             MealDataWidget(meal: meal),
@@ -49,13 +65,13 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
     );
   }
 
-  Widget category(Meal meal) {
+  Widget category(Meal meal, WidgetRef ref, BuildContext context) {
     return Positioned(
       right: 0,
       child: InkWell(
         child: categoryStrip(meal.category),
         onTap: () async {
-          bool? result = await showModalBottomSheet(
+          await showModalBottomSheet(
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(32),
@@ -74,7 +90,7 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
                 children: [
                   _useAsTemplate(context, meal),
                   _edit(context, meal),
-                  _delete(context, meal),
+                  _delete(context, meal, ref),
                   _share(context, meal),
                   _copy(context, meal),
                   _exportToCsv(context, meal),
@@ -82,13 +98,12 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
               ),
             ),
           );
-          if (result != null && result) setState(() {});
         },
       ),
     );
   }
 
-  IconButton _delete(BuildContext context, Meal meal) {
+  IconButton _delete(BuildContext context, Meal meal, WidgetRef ref) {
     return IconButton(
       icon: const Icon(Icons.delete),
       onPressed: () async {
@@ -107,9 +122,9 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
                 label: "Everything",
                 icon: Icons.delete_forever,
                 onTap: () async {
-                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
-                  await ref.read(SugarManager.provider.notifier).removeSugar(meal.sugarLevel);
                   await ref.read(InsulinManager.provider.notifier).removeInsulin(meal.insulin);
+                  await ref.read(SugarManager.provider.notifier).removeSugar(meal.sugarLevel);
+                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
                   if (context.mounted) Navigator.pop(context);
                 },
               ),
@@ -117,8 +132,8 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
                 label: "Meal and sugar",
                 icon: Icons.query_stats,
                 onTap: () async {
-                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
                   await ref.read(SugarManager.provider.notifier).removeSugar(meal.sugarLevel);
+                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
                   if (context.mounted) Navigator.pop(context);
                 },
               ),
@@ -126,8 +141,8 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
                 label: "Meal and insulin",
                 icon: Icons.edit_outlined,
                 onTap: () async {
-                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
                   await ref.read(InsulinManager.provider.notifier).removeInsulin(meal.insulin);
+                  await ref.read(MealManager.provider.notifier).removeMeal(meal);
                   if (context.mounted) Navigator.pop(context);
                 },
               ),
@@ -147,10 +162,7 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
             ],
           ),
         );
-        if (context.mounted) {
-          setState(() {});
-          Navigator.pop(context, true);
-        }
+        if (context.mounted) Navigator.pop(context, true);
       },
     );
   }
@@ -217,7 +229,7 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
     return IconButton(
       icon: const Icon(Icons.plus_one),
       onPressed: () async {
-        Meal? result = await Navigator.pushReplacement(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -226,7 +238,6 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
             ),
           ),
         );
-        if (result != null) setState(() {});
       },
     );
   }
@@ -235,7 +246,7 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
     return IconButton(
       icon: const Icon(Icons.edit),
       onPressed: () async {
-        Meal? result = await Navigator.pushReplacement(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -244,7 +255,6 @@ class _MealHistoryWidgetState extends ConsumerState<MealHistoryWidget> with Pagi
             ),
           ),
         );
-        if (result != null) setState(() => meal = result);
       },
     );
   }

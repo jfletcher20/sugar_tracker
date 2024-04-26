@@ -32,7 +32,7 @@ class InsulinModelState extends StateNotifier<Set<Insulin>> {
 
   Future<void> removeInsulin(Insulin insulin) async {
     if (state.where((element) => element.id == insulin.id).isEmpty) return;
-    state = state.where((element) => element != insulin).toSet();
+    state = state.where((element) => element.id != insulin.id).toSet();
     await InsulinAPI.delete(insulin);
   }
 

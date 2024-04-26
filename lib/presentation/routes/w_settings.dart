@@ -322,6 +322,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         ),
         actions: [
           TextButton(
+            // ignore: use_build_context_synchronously
             onPressed: () async => Navigator.pop(context, await loadFile()),
             child: const Text("Yes"),
           ),

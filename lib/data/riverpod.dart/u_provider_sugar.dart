@@ -31,7 +31,7 @@ class SugarModelState extends StateNotifier<Set<Sugar>> {
 
   Future<void> removeSugar(Sugar sugar) async {
     if (state.where((element) => element.id == sugar.id).isEmpty) return;
-    state = state.where((element) => element != sugar).toSet();
+    state = state.where((element) => element.id != sugar.id).toSet();
     await SugarAPI.delete(sugar);
   }
 

@@ -12,7 +12,10 @@ import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 
 class MealAPI {
   // insert meal entry into db
@@ -34,12 +37,26 @@ class MealAPI {
     List<Map<String, dynamic>> meals = await DB.select("meal");
 
     for (Map<String, dynamic> meal in meals) {
-      Sugar sugar = await SugarAPI.selectById(meal["sugar_id"]) ?? Sugar(notes: "Unknown");
-      Insulin insulin = await InsulinAPI.selectById(meal["insulin"]) ?? Insulin(notes: "Unknown");
+      // Sugar sugar = await SugarAPI.selectById(meal["sugar_id"]) ?? Sugar(notes: "Unknown");
+      // Insulin insulin = await InsulinAPI.selectById(meal["insulin"]) ?? Insulin(notes: "Unknown");
+      Sugar sugar;
+      Insulin insulin;
+      if (ref != null) {
+        sugar = ref.read(SugarManager.provider.notifier).getSugar(meal["sugar_id"]);
+        insulin = ref.read(InsulinManager.provider.notifier).getInsulin(meal["insulin"]);
+      } else {
+        sugar = await SugarAPI.selectById(meal["sugar_id"]) ?? Sugar(notes: "Unknown");
+        insulin = await InsulinAPI.selectById(meal["insulin"]) ?? Insulin(notes: "Unknown");
+      }
       if (meal["food_ids"] is String) {
         String ids = meal["food_ids"];
         List<String> notParsed = ids.split(",");
-        List<Food> food = await FoodAPI.selectByIds(notParsed);
+        List<Food> food;
+        if (ref != null) {
+          food = ref.read(FoodManager.provider.notifier).getFoodsByIds(notParsed);
+        } else {
+          food = await FoodAPI.selectByIds(notParsed);
+        }
         meal["food_amounts"].split(",").asMap().forEach((i, amount) {
           food[i].amount = int.parse(amount);
         });
@@ -48,10 +65,16 @@ class MealAPI {
           ..insulin = insulin
           ..food = food);
       } else {
-        List<Food> food = [
-          await FoodAPI.selectById(meal["food_ids"]) ??
-              Food(foodCategory: FoodCategory(name: "Unknown"))
-        ];
+        List<Food> food;
+
+        if (ref != null) {
+          food = [ref.read(FoodManager.provider.notifier).getFood(int.parse(meal["food_ids"]))];
+        } else {
+          food = [
+            await FoodAPI.selectById(meal["food_ids"]) ??
+                Food(foodCategory: FoodCategory(name: "Unknown"))
+          ];
+        }
         meal["food_amounts"].split(",").asMap().forEach((i, amount) {
           food[i].amount = int.parse(amount);
         });

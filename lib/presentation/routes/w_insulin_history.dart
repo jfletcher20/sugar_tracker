@@ -1,13 +1,10 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_data.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
-import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/models/m_sugar.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 
 import 'package:share_plus/share_plus.dart';
@@ -16,42 +13,65 @@ import 'package:flutter/material.dart';
 
 class InsulinHistoryWidget extends ConsumerStatefulWidget {
   const InsulinHistoryWidget({super.key});
-
   @override
   ConsumerState<InsulinHistoryWidget> createState() => _InsulinHistoryWidgetState();
 }
 
-class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> with Paging {
+class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
-    List<Insulin> insulin = ref.read(InsulinManager.provider).toList();
+    super.build(context);
+    ref.watch(MealManager.provider); // to watch for changes to the meal list
+    List<Insulin> insulin = ref.watch(InsulinManager.provider).toList();
     insulin.sort((a, b) => a.datetime!.compareTo(b.datetime!));
     insulin = insulin.reversed.toList();
-    return scrollable(
-      Column(children: paging(insulin, (context, insulin) => insulinCard(context, insulin))),
-    );
-  }
-
-  Card insulinCard(BuildContext context, Insulin insulin) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      borderOnForeground: true,
-      child: Stack(
-        children: [
-          category(insulin),
-          InsulinDataWidget(insulin: insulin),
-        ],
+    return Scrollbar(
+      controller: _scrollController,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        child: ListView(
+          children: insulin.map((insulin) => InsulinCard(insulin: insulin)).toList(),
+        ),
       ),
     );
   }
+}
 
-  Widget category(Insulin insulin) {
+class InsulinCard extends StatelessWidget {
+  final Insulin insulin;
+  const InsulinCard({super.key, required this.insulin});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          borderOnForeground: true,
+          child: Stack(
+            children: [
+              category(insulin, ref, context),
+              InsulinDataWidget(insulin: insulin),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget category(Insulin insulin, WidgetRef ref, BuildContext context) {
     return Positioned(
       right: 0,
       child: InkWell(
-        child: categoryStrip(insulin),
+        child: categoryStrip(insulin, ref),
         onTap: () async {
-          bool? result = await showModalBottomSheet(
+          await showModalBottomSheet(
             shape: _modalDecoration,
             showDragHandle: true,
             context: context,
@@ -65,7 +85,7 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> wit
                 children: [
                   _useAsTemplate(context, insulin),
                   _edit(context, insulin),
-                  _delete(context, insulin),
+                  _delete(context, insulin, ref),
                   _share(context, insulin),
                   _copy(context, insulin),
                   _exportToCsv(context, insulin),
@@ -73,15 +93,12 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> wit
               ),
             ),
           );
-          if (result != null && result) {
-            setState(() {});
-          }
         },
       ),
     );
   }
 
-  IconButton _delete(BuildContext context, Insulin insulin) {
+  IconButton _delete(BuildContext context, Insulin insulin, WidgetRef ref) {
     return IconButton(
       icon: const Icon(Icons.delete),
       onPressed: () async {
@@ -105,7 +122,7 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> wit
         );
         if (result != null && result) {
           // await MealAPI.delete(insulin);
-          Meal meal = ref.read(MealManager.provider.notifier).getMealByInsulinId(insulin);
+          Meal meal = ref.watch(MealManager.provider.notifier).getMealByInsulinId(insulin);
           if (meal.id != -1) {
             // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
@@ -116,7 +133,6 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> wit
             );
           } else
             await ref.read(InsulinManager.provider.notifier).removeInsulin(insulin);
-          if (context.mounted) setState(() {});
         }
         if (context.mounted) Navigator.pop(context, true);
       },
@@ -177,7 +193,7 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> wit
     return IconButton(
       icon: const Icon(Icons.plus_one),
       onPressed: () async {
-        (Sugar?, Insulin?)? result = await Navigator.pushReplacement(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -186,9 +202,6 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> wit
             ),
           ),
         );
-        if (result?.$2 != null) {
-          setState(() => insulin = result!.$2!);
-        }
       },
     );
   }
@@ -197,7 +210,7 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> wit
     return IconButton(
       icon: const Icon(Icons.edit),
       onPressed: () async {
-        (Sugar?, Insulin?)? result = await Navigator.pushReplacement(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
@@ -206,14 +219,11 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget> wit
             ),
           ),
         );
-        if (result?.$2 != null) {
-          setState(() => insulin = result!.$2!);
-        }
       },
     );
   }
 
-  Widget categoryStrip(Insulin insulin) {
+  Widget categoryStrip(Insulin insulin, WidgetRef ref) {
     return FutureBuilder(
       builder: (context, snapshot) => Container(
           width: 48,

@@ -47,6 +47,11 @@ class FoodModelState extends StateNotifier<Set<Food>> {
     state = state.map((m) => m.id == food.id ? food : m).toSet();
     return await FoodAPI.update(food);
   }
+
+  List<Food> getFoodsByIds(List<String> notParsed) {
+    List<int> ids = notParsed.map((e) => int.parse(e)).toList();
+    return ids.map((id) => getFood(id)).toList();
+  }
 }
 
 class FoodManager {

@@ -16,6 +16,9 @@ class FoodListWidget extends ConsumerStatefulWidget {
 
 class _FoodListWidgetState extends ConsumerState<FoodListWidget>
     with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final GlobalKey<FoodCategoryGridViewState> foodCategoryKey = GlobalKey();
 
   @override
@@ -80,7 +83,4 @@ class _FoodListWidgetState extends ConsumerState<FoodListWidget>
       ),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

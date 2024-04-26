@@ -1,12 +1,12 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/models/m_insulin.dart';
-import 'package:sugar_tracker/data/models/m_meal.dart';
-import 'package:sugar_tracker/data/models/m_sugar.dart';
-
-import 'package:flutter/material.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
+import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/models/m_meal.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 
 class InsulinDataWidget extends ConsumerStatefulWidget {
   final Insulin insulin;

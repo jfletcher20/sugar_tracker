@@ -1,7 +1,8 @@
-import 'package:sugar_tracker/data/api/u_api_meal.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 
 import 'package:flutter/material.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 
 class MealDataWidget extends StatelessWidget {
   final Meal meal;
@@ -38,15 +39,19 @@ class MealDataWidget extends StatelessWidget {
               minLines: 1,
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                if (notesController.text != meal.notes) {
-                  meal.notes = notesController.text;
-                  MealAPI.update(meal);
-                  Navigator.pop(context, meal);
-                }
+            Consumer(
+              builder: (context, ref, child) {
+                return ElevatedButton(
+                  onPressed: () {
+                    if (notesController.text != meal.notes) {
+                      meal.notes = notesController.text;
+                      ref.read(MealManager.provider.notifier).updateMeal(meal);
+                      Navigator.pop(context, meal);
+                    }
+                  },
+                  child: const Text("Save"),
+                );
               },
-              child: const Text("Save"),
             ),
           ],
         );
