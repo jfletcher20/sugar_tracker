@@ -7,6 +7,7 @@ import 'package:sugar_tracker/data/api/u_api_sugar.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/preferences.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_dgv_foods.dart';
@@ -16,15 +17,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MealFormWidget extends StatefulWidget {
+class MealFormWidget extends ConsumerStatefulWidget {
   final Meal meal;
   final bool useAsTemplate;
   const MealFormWidget({super.key, required this.meal, this.useAsTemplate = false});
   @override
-  State<MealFormWidget> createState() => _MealFormWidgetState();
+  ConsumerState<MealFormWidget> createState() => _MealFormWidgetState();
 }
 
-class _MealFormWidgetState extends State<MealFormWidget> {
+class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
   late final TextEditingController _sugarLevelController;
   late final TextEditingController _insulinController;
   late final TextEditingController _notesController;
@@ -128,7 +129,7 @@ class _MealFormWidgetState extends State<MealFormWidget> {
 
   Future<MealCategory> loadLatestMealCategory() async {
     return !widget.useAsTemplate && meal.id == -1
-        ? await MealAPI.determineCategory()
+        ? await ref.read(MealManager.provider.notifier).determineCategory()
         : meal.category;
   }
 

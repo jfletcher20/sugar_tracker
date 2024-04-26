@@ -7,7 +7,10 @@ class FoodCategoryModelState extends StateNotifier<Set<FoodCategory>> {
     load();
   }
 
-  Future<void> load() async => setFoodCategories((await FoodCategoryAPI.selectAll()).toSet());
+  Future<void> load({WidgetRef? ref}) async =>
+      setFoodCategories((await FoodCategoryAPI.selectAll(ref: ref)).toSet());
+
+  List<FoodCategory> getFoodCategories() => state.toList();
 
   FoodCategory getFoodCategory(int id) {
     return state.firstWhere((t) {

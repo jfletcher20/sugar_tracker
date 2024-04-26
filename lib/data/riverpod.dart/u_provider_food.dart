@@ -9,6 +9,8 @@ class FoodModelState extends StateNotifier<Set<Food>> {
 
   Future<void> load() async => setFoods((await FoodAPI.selectAll()).toSet());
 
+  List<Food> getFoods() => state.toList();
+
   Food getFood(int id) {
     return state.firstWhere((t) {
       return t.id == id;

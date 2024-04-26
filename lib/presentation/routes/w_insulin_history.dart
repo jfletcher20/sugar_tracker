@@ -1,10 +1,12 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sugar_tracker/data/api/u_api_insulin.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/presentation/mixins/mx_paging.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_data.dart';
 
@@ -22,24 +24,15 @@ class _InsulinHistoryWidgetState extends State<InsulinHistoryWidget> with Paging
   @override
   Widget build(BuildContext context) {
     Size maxSize = MediaQuery.of(context).size;
-    return FutureBuilder(
-      builder: (builder, snapshot) {
-        if (snapshot.hasData) {
-          List<Insulin> insulin = snapshot.data as List<Insulin>;
-          insulin.sort((a, b) => a.datetime!.compareTo(b.datetime!));
-          insulin = insulin.reversed.toList();
-          return scrollable(
-            Column(children: paging(insulin, (context, insulin) => insulinCard(context, insulin))),
-          );
-        } else {
-          return SizedBox(
-            height: maxSize.height,
-            width: maxSize.width,
-            child: const Center(child: CircularProgressIndicator()),
-          );
-        }
+    return Consumer(
+      builder: (builder, ref, child) {
+        List<Insulin> insulin = ref.read(InsulinManager.provider.notifier).getInsulins();
+        insulin.sort((a, b) => a.datetime!.compareTo(b.datetime!));
+        insulin = insulin.reversed.toList();
+        return scrollable(
+          Column(children: paging(insulin, (context, insulin) => insulinCard(context, insulin))),
+        );
       },
-      future: InsulinAPI.selectAll(),
     );
   }
 

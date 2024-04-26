@@ -9,6 +9,8 @@ class InsulinModelState extends StateNotifier<Set<Insulin>> {
 
   Future<void> load() async => setInsulins((await InsulinAPI.selectAll()).toSet());
 
+  List<Insulin> getInsulins() => state.toList();
+
   Insulin getInsulin(int id) {
     return state.firstWhere((t) {
       return t.id == id;

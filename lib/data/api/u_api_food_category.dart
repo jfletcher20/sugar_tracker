@@ -1,7 +1,9 @@
 // class for CRUD on food_category table
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 
 class FoodCategoryAPI {
   // insert food_category entry into db
@@ -21,12 +23,20 @@ class FoodCategoryAPI {
   }
 
   // select all food_category entries from db
-  static Future<List<FoodCategory>> selectAll() async {
+  static Future<List<FoodCategory>> selectAll({WidgetRef? ref}) async {
+    if (ref != null) {
+      var categories = ref.read(FoodCategoryManager.provider.notifier).getFoodCategories();
+      if (categories.isNotEmpty) return categories;
+    }
     List<Map<String, dynamic>> results = await DB.db.query("food_category");
     return results.map((map) => FoodCategory.fromMap(map)).toList();
   }
 
-  static Future<FoodCategory?> selectById(int id) async {
+  static Future<FoodCategory?> selectById(int id, {WidgetRef? ref}) async {
+    if (ref != null) {
+      var category = ref.read(FoodCategoryManager.provider.notifier).getFoodCategory(id);
+      if (category.id != -1) return category;
+    }
     List<Map<String, dynamic>> results =
         await DB.db.query("food_category", where: "id = ?", whereArgs: [id]);
     if (results.isNotEmpty) {

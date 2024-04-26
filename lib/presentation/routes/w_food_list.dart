@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/api/u_api_food.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_card.dart';
 import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
 
@@ -43,18 +45,11 @@ class _FoodListWidgetState extends State<FoodListWidget> with AutomaticKeepAlive
     );
   }
 
-  FutureBuilder _foodListBuilder() {
-    return FutureBuilder(
-      builder: (builder, snapshot) {
-        if (snapshot.hasData) {
-          initFoods(snapshot.data as List<Food>);
-          return _foodList();
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      },
-      future: FoodAPI.selectAll(),
-    );
+  Widget _foodListBuilder() {
+    return Consumer(builder: (context, ref, child) {
+      initFoods(ref.read(FoodManager.provider.notifier).getFoods());
+      return _foodList();
+    });
   }
 
   Widget _foodList() {
