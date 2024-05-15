@@ -25,14 +25,12 @@ class InsulinFormWidget extends ConsumerStatefulWidget {
 }
 
 class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
-  // text controllers for each text field
   late final TextEditingController _sugarLevelController;
   late final TextEditingController _insulinController;
   late Insulin insulin;
   late Sugar sugarLevel;
 
   GlobalKey<DateTimeSelectorWidgetState> dateTimeSelectorKey = GlobalKey();
-  // form key
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -180,12 +178,13 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
       if (widget.useAsTemplate || sugarId == -1) {
         sugarLevel.id = -1;
         sugarId = await ref.read(SugarManager.provider.notifier).addSugar(sugarLevel);
-      } else
+      } else {
         await ref.read(SugarManager.provider.notifier).updateSugar(sugarLevel);
-      return sugarId;
+        await ref.read(MealManager.provider.notifier).updateMealBySugar(sugarLevel);
+      }
     } else {
       if (sugarLevel.id != -1) {
-        //show confirmation dialog asking if they want to delete sugar level
+        // show confirmation dialog asking if they want to delete sugar level
         await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -235,14 +234,12 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
     int insulinId = insulin.id;
     if (insulin.units > 0) {
       if (widget.useAsTemplate || insulinId == -1) {
-        try {
-          insulin.id = -1;
-          insulinId = await ref.read(InsulinManager.provider.notifier).addInsulin(insulin);
-        } catch (e) {
-          await ref.read(InsulinManager.provider.notifier).updateInsulin(insulin);
-        }
-      } else
+        insulin.id = -1;
+        insulinId = await ref.read(InsulinManager.provider.notifier).addInsulin(insulin);
+      } else {
         await ref.read(InsulinManager.provider.notifier).updateInsulin(insulin);
+        await ref.read(MealManager.provider.notifier).updateMealByInsulin(insulin);
+      }
     } else if (insulin.id != -1) {
       await showDialog(
         context: context,

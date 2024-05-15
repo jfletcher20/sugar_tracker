@@ -112,6 +112,20 @@ class MealModelState extends StateNotifier<Set<Meal>> {
     return state.firstWhere((element) => element.sugarLevel.id == sugarLevel.id,
         orElse: () => Meal());
   }
+
+  Future<int> updateMealBySugar(Sugar sugarLevel) async {
+    Meal meal = getMealBySugarId(sugarLevel);
+    if (meal.id == -1) return -1;
+    meal = meal.copyWith(sugarLevel: sugarLevel);
+    return await updateMeal(meal);
+  }
+
+  Future<int> updateMealByInsulin(Insulin insulin) async {
+    Meal meal = getMealByInsulinId(insulin);
+    if (meal.id == -1) return -1;
+    meal = meal.copyWith(insulin: insulin);
+    return await updateMeal(meal);
+  }
 }
 
 class MealManager {
