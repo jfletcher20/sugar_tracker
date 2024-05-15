@@ -55,8 +55,7 @@ The card's nameplate color and trailing icon will change based on the insulin ty
 
 Editing and creation of entries are done via identical forms.
 
-<img src="documentation/screenshots/edit-insulin-sugar-entry.jpg" width="300px">
-<img src="documentation/screenshots/create-insulin-sugar-entry.jpg" width="300px">
+<img src="documentation/screenshots/edit-insulin-sugar-entry.jpg" width="300px"> <img src="documentation/screenshots/create-insulin-sugar-entry.jpg" width="300px">
 
 If you only intend to log your sugar level, you can leave the insulin field empty and it will not be stored, and vice-versa.
 
@@ -68,8 +67,7 @@ If a note is added, then the note can be seen by tapping on the sugar level (sug
 
 The settings tab contains datetime display settings, profile settings, advanced database settings and backup options (since the data is stored locally and not online).
 
-<img src="documentation/screenshots/settings-tab.jpg" width="300px">
-<img src="documentation/screenshots/settings-tab-profile.jpg" width="300px">
+<img src="documentation/screenshots/settings-tab.jpg" width="300px"> <img src="documentation/screenshots/settings-tab-profile.jpg" width="300px">
 
 The table editor is meant to be used by developers and users with an understanding of SQL.
 
