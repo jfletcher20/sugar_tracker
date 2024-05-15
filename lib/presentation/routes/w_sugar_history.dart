@@ -32,6 +32,7 @@ class _SugarHistoryWidgetState extends ConsumerState<SugarHistoryWidget>
   Widget build(BuildContext context) {
     super.build(context);
     ref.watch(MealManager.provider); // to watch for changes to the meal list
+    ref.watch(InsulinManager.provider); // to watch for changes to the insulin list
     List<Sugar> sugar = ref.watch(SugarManager.provider).toList();
     sugar.sort((a, b) => a.datetime!.compareTo(b.datetime!));
     sugar = sugar.reversed.toList();

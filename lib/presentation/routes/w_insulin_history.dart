@@ -1,4 +1,5 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_data.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
@@ -28,6 +29,7 @@ class _InsulinHistoryWidgetState extends ConsumerState<InsulinHistoryWidget>
   Widget build(BuildContext context) {
     super.build(context);
     ref.watch(MealManager.provider); // to watch for changes to the meal list
+    ref.watch(SugarManager.provider); // to watch for changes to the sugar list
     List<Insulin> insulin = ref.watch(InsulinManager.provider).toList();
     insulin.sort((a, b) => a.datetime!.compareTo(b.datetime!));
     insulin = insulin.reversed.toList();

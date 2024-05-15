@@ -1,4 +1,4 @@
-// ignore_for_file: curly_braces_in_flow_control_structures
+// ignore_for_file: curly_braces_in_flow_control_structures, use_build_context_synchronously
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
@@ -40,30 +40,28 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
     super.initState();
     insulin = widget.insulin ?? Insulin();
     sugarLevel = widget.sugar ?? Sugar();
-    if (widget.sugar == null || sugarLevel.id == -1) initSugarLevel();
-    if (widget.insulin == null || insulin.id == -1) initInsulinUnits();
     _insulinController =
         TextEditingController(text: insulin.units > 0 ? insulin.units.toString() : "");
     _sugarLevelController =
         TextEditingController(text: sugarLevel.level > 0 ? sugarLevel.level.toString() : "");
+    if (sugarLevel.id == -1 && insulin.id != -1) initSugarLevel();
+    if (insulin.id == -1 && sugarLevel.id != -1) initInsulinUnits();
     if (widget.useAsTemplate) {
       sugarLevel.id = -1;
       insulin.id = -1;
     }
   }
 
-  void initSugarLevel() async {
+  void initSugarLevel() {
     sugarLevel = ref.read(SugarManager.provider.notifier).getSugarByDatetime(insulin.datetime!);
     String startingValue = sugarLevel.level > 0 ? sugarLevel.level.toString() : "";
     _sugarLevelController.text = startingValue;
-    setState(() {});
   }
 
-  void initInsulinUnits() async {
+  void initInsulinUnits() {
     insulin = ref.read(InsulinManager.provider.notifier).getInsulinByDatetime(sugarLevel.datetime);
     String startingValue = insulin.units > 0 ? insulin.units.toString() : "";
     _insulinController.text = startingValue;
-    setState(() {});
   }
 
   @override
@@ -89,9 +87,7 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
               FutureBuilder(
                 future: loadInsulinData(),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return _insulinCategorySwitchTile(insulin.category);
-                  }
+                  if (snapshot.hasData) return _insulinCategorySwitchTile(insulin.category);
                   return _insulinCategorySwitchTile(insulin.category);
                 },
               ),
@@ -158,6 +154,7 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
           _prepareDateTime();
           _prepareInsulinCategory();
           await _saveData();
+          Navigator.pop(context, widget.useAsTemplate ? submittedData : null);
         }
       },
       child: const Text("Submit"),
@@ -175,7 +172,6 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
   Future<void> _saveData() async {
     sugarLevel.id = await _saveSugarLevel();
     insulin.id = await _saveInsulin();
-    return;
   }
 
   Future<int> _saveSugarLevel() async {
@@ -455,7 +451,6 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
       ],
     );
     return showModalBottomSheet(
-      // ignore: use_build_context_synchronously
       context: context,
       showDragHandle: true,
       shape: _modalDecoration,

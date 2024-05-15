@@ -23,6 +23,7 @@ class SugarModelState extends StateNotifier<Set<Sugar>> {
   }
 
   Future<int> addSugar(Sugar sugar) async {
+    sugar.id = -1;
     int id = await SugarAPI.insert(sugar);
     sugar = sugar.copyWith(id: id);
     state = {...state, sugar};

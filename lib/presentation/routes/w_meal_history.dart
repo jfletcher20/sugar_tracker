@@ -68,37 +68,55 @@ class MealCard extends StatelessWidget {
   Widget category(Meal meal, WidgetRef ref, BuildContext context) {
     return Positioned(
       right: 0,
-      child: InkWell(
-        child: categoryStrip(meal.category),
-        onTap: () async {
-          await showModalBottomSheet(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(32),
-                topRight: Radius.circular(32),
-              ),
-            ),
-            showDragHandle: true,
-            context: context,
-            builder: (context) => SizedBox(
-              height: 64 + 16,
-              child: GridView(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6,
-                  childAspectRatio: 2,
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          categoryStrip(meal.category),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: IconButton(
+                icon: Icon(
+                  mealCategoryIcon(meal.category),
+                  color: Colors.white,
+                  shadows: const [
+                    Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 2),
+                  ],
+                  size: 32,
                 ),
-                children: [
-                  _useAsTemplate(context, meal),
-                  _edit(context, meal),
-                  _delete(context, meal, ref),
-                  _share(context, meal),
-                  _copy(context, meal),
-                  _exportToCsv(context, meal),
-                ],
+                onPressed: () async {
+                  await showModalBottomSheet(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
+                      ),
+                    ),
+                    showDragHandle: true,
+                    context: context,
+                    builder: (context) => SizedBox(
+                      height: 64 + 16,
+                      child: GridView(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 6,
+                          childAspectRatio: 2,
+                        ),
+                        children: [
+                          _useAsTemplate(context, meal),
+                          _edit(context, meal),
+                          _delete(context, meal, ref),
+                          _share(context, meal),
+                          _copy(context, meal),
+                          _exportToCsv(context, meal),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -261,15 +279,26 @@ class MealCard extends StatelessWidget {
 
   Widget categoryStrip(MealCategory category) {
     return Container(
-      width: 12,
-      height: 72,
+      width: 32,
+      height: 64 + 16,
       decoration: BoxDecoration(
-        color: mealCategoryColor(category),
+        gradient: _gradient(mealCategoryColor(category)),
         borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(12),
-          bottomLeft: Radius.circular(16),
+          topRight: Radius.circular(8),
+          bottomRight: Radius.circular(8),
         ),
       ),
+    );
+  }
+
+  _gradient(Color color) {
+    return LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      colors: [
+        color,
+        color.withOpacity(0.5),
+      ],
     );
   }
 }

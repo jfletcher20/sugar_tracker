@@ -22,7 +22,8 @@ class MealDataWidget extends StatelessWidget {
 
   IconButton notes(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.notes),
+      icon: Icon(Icons.notes,
+          color: (meal.notes?.isEmpty ?? true) ? Colors.white.withOpacity(0.5) : null),
       onPressed: () {
         String category = MealCategory.values[meal.category.index].name;
         String appBarTitle = "Notes for $category at ${meal.time}, ${meal.date}";
