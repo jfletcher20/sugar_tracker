@@ -1,18 +1,21 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:settings_ui/settings_ui.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sugar_tracker/data/api/u_db.dart';
+import 'package:sugar_tracker/presentation/widgets/w_table_editor.dart';
+import 'package:sugar_tracker/data/dialogs/u_backup_dialog.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/preferences.dart';
-import 'package:sugar_tracker/presentation/widgets/w_table_editor.dart';
+import 'package:sugar_tracker/data/api/u_db.dart';
+
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:settings_ui/settings_ui.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+
+import 'dart:io';
 
 class SettingsWidget extends StatefulWidget {
   const SettingsWidget({super.key});
@@ -58,6 +61,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             ),
             _profileTile(),
             _backupTile(),
+            _backupPhotosTile(),
             _loadBackupTile(),
             SettingsTile(
               title: const Text("Table editor"),
@@ -219,10 +223,21 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   SettingsTile _backupTile() {
     return SettingsTile(
       title: const Text("Create backup"),
-      description: const Text("Save a backup to transfer your data"),
+      description: const Text("Save a backup to Firebase"),
       leading: const Icon(Icons.download),
       onPressed: (context) async {
-        await openFileExplorer();
+        await _manageBackupCreation();
+      },
+    );
+  }
+
+  SettingsTile _backupPhotosTile() {
+    return SettingsTile(
+      title: const Text("Backup photos"),
+      description: const Text("Backup your photos to Firebase"),
+      leading: const Icon(Icons.download),
+      onPressed: (context) async {
+        await _managePhotosBackupCreation();
       },
     );
   }
@@ -244,67 +259,148 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     );
   }
 
-  Future<void> openFileExplorer() async {
+  Future<void> _manageBackupCreation() async {
     // Open the file picker to select a location to save the backup
     String databases = await getDatabasesPath();
     String dbName = DB.dbName; // Replace with your database name
     String databasePath = "$databases/$dbName";
     File databaseFile = File(databasePath);
+    // Create a ValueNotifier to track progress
+    ValueNotifier<double> progressNotifier = ValueNotifier<double>(0.0);
 
-    // save databaseFile to filepicker's new path
-    Directory? externalDir = await getExternalStorageDirectory();
-
-    if (externalDir == null) {
+    // Show the progress dialog
+    showDialog(
       // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-          "Error saving backup: couldn't find external directory."
-          "Check permissions and try again.",
-        ),
-      ));
-      return;
-    }
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return BackupProgressDialog(progressNotifier: progressNotifier, files: [databaseFile]);
+      },
+    );
 
-    String? result;
+    Future<void> uploadFile(File file) async {
+      try {
+        Reference storageReference =
+            FirebaseStorage.instance.ref().child('uploads/${file.path.split('/').last}');
 
-    try {
-      result = await FilePicker.platform.saveFile();
-    } catch (e) {
-      if (!await FlutterFileDialog.isPickDirectorySupported()) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error saving backup: not supported for this platform.')),
-        );
-        return;
-      } else {
-        String? savePath = await FlutterFileDialog.saveFile(
-          params: SaveFileDialogParams(sourceFilePath: databasePath),
-        );
-        String message = savePath == null
-            ? "Didn't save backup."
-            : "Backup for saved as ${savePath.split("/").last}.";
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-        return;
+        UploadTask uploadTask = storageReference.putFile(file);
+        uploadTask.snapshotEvents.listen((event) {
+          double progress = event.bytesTransferred / event.totalBytes;
+          progressNotifier.value = progress;
+          print(progress);
+          print('Upload progress: ${event.bytesTransferred} / ${event.totalBytes}');
+        });
+        await uploadTask.whenComplete(() {
+          print('File uploaded successfully!');
+        });
+        String downloadUrl = await storageReference.getDownloadURL();
+        print('Download URL: $downloadUrl');
+      } catch (e) {
+        print('Error uploading file: $e');
       }
     }
 
-    if (result == null) {
-      return;
+    // Upload the file
+    uploadFile(databaseFile).then((_) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Backup created and uploaded.')),
+      );
+    });
+  }
+
+  int totalBytes(List<FileSystemEntity> files) {
+    return files.fold(0, (prev, file) {
+      int fileSize = 0;
+      try {
+        fileSize = File(file.path).lengthSync();
+        // ignore: empty_catches
+      } catch (e) {}
+      return prev + fileSize;
+    });
+  }
+
+  int previousSum(List<FileSystemEntity> files, int indexOfFile) {
+    return files.fold(0, (prev, file) {
+      indexOfFile--;
+      if (indexOfFile < 0) return prev;
+      int fileSize = 0;
+      try {
+        fileSize = File(file.path).lengthSync();
+      } catch (e) {}
+      return prev + fileSize;
+    });
+  }
+
+  int calcUploadedBytes(files, File file, int uploadedBytes, TaskSnapshot event, int total) {
+    uploadedBytes += event.bytesTransferred;
+    int indexOfFile = files.indexOf(file);
+    uploadedBytes = uploadedBytes.clamp(0, previousSum(files, indexOfFile)).clamp(0, total).toInt();
+    return uploadedBytes;
+  }
+
+  Future<void> _managePhotosBackupCreation() async {
+    Directory cacheDir = await getTemporaryDirectory();
+    List<FileSystemEntity> files = cacheDir.listSync(recursive: true, followLinks: false);
+
+    int uploadedBytes = 0;
+
+    ValueNotifier<double> progressNotifier = ValueNotifier<double>(0.0);
+
+    showDialog(
+      // ignore: use_build_context_synchronously
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return BackupProgressDialog(
+          progressNotifier: progressNotifier,
+          files: files.map((e) {
+            return File(e.path);
+          }).toList(),
+        );
+      },
+    );
+
+    Future<void> uploadFile(File file, String relativePath) async {
+      try {
+        Reference storageReference =
+            FirebaseStorage.instance.ref().child('uploads/cache/$relativePath');
+
+        UploadTask uploadTask = storageReference.putFile(file);
+        uploadTask.snapshotEvents.listen((event) {
+          uploadedBytes = calcUploadedBytes(files, file, uploadedBytes, event, totalBytes(files));
+          progressNotifier.value = uploadedBytes / totalBytes(files);
+        });
+
+        await uploadTask.whenComplete(() {
+          print('File uploaded successfully: ${file.path}');
+        });
+      } catch (e) {
+        print('Error uploading file: $e');
+      }
     }
 
-    try {
-      await databaseFile.copy(result);
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Backup saved to $databasePath')),
-      );
-    } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving backup: $e')),
-      );
+    // Upload all files in the cache directory
+    for (var file in files) {
+      if (file is File) {
+        // Get the relative path of the file within the cache directory
+        String relativePath = file.path.replaceFirst(cacheDir.path, '');
+        if (relativePath.startsWith(Platform.pathSeparator)) {
+          relativePath = relativePath.substring(1);
+        }
+        await uploadFile(file, relativePath);
+      }
     }
+
+    // Dismiss the progress dialog
+    Navigator.of(context).pop();
+
+    // Show a success message
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("All cache files backed up to Firebase."),
+    ));
+
+    return;
   }
 
   Future<dynamic> loadBackupDialog() {

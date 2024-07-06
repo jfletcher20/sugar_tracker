@@ -1,8 +1,6 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:firebase_core/firebase_core.dart';
 
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
@@ -10,9 +8,12 @@ import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/theme/i_theme.dart';
 import 'package:sugar_tracker/presentation/w_homepage.dart';
-import 'data/api/u_db.dart';
+import 'package:sugar_tracker/data/preferences.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'data/api/u_db.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,8 @@ void main() async {
   await Profile.futureDateAsDayOfWeek;
   runApp(const ProviderScope(child: MainApp()));
 }
+
+late final FirebaseApp firebaseAppInstance;
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -45,6 +48,7 @@ class MainApp extends StatelessWidget {
             await ref.read(FoodCategoryManager.provider.notifier).load();
             await ref.read(FoodManager.provider.notifier).load();
             await ref.read(MealManager.provider.notifier).load(ref: ref);
+            firebaseAppInstance = await Firebase.initializeApp();
           }
 
           return FutureBuilder(
