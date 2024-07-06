@@ -67,10 +67,8 @@ class MealDataWidget extends StatelessWidget {
           ),
           builder: (context) => ListTile(
             title: Text(appBarTitle,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(color: mealCategoryColor(meal.category))),
+                style:
+                    Theme.of(context).textTheme.titleLarge?.copyWith(color: meal.category.color)),
             subtitle: subtitle,
           ),
         );
@@ -94,7 +92,7 @@ class MealDataWidget extends StatelessWidget {
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Colors.black, mealCategoryColor(meal.category)],
+      colors: [Colors.black, meal.category.color],
     );
   }
 
@@ -114,8 +112,7 @@ class MealDataWidget extends StatelessWidget {
   TextSpan time(BuildContext context) {
     return TextSpan(
       text: meal.time,
-      style:
-          Theme.of(context).textTheme.titleLarge?.copyWith(color: mealCategoryColor(meal.category)),
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: meal.category.color),
     );
   }
 

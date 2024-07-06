@@ -100,13 +100,12 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
 
   Widget title() {
     String title = "";
-    if (widget.insulin == null && widget.sugar == null) {
+    if (widget.insulin == null && widget.sugar == null)
       title = "Insulin & sugar entry";
-    } else if (widget.useAsTemplate) {
+    else if (widget.useAsTemplate)
       title = "Create entry from template";
-    } else {
+    else
       title = "Edit insulin & sugar entry";
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Text(
@@ -176,56 +175,53 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
     int sugarId = sugarLevel.id;
     if (sugarLevel.level > 0) {
       if (widget.useAsTemplate || sugarId == -1) {
-        sugarLevel.id = -1;
         sugarId = await ref.read(SugarManager.provider.notifier).addSugar(sugarLevel);
       } else {
         await ref.read(SugarManager.provider.notifier).updateSugar(sugarLevel);
         await ref.read(MealManager.provider.notifier).updateMealBySugar(sugarLevel);
       }
-    } else {
-      if (sugarLevel.id != -1) {
-        // show confirmation dialog asking if they want to delete sugar level
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("Delete sugar level?"),
-            content: const Text("Sugar level is 0, do you want to delete it?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("No"),
-              ),
-              TextButton(
-                onPressed: () async {
-                  // check if sugar level is in a meal
-                  Meal meal = ref.read(MealManager.provider.notifier).getMealBySugarId(sugarLevel);
-                  if (meal.id != -1) {
-                    // show dialog saying couldn't delete
-                    if (context.mounted) {
-                      await showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Cannot delete sugar level"),
-                          content: const Text("Sugar level is in a meal, cannot delete it"),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text("Ok"),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  } else
-                    await ref.read(SugarManager.provider.notifier).removeSugar(sugarLevel);
-                  if (context.mounted) Navigator.pop(context);
-                },
-                child: const Text("Delete"),
-              ),
-            ],
-          ),
-        );
-      }
+    } else if (sugarLevel.id != -1) {
+      // show confirmation dialog asking if they want to delete sugar level
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Delete sugar level?"),
+          content: const Text("Sugar level is 0, do you want to delete it?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                // check if sugar level is in a meal
+                Meal meal = ref.read(MealManager.provider.notifier).getMealBySugarId(sugarLevel);
+                if (meal.id != -1) {
+                  // show dialog saying couldn't delete
+                  if (context.mounted) {
+                    await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Cannot delete sugar level"),
+                        content: const Text("Sugar level is in a meal, cannot delete it"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Ok"),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                } else
+                  await ref.read(SugarManager.provider.notifier).removeSugar(sugarLevel);
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: const Text("Delete"),
+            ),
+          ],
+        ),
+      );
     }
     return sugarId;
   }
@@ -234,7 +230,6 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
     int insulinId = insulin.id;
     if (insulin.units > 0) {
       if (widget.useAsTemplate || insulinId == -1) {
-        insulin.id = -1;
         insulinId = await ref.read(InsulinManager.provider.notifier).addInsulin(insulin);
       } else {
         await ref.read(InsulinManager.provider.notifier).updateInsulin(insulin);
@@ -272,9 +267,8 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
                       ),
                     );
                   }
-                } else {
+                } else
                   await ref.read(InsulinManager.provider.notifier).removeInsulin(insulin);
-                }
                 if (context.mounted) Navigator.pop(context);
               },
               child: const Text("Delete"),
@@ -297,30 +291,21 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
           inputFormatters: [
             LengthLimitingTextInputFormatter(4),
             TextInputFormatter.withFunction((oldValue, newValue) {
-              if (newValue.text.contains(",")) {
+              if (newValue.text.contains(","))
                 return TextEditingValue(
                   text: newValue.text.replaceAll(",", "."),
                   selection: newValue.selection,
                 );
-              }
               return newValue;
             }),
             TextInputFormatter.withFunction((oldValue, newValue) {
-              if (newValue.text.split(".").length > 2) {
-                return oldValue;
-              }
+              if (newValue.text.split(".").length > 2) return oldValue;
               return newValue;
             }),
             TextInputFormatter.withFunction((oldValue, newValue) {
               if (newValue.text.contains(".")) {
-                if (newValue.text.split(".")[0].length > 2) {
-                  return oldValue;
-                }
-              } else {
-                if (newValue.text.length > 2) {
-                  return oldValue;
-                }
-              }
+                if (newValue.text.split(".")[0].length > 2) return oldValue;
+              } else if (newValue.text.length > 2) return oldValue;
               return newValue;
             }),
           ],
@@ -356,10 +341,8 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
   }
 
   Widget _insulinInput() {
-    String recommended = "Insulin units";
-    if (recommendedCorrection > 0) {
-      recommended += " ($recommendedCorrection advised)";
-    }
+    String recommended =
+        "Insulin units${recommendedCorrection > 0 ? " ($recommendedCorrection advised)" : ""}";
     return Stack(
       children: [
         TextFormField(
@@ -388,8 +371,7 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
   }
 
   Future showSugarLevelNotesEditor() {
-    final TextEditingController sugarLevelNotesController =
-        TextEditingController(text: sugarLevel.notes);
+    final sugarLevelNotesController = TextEditingController(text: sugarLevel.notes);
     Widget subtitle;
     subtitle = Column(
       children: [
@@ -404,9 +386,8 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
             if (sugarLevelNotesController.text != sugarLevel.notes) {
               sugarLevel.notes = sugarLevelNotesController.text;
               Navigator.pop(context, sugarLevel);
-            } else {
+            } else
               Navigator.pop(context);
-            }
           },
           child: const Text("Save"),
         ),
@@ -533,8 +514,8 @@ class _InsulinCategorySelectorState extends State<_InsulinCategorySelector> {
         setState(() {});
       },
       value: category == InsulinCategory.basal,
-      activeColor: insulinCategoryColor(category),
-      inactiveThumbColor: insulinCategoryColor(category),
+      activeColor: category.color,
+      inactiveThumbColor: category.color,
       tileColor: Colors.redAccent.withOpacity(0.35),
       title: Text(
         category.index == 0 ? data.$1 : data.$2,

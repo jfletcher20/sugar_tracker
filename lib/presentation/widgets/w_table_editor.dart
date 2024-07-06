@@ -320,6 +320,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
     return TextButton(
       onPressed: () async {
         await _confirmDeletionDialog();
+        // ignore: use_build_context_synchronously
         if (context.mounted) Navigator.pop(context);
       },
       child: const Text("Clear"),

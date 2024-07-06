@@ -24,9 +24,10 @@ class InsulinModelState extends StateNotifier<Set<Insulin>> {
   }
 
   Future<int> addInsulin(Insulin insulin) async {
-    int id = await InsulinAPI.insert(insulin);
-    insulin = insulin.copyWith(id: id);
-    state = {...state, insulin};
+    Insulin newInsulin = insulin.copyWith(id: -1);
+    int id = await InsulinAPI.insert(newInsulin);
+    newInsulin = newInsulin.copyWith(id: id);
+    state = {...state, newInsulin};
     return id;
   }
 

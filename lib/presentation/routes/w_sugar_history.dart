@@ -1,6 +1,7 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sugar_tracker/data/constants.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
@@ -61,8 +62,8 @@ class SugarLevelCard extends StatelessWidget {
           borderOnForeground: true,
           child: Stack(
             children: [
-              category(sugar, ref, context),
               SugarDataWidget(sugar: sugar),
+              Positioned(right: 0, child: category(sugar, ref, context)),
             ],
           ),
         );
@@ -79,35 +80,32 @@ class SugarLevelCard extends StatelessWidget {
   }
 
   Widget category(Sugar sugar, WidgetRef ref, BuildContext context) {
-    return Positioned(
-      right: 0,
-      child: InkWell(
-        child: categoryStrip(sugar, ref),
-        onTap: () async {
-          await showModalBottomSheet(
-            shape: _modalDecoration,
-            showDragHandle: true,
-            context: context,
-            builder: (context) => SizedBox(
-              height: 64 + 16,
-              child: GridView(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6,
-                  childAspectRatio: 2,
-                ),
-                children: [
-                  _useAsTemplate(context, sugar),
-                  _edit(context, sugar),
-                  _delete(context, sugar, ref),
-                  _share(context, sugar),
-                  _copy(context, sugar),
-                  _exportToCsv(context, sugar),
-                ],
+    return InkWell(
+      child: categoryStrip(sugar, ref),
+      onTap: () async {
+        await showModalBottomSheet(
+          shape: _modalDecoration,
+          showDragHandle: true,
+          context: context,
+          builder: (context) => SizedBox(
+            height: 64 + 16,
+            child: GridView(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 6,
+                childAspectRatio: 2,
               ),
+              children: [
+                _useAsTemplate(context, sugar),
+                _edit(context, sugar),
+                _delete(context, sugar, ref),
+                _share(context, sugar),
+                _copy(context, sugar),
+                _exportToCsv(context, sugar),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -237,32 +235,22 @@ class SugarLevelCard extends StatelessWidget {
   }
 
   Widget categoryStrip(Sugar sugar, WidgetRef ref) {
-    return FutureBuilder(
-      builder: (context, snapshot) => Container(
-        width: 48,
-        height: 32,
-        decoration: BoxDecoration(
-          gradient: _gradient(categoryColor(snapshot.data)),
-          borderRadius: _categoryBorder,
-        ),
-        child: snapshot.data == null
-            ? const Icon(Icons.query_stats)
-            : snapshot.data is MealCategory
-                ? Icon(mealCategoryIcon(snapshot.data as MealCategory))
-                : Icon(insulinCategoryIcon(snapshot.data as InsulinCategory)),
+    Meal meal = ref.read(MealManager.provider.notifier).getMealBySugarId(sugar);
+    dynamic val = meal.id == -1 ? null : meal.category;
+    if (val == null) {
+      Set<Insulin> insulins = ref.watch(InsulinManager.provider);
+      Insulin insulin =
+          insulins.firstWhere((e) => e.datetime == sugar.datetime, orElse: () => Insulin());
+      val = insulin.id == -1 ? null : insulin.category;
+    }
+    return Container(
+      width: 48,
+      height: 32,
+      decoration: BoxDecoration(
+        gradient: _gradient(val?.color ?? Colors.transparent),
+        borderRadius: _categoryBorder,
       ),
-      future: () async {
-        Meal meal = ref.watch(MealManager.provider.notifier).getMealBySugarId(sugar);
-        dynamic val = meal.id == -1 ? null : meal.category;
-        if (val == null) {
-          Set<Insulin> insulins = ref.watch(InsulinManager.provider);
-          Insulin insulin =
-              insulins.firstWhere((e) => e.datetime == sugar.datetime, orElse: () => Insulin());
-          val = insulin.id == -1 ? null : insulin.category;
-        }
-        return val;
-      }(),
-      initialData: null,
+      child: val == null ? const Icon(IconConstants.sugar) : Icon(val.icon),
     );
   }
 
@@ -275,8 +263,7 @@ class SugarLevelCard extends StatelessWidget {
   }
 
   Color categoryColor(dynamic category) {
-    if (category is InsulinCategory) return insulinCategoryColor(category);
-    if (category is MealCategory) return mealCategoryColor(category);
+    if (category is InsulinCategory || category is MealCategory) return category.color;
     return Colors.redAccent[400]!;
   }
 
@@ -284,6 +271,7 @@ class SugarLevelCard extends StatelessWidget {
     return const BorderRadius.only(
       topRight: Radius.circular(8),
       bottomLeft: Radius.circular(32),
+      bottomRight: Radius.circular(8),
     );
   }
 

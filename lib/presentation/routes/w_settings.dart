@@ -171,7 +171,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     labelText: MealCategory.values[i].name.substring(0, 1).toUpperCase() +
                         MealCategory.values[i].name.substring(1),
                     hintText: "Divider for ${MealCategory.values[i].name}",
-                    labelStyle: TextStyle(color: mealCategoryColor(MealCategory.values[i])),
+                    labelStyle: TextStyle(color: MealCategory.values[i].color),
                   ),
                   // ensure input is a number of at least 1
                   inputFormatters: limitDecimals,

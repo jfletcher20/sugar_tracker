@@ -59,17 +59,17 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    title(),
+                    title,
                     ImagePickerWidget(key: imagePickerKey, path: food.picture, imgSize: 128),
                     const SizedBox(height: 16),
-                    _nameInput(),
-                    _carbsInput(),
-                    _weightInput(),
-                    _notesInput(),
+                    _nameInput,
+                    _carbsInput,
+                    _weightInput,
+                    _notesInput,
                     const SizedBox(height: 16),
-                    _categories(),
+                    _categories,
                     const SizedBox(height: 8),
-                    _submitMealButton(),
+                    _submitMealButton,
                   ],
                 ),
               ),
@@ -80,7 +80,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     );
   }
 
-  Widget _categories() {
+  Widget get _categories {
     List<FoodCategory> foodCategories =
         ref.read(FoodCategoryManager.provider.notifier).getFoodCategories();
     if (!widget.useAsTemplate && food.id == -1)
@@ -90,7 +90,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     return _categoryGrid(foodCategories);
   }
 
-  Widget title() {
+  Widget get title {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Text(
@@ -119,7 +119,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   final double imgSize = 64;
 
-  ElevatedButton _submitMealButton() {
+  ElevatedButton get _submitMealButton {
     return ElevatedButton(
       onPressed: () async {
         if (_formKey.currentState!.validate()) {
@@ -143,9 +143,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   void _prepareFoodCategory() => food.foodCategory = _categoryGridKey.currentState!.selected;
 
-  Future<void> _saveData() async {
-    food.id = await _saveFood();
-  }
+  Future<void> _saveData() async => food.id = await _saveFood();
 
   Future<int> _saveFood() async {
     int foodId = food.id;
@@ -156,7 +154,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     return foodId;
   }
 
-  TextFormField _nameInput() {
+  TextFormField get _nameInput {
     return TextFormField(
       decoration: const InputDecoration(labelText: "Food name"),
       autofocus: true,
@@ -168,7 +166,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     );
   }
 
-  TextFormField _carbsInput() {
+  TextFormField get _carbsInput {
     return TextFormField(
       decoration: const InputDecoration(labelText: "Carbs per 100g"),
       controller: _carbsController,
@@ -179,7 +177,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     );
   }
 
-  TextFormField _weightInput() {
+  TextFormField get _weightInput {
     return TextFormField(
       decoration: const InputDecoration(labelText: "Expected weight"),
       controller: _weightController,
@@ -226,14 +224,12 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     ];
   }
 
-  TextFormField _notesInput() {
+  TextFormField get _notesInput {
     return TextFormField(
       decoration: const InputDecoration(labelText: "Notes"),
       controller: _notesController,
       maxLines: 3,
-      onChanged: (value) {
-        food.notes = value;
-      },
+      onChanged: (value) => food.notes = value,
     );
   }
 }

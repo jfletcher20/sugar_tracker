@@ -86,13 +86,7 @@ class FoodCategorySelectorWidgetState extends State<FoodCategorySelectorWidget> 
           child: Text(
             categoryName,
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              shadows: [
-                const Shadow(
-                  color: Colors.black,
-                  offset: Offset(1, 1),
-                  blurRadius: 2,
-                ),
-              ],
+              shadows: [const Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 2)],
             ),
           ),
         ),
@@ -100,7 +94,5 @@ class FoodCategorySelectorWidgetState extends State<FoodCategorySelectorWidget> 
     );
   }
 
-  void setSelected(bool state) {
-    setState(() => selected = state);
-  }
+  void setSelected(bool state) => setState(() => selected = state);
 }

@@ -48,6 +48,13 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     }
   }
 
+  DateTimeSelectorWidget get _dateTimeSelector {
+    return DateTimeSelectorWidget(
+      key: dateTimeSelectorKey,
+      initialDateTime: meal.sugarLevel.datetime,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -57,40 +64,26 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              title(),
-              DateTimeSelectorWidget(
-                key: dateTimeSelectorKey,
-                initialDateTime: meal.sugarLevel.datetime,
+              title,
+              _dateTimeSelector,
+              const SizedBox(height: 24),
+              SizedBox(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(flex: 12, child: FittedBox(child: _mealCategoryChoice)),
+                      const Spacer(),
+                      Expanded(flex: 8, child: _sugarLevelInput),
+                    ]),
               ),
               const SizedBox(height: 24),
-              FutureBuilder(
-                future: loadLatestMealCategory(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    meal.category = snapshot.data as MealCategory;
-                    return _mealCategoryDropdown(snapshot.data as MealCategory);
-                  }
-                  return DropdownButtonFormField(
-                    items: [dropdownMenuItem(MealCategory.other)],
-                    onChanged: (value) => setState(() => meal.category = value),
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
-              _sugarLevelInput(),
-              _insulinInput(),
-              _notesInput(),
+              _insulinInput,
               const SizedBox(height: 16),
-              Card(
-                child: FoodListView(
-                  foods: meal.food.where((food) => food.amount > 0).toList(),
-                  crossAxisCount: 3,
-                  showCounter: true,
-                ),
-              ),
-              _foodSelectionMenuButton(),
+              _foodListView,
+              _foodSelectionMenuButton,
               const SizedBox(height: 8),
-              _submitMealButton(),
+              _submitMealButton,
             ],
           ),
         ),
@@ -98,7 +91,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     );
   }
 
-  Widget title() {
+  Widget get title {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Text(
@@ -108,46 +101,45 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     );
   }
 
-  DropdownMenuItem dropdownMenuItem(MealCategory category) {
-    return DropdownMenuItem(
-      value: category,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(mealCategoryIcon(category), color: mealCategoryColor(category)),
-          const SizedBox(width: 16),
-          Text(
-            category.name.substring(0, 1).toUpperCase() + category.name.substring(1),
-            style: TextStyle(color: mealCategoryColor(category)),
-          ),
-        ],
+  GlobalKey<MealCategorySelectionState> mealCategoryKey = GlobalKey();
+  Widget get _mealCategoryChoice => MealCategorySelection(key: mealCategoryKey, category: _latest);
+
+  MealCategory get _latest {
+    if (!widget.useAsTemplate && meal.id == -1)
+      return ref.read(MealManager.provider.notifier).determineCategory();
+    return meal.category;
+  }
+
+  Widget get _mealNotesButton {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+        ),
+        child: IconButton(icon: const Icon(Icons.notes), onPressed: () => showMealNotesEditor()),
       ),
     );
   }
 
-  Future<MealCategory> loadLatestMealCategory() async {
-    return !widget.useAsTemplate && meal.id == -1
-        ? await ref.read(MealManager.provider.notifier).determineCategory()
-        : meal.category;
-  }
-
-  final GlobalKey<FormFieldState> _mealCategoryDropdownKey = GlobalKey();
-  DropdownButtonFormField _mealCategoryDropdown(MealCategory category) {
-    return DropdownButtonFormField(
-      key: _mealCategoryDropdownKey,
-      items: [
-        dropdownMenuItem(MealCategory.breakfast),
-        dropdownMenuItem(MealCategory.lunch),
-        dropdownMenuItem(MealCategory.dinner),
-        dropdownMenuItem(MealCategory.snack),
-        dropdownMenuItem(MealCategory.other),
+  Widget get _foodListView {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Card(
+          child: FoodListView(
+            foods: meal.food.where((food) => food.amount > 0).toList(),
+            crossAxisCount: 3,
+            showCounter: true,
+          ),
+        ),
+        _mealNotesButton,
       ],
-      onChanged: (value) => setState(() => meal.category = value),
-      value: meal.category,
     );
   }
 
-  ElevatedButton _foodSelectionMenuButton() {
+  ElevatedButton get _foodSelectionMenuButton {
     return ElevatedButton(
       onPressed: () async {
         Set<Food> foods = ref.watch(FoodManager.provider);
@@ -157,9 +149,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
             meal.food.last.amount = 0;
           }
         }
-        // meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
         meal.food = await showModalBottomSheet(
-          // ignore: use_build_context_synchronously
           context: context,
           shape: _modalDecoration,
           showDragHandle: false,
@@ -178,7 +168,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     );
   }
 
-  ElevatedButton _submitMealButton() {
+  ElevatedButton get _submitMealButton {
     return ElevatedButton(
       onPressed: () async {
         if (_formKey.currentState!.validate()) {
@@ -211,7 +201,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
   }
 
   void _prepareCategory() {
-    meal.category = _mealCategoryDropdownKey.currentState!.value as MealCategory;
+    meal.category = mealCategoryKey.currentState!.selectedCategory;
     meal.insulin.category = InsulinCategory.bolus;
   }
 
@@ -254,18 +244,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     return mealId;
   }
 
-  TextFormField _notesInput() {
-    return TextFormField(
-      decoration: const InputDecoration(labelText: "Notes"),
-      controller: _notesController,
-      maxLines: 3,
-      onChanged: (value) {
-        meal.notes = value;
-      },
-    );
-  }
-
-  Widget _sugarLevelInput() {
+  Widget get _sugarLevelInput {
     return Stack(
       children: [
         TextFormField(
@@ -313,7 +292,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
         Align(
           alignment: Alignment.centerRight,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
             child: IconButton(
               icon: const Icon(Icons.notes),
               onPressed: () => showSugarLevelNotesEditor(),
@@ -345,7 +324,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     return correction;
   }
 
-  Widget _insulinInput() {
+  Widget get _insulinInput {
     String recommended = "Insulin units ($recommendedInsulin";
     if (recommendedCorrection > 0) {
       recommended += " + $recommendedCorrection for correction";
@@ -430,6 +409,45 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     );
   }
 
+  Future showMealNotesEditor() {
+    Widget subtitle;
+    subtitle = Column(
+      children: [
+        TextFormField(
+          controller: _notesController,
+          decoration: const InputDecoration(labelText: "Meal notes"),
+          keyboardType: TextInputType.multiline,
+          maxLines: 5,
+          minLines: 1,
+        ),
+        const SizedBox(height: 24),
+        ElevatedButton(
+          onPressed: () {
+            if (_notesController.text != meal.sugarLevel.notes) {
+              meal.notes = _notesController.text;
+              Navigator.pop(context, meal);
+            } else {
+              Navigator.pop(context);
+            }
+          },
+          child: const Text("Save"),
+        ),
+      ],
+    );
+    return showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      shape: _modalDecoration,
+      builder: (context) => WillPopScope(
+        onWillPop: () async {
+          _notesController.text = meal.notes ?? "";
+          return true;
+        },
+        child: ListTile(subtitle: subtitle),
+      ),
+    );
+  }
+
   Future showInsulinEditor(String insulinName) {
     final TextEditingController insulinNameController = TextEditingController(text: insulinName);
     final TextEditingController insulinNotesController =
@@ -488,4 +506,53 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
       topRight: Radius.circular(32),
     ),
   );
+}
+
+class MealCategorySelection extends StatefulWidget {
+  final MealCategory category;
+  const MealCategorySelection({super.key, required this.category});
+
+  @override
+  State<MealCategorySelection> createState() => MealCategorySelectionState();
+}
+
+class MealCategorySelectionState extends State<MealCategorySelection> {
+  late MealCategory selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCategory = widget.category;
+  }
+
+  Color getColor(MealCategory category) {
+    return category == selectedCategory ? category.color : Colors.grey;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Text("Category",
+            textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium!),
+        Wrap(
+          children: MealCategory.values.map((category) {
+            return IconButton(
+              icon: Icon(category.icon, color: getColor(category)),
+              onPressed: () => setState(() => selectedCategory = category),
+              isSelected: selectedCategory == category,
+              selectedIcon: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: category.color),
+                ),
+                child: Icon(category.icon, color: category.color),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
 }

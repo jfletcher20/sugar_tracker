@@ -26,14 +26,14 @@ class _InsulinDataWidgetState extends ConsumerState<InsulinDataWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [_units(), _sugarLevel(), _carbs()],
+            children: [_units, _sugarLevel, _carbs],
           ),
         ),
       ],
     );
   }
 
-  Widget _units() {
+  Widget get _units {
     return SizedBox(
       width: 30,
       child: Center(
@@ -45,7 +45,7 @@ class _InsulinDataWidgetState extends ConsumerState<InsulinDataWidget> {
     );
   }
 
-  Widget _sugarLevel() {
+  Widget get _sugarLevel {
     Sugar sugar =
         ref.read(SugarManager.provider.notifier).getSugarByDatetime(widget.insulin.datetime!);
     String sugarLevel = sugar.id != -1 ? sugar.level.toString() : "";
@@ -89,7 +89,7 @@ class _InsulinDataWidgetState extends ConsumerState<InsulinDataWidget> {
     );
   }
 
-  Widget _carbs() {
+  Widget get _carbs {
     Meal meal = ref.read(MealManager.provider.notifier).getMealByInsulinId(widget.insulin);
     return SizedBox(
       width: 60,
@@ -97,7 +97,7 @@ class _InsulinDataWidgetState extends ConsumerState<InsulinDataWidget> {
         child: Text(
           meal.carbsDisplay,
           style: TextStyle(
-            color: meal.id == -1 ? Colors.white : mealCategoryColor(meal.category),
+            color: meal.id == -1 ? Colors.white : meal.category.color,
           ),
         ),
       ),
@@ -127,7 +127,7 @@ class _InsulinDataWidgetState extends ConsumerState<InsulinDataWidget> {
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Colors.black, insulinCategoryColor(widget.insulin.category)],
+      colors: [Colors.black, widget.insulin.category.color],
     );
   }
 
@@ -154,9 +154,7 @@ class _InsulinDataWidgetState extends ConsumerState<InsulinDataWidget> {
   TextSpan time(BuildContext context) {
     return TextSpan(
       text: widget.insulin.time,
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: insulinCategoryColor(widget.insulin.category),
-          ),
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: widget.insulin.category.color),
     );
   }
 }

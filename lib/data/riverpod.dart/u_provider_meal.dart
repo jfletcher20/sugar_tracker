@@ -32,7 +32,7 @@ class MealModelState extends StateNotifier<Set<Meal>> {
     }, orElse: () => Meal());
   }
 
-  Future<MealCategory> determineCategory() async {
+  MealCategory determineCategory() {
     List<Meal> meals = state.where((element) => element.datetime != null).toList();
     meals.sort((a, b) => a.datetime!.compareTo(b.datetime!));
 

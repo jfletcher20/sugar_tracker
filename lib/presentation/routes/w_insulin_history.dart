@@ -58,8 +58,8 @@ class InsulinCard extends StatelessWidget {
           borderOnForeground: true,
           child: Stack(
             children: [
-              category(insulin, ref, context),
               InsulinDataWidget(insulin: insulin),
+              Positioned(right: 0, child: category(insulin, ref, context)),
             ],
           ),
         );
@@ -68,35 +68,32 @@ class InsulinCard extends StatelessWidget {
   }
 
   Widget category(Insulin insulin, WidgetRef ref, BuildContext context) {
-    return Positioned(
-      right: 0,
-      child: InkWell(
-        child: categoryStrip(insulin, ref),
-        onTap: () async {
-          await showModalBottomSheet(
-            shape: _modalDecoration,
-            showDragHandle: true,
-            context: context,
-            builder: (context) => SizedBox(
-              height: 64 + 16,
-              child: GridView(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6,
-                  childAspectRatio: 2,
-                ),
-                children: [
-                  _useAsTemplate(context, insulin),
-                  _edit(context, insulin),
-                  _delete(context, insulin, ref),
-                  _share(context, insulin),
-                  _copy(context, insulin),
-                  _exportToCsv(context, insulin),
-                ],
+    return InkWell(
+      child: categoryStrip(insulin, ref),
+      onTap: () async {
+        await showModalBottomSheet(
+          shape: _modalDecoration,
+          showDragHandle: true,
+          context: context,
+          builder: (context) => SizedBox(
+            height: 64 + 16,
+            child: GridView(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 6,
+                childAspectRatio: 2,
               ),
+              children: [
+                _useAsTemplate(context, insulin),
+                _edit(context, insulin),
+                _delete(context, insulin, ref),
+                _share(context, insulin),
+                _copy(context, insulin),
+                _exportToCsv(context, insulin),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -226,22 +223,16 @@ class InsulinCard extends StatelessWidget {
   }
 
   Widget categoryStrip(Insulin insulin, WidgetRef ref) {
-    return FutureBuilder(
-      builder: (context, snapshot) => Container(
-          width: 48,
-          height: 32,
-          decoration: BoxDecoration(
-            gradient: _gradient(categoryColor(snapshot.data)),
-            borderRadius: _categoryBorder,
-          ),
-          child: snapshot.data is MealCategory
-              ? Icon(mealCategoryIcon(snapshot.data as MealCategory))
-              : Icon(insulinCategoryIcon(snapshot.data as InsulinCategory))),
-      future: () async {
-        Meal meal = ref.read(MealManager.provider.notifier).getMealByInsulinId(insulin);
-        return meal.id == -1 ? insulin.category : meal.category;
-      }(),
-      initialData: insulin.category,
+    Meal meal = ref.read(MealManager.provider.notifier).getMealByInsulinId(insulin);
+    dynamic category = meal.id == -1 ? insulin.category : meal.category;
+    return Container(
+      width: 48,
+      height: 32,
+      decoration: BoxDecoration(
+        gradient: _gradient(categoryColor(category)),
+        borderRadius: _categoryBorder,
+      ),
+      child: Icon(category.icon),
     );
   }
 
@@ -254,8 +245,7 @@ class InsulinCard extends StatelessWidget {
   }
 
   Color categoryColor(dynamic category) {
-    if (category is InsulinCategory) return insulinCategoryColor(category);
-    if (category is MealCategory) return mealCategoryColor(category);
+    if (category is InsulinCategory || category is MealCategory) return category.color;
     return Colors.transparent;
   }
 

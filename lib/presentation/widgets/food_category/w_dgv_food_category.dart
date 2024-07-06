@@ -1,9 +1,9 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/food_category/w_food_category_selector.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
 class FoodCategoryGridView extends ConsumerStatefulWidget {

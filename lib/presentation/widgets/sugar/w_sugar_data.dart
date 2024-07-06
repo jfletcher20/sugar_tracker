@@ -88,7 +88,7 @@ class _SugarDataWidgetState extends ConsumerState<SugarDataWidget> {
         child: Text(
           meal.carbsDisplay,
           style: TextStyle(
-            color: meal.id == -1 ? Colors.white : mealCategoryColor(meal.category),
+            color: meal.id == -1 ? Colors.white : meal.category.color,
           ),
         ),
       ),
@@ -131,10 +131,7 @@ class _SugarDataWidgetState extends ConsumerState<SugarDataWidget> {
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [
-        Colors.black,
-        category != null ? insulinCategoryColor(category) : Colors.redAccent[400]!
-      ],
+      colors: [Colors.black, category != null ? category.color : Colors.redAccent[400]!],
     );
   }
 

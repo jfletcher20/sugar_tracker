@@ -8,33 +8,49 @@
           "food_ids TEXT,"
           ")"; */
 
+import 'package:sugar_tracker/data/constants.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
 
 import 'package:flutter/material.dart';
 
-enum MealCategory { breakfast, lunch, dinner, snack, other }
+enum MealCategory {
+  breakfast,
+  lunch,
+  dinner,
+  snack,
+  other;
 
-IconData mealCategoryIcon(MealCategory category) {
-  return {
-    MealCategory.breakfast: Icons.free_breakfast_rounded,
-    MealCategory.lunch: Icons.lunch_dining_rounded,
-    MealCategory.dinner: Icons.dinner_dining_rounded,
-    MealCategory.snack: Icons.fastfood_rounded,
-    MealCategory.other: Icons.cake_rounded,
-  }[category]!;
-}
+  IconData get icon {
+    switch (this) {
+      case MealCategory.breakfast:
+        return MealCategoryData.mealCategory.breakfast.icon;
+      case MealCategory.lunch:
+        return MealCategoryData.mealCategory.lunch.icon;
+      case MealCategory.dinner:
+        return MealCategoryData.mealCategory.dinner.icon;
+      case MealCategory.snack:
+        return MealCategoryData.mealCategory.snack.icon;
+      case MealCategory.other:
+        return MealCategoryData.mealCategory.other.icon;
+    }
+  }
 
-Color mealCategoryColor(MealCategory? category) {
-  return {
-    MealCategory.breakfast: Colors.lightBlue,
-    MealCategory.lunch: Colors.green,
-    MealCategory.dinner: Colors.orange,
-    MealCategory.snack: Colors.purpleAccent.withGreen(100),
-    MealCategory.other: Colors.yellow,
-    null: Colors.black,
-  }[category]!;
+  Color get color {
+    switch (this) {
+      case MealCategory.breakfast:
+        return MealCategoryData.mealCategory.breakfast.color;
+      case MealCategory.lunch:
+        return MealCategoryData.mealCategory.lunch.color;
+      case MealCategory.dinner:
+        return MealCategoryData.mealCategory.dinner.color;
+      case MealCategory.snack:
+        return MealCategoryData.mealCategory.snack.color;
+      case MealCategory.other:
+        return MealCategoryData.mealCategory.other.color;
+    }
+  }
 }
 
 final Sugar _defaultSugar = Sugar();

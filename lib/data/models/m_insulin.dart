@@ -4,23 +4,12 @@
 import 'package:flutter/material.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 
-/// Bolus is fast-acting, basal is slow-acting insulin.
 enum InsulinCategory {
-  /// Bolus is fast-acting insulin.
   bolus,
+  basal;
 
-  /// Basal is slow-acting insulin.
-  basal
-}
-
-Color insulinCategoryColor(InsulinCategory category) {
-  return InsulinCategory.values.indexOf(category) == 0 ? Colors.deepOrange : Colors.lightGreen;
-}
-
-IconData insulinCategoryIcon(InsulinCategory category) {
-  return InsulinCategory.values.indexOf(category) == 0
-      ? Icons.fast_forward
-      : Icons.slow_motion_video;
+  Color get color => this == InsulinCategory.bolus ? Colors.deepOrange : Colors.lightGreen;
+  IconData get icon => this == InsulinCategory.bolus ? Icons.fast_forward : Icons.slow_motion_video;
 }
 
 class Insulin {

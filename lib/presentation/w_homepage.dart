@@ -1,4 +1,5 @@
 // ignore_for_file: avoid_print
+import 'package:sugar_tracker/data/constants.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
@@ -35,11 +36,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sugar Tracker"), actions: [
-        _createMeasurementEntryButton(),
-        _createMealButton(),
-        _createFoodItemButton(),
-      ]),
+      appBar: AppBar(
+          title: const Text("Sugar Tracker", style: TextStyle(fontFamily: "Boucherie")),
+          actions: [
+            _createMeasurementEntryButton(),
+            _createMealButton(),
+            _createFoodItemButton(),
+          ]),
       body: TabBarView(
         physics: const NeverScrollableScrollPhysics(),
         controller: _tabController,
@@ -87,7 +90,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
         );
       },
-      icon: const Icon(Icons.query_stats_outlined),
+      icon: const Icon(IconConstants.sugar),
     );
   }
 
@@ -116,27 +119,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       currentIndex: _tabController.index,
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.query_stats),
+          icon: Icon(IconConstants.sugar),
           label: "Sugars",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.edit_outlined),
+          icon: Icon(IconConstants.insulin),
           label: "Insulin",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.fastfood),
+          icon: Icon(IconConstants.meal),
           label: "Meals",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.food_bank),
+          icon: Icon(IconConstants.food),
           label: "Foods",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
+          icon: Icon(IconConstants.settings),
           label: "Settings",
           backgroundColor: Colors.black,
         ),
