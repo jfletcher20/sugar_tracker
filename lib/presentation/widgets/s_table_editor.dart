@@ -17,7 +17,10 @@ class TableEditorWidget extends StatefulWidget {
 class _TableEditorWidgetState extends State<TableEditorWidget> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text("Table editor")), body: alert());
+    return Scaffold(
+      appBar: AppBar(title: const Text("Table editor")),
+      body: alert(),
+    );
   }
 
   TextEditingController tableNameController = TextEditingController();
@@ -29,19 +32,20 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
     return AlertDialog(
       title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text("Table editor"),
-        _query(),
         _debugButton(),
       ]),
-      content: TextField(
-        controller: tableNameController,
-        decoration: const InputDecoration(hintText: "Table Name"),
+      content: Wrap(
+        children: [
+          TextField(
+            controller: tableNameController,
+            decoration: const InputDecoration(hintText: "Table Name"),
+            minLines: 1,
+            maxLines: 2,
+          ),
+          Align(alignment: Alignment.centerRight, child: _query()),
+        ],
       ),
-      actions: [
-        _export(),
-        _getAll(),
-        _setAll(),
-        _delete(),
-      ],
+      actions: [_export(), _getAll(), _setAll(), _delete()],
     );
   }
 
@@ -53,6 +57,35 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
       },
       icon: const Icon(Icons.code),
     );
+  }
+
+  Future<void> executeWithErrorDialog(Future<dynamic> query) async {
+    try {
+      var data = await query;
+      if (data != null && mounted) {
+        String printData = data.toString();
+        if (printData.length > 80) printData = "${printData.substring(0, 80)}...";
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Result: $printData"),
+          duration: const Duration(seconds: 6),
+        ));
+      }
+    } catch (e) {
+      if (mounted)
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Ececuted with error"),
+            content: Text(e.toString(), style: const TextStyle(color: Colors.redAccent)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Close"),
+              ),
+            ],
+          ),
+        );
+    }
   }
 
   IconButton _query() {
@@ -70,7 +103,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
               ),
               TextButton(
                 onPressed: () async {
-                  await DB.db.execute(tableNameController.text);
+                  await executeWithErrorDialog(DB.db.execute(tableNameController.text));
                   if (context.mounted) Navigator.pop(context);
                 },
                 child: const Text("Execute"),
@@ -80,7 +113,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
         );
         if (context.mounted) setState(() {});
       },
-      icon: const Icon(Icons.abc),
+      icon: const Icon(Icons.terminal),
     );
   }
 
@@ -148,26 +181,28 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
   TextButton _export() {
     return TextButton(
       onPressed: () async {
-        String exported = "";
-        switch (tableNameController.text) {
-          case "food":
-            exported = await FoodAPI.export();
-            break;
-          case "meal":
-            exported = await MealAPI.export();
-            break;
-          case "sugar":
-            exported = await SugarAPI.export();
-            break;
-          case "food_category":
-            exported = await FoodCategoryAPI.export();
-            break;
-          case "insulin":
-            exported = await InsulinAPI.export();
-            break;
-        }
-        // show dialog with text in singlechildscrollview
-        _exportDialog(exported);
+        executeWithErrorDialog(() async {
+          String exported = "";
+          switch (tableNameController.text) {
+            case "food":
+              exported = await FoodAPI.export();
+              break;
+            case "meal":
+              exported = await MealAPI.export();
+              break;
+            case "sugar":
+              exported = await SugarAPI.export();
+              break;
+            case "food_category":
+              exported = await FoodCategoryAPI.export();
+              break;
+            case "insulin":
+              exported = await InsulinAPI.export();
+              break;
+          }
+          _exportDialog(exported);
+          return exported;
+        }.call());
       },
       child: const Text("Export"),
     );
@@ -210,10 +245,13 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
   TextButton _getAll() {
     return TextButton(
       onPressed: () async {
-        List val = await DB.select(tableNameController.text.toLowerCase());
-        String output = "";
-        output = val.map((e) => e.toString()).toList().join("\n\n");
-        _getAllDialog(output);
+        executeWithErrorDialog(() async {
+          List val = await DB.select(tableNameController.text.toLowerCase());
+          String output = "";
+          output = val.map((e) => e.toString()).toList().join("\n\n");
+          _getAllDialog(output);
+          return output;
+        }.call());
       },
       child: const Text("Get"),
     );
@@ -227,9 +265,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
         content: SingleChildScrollView(child: Text(output)),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             child: const Text("Close"),
           ),
         ],
@@ -239,9 +275,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
 
   TextButton _setAll() {
     return TextButton(
-      onPressed: () async {
-        await _setAllDialog();
-      },
+      onPressed: () async => await _setAllDialog(),
       child: const Text("Set"),
     );
   }
@@ -288,16 +322,20 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
 
   bool onlyNullValues = true;
   Future<dynamic> _confirmSetAllDialog(String column, String value) {
-    SwitchListTile switchListTile = SwitchListTile(
-      title: const Text("Only null values"),
-      value: onlyNullValues,
-      onChanged: (value) => onlyNullValues = value,
-    );
+    StatefulBuilder contents = StatefulBuilder(builder: (context, setState) {
+      SwitchListTile switchListTile = SwitchListTile(
+        title: const Text("Only null values"),
+        value: onlyNullValues,
+        activeColor: Colors.red,
+        onChanged: (value) => setState(() => onlyNullValues = value),
+      );
+      return switchListTile;
+    });
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Set all values of column $column to $value?"),
-        content: switchListTile,
+        content: contents,
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
           TextButton(
@@ -305,8 +343,9 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
             onPressed: () async {
               // update all values for that column in the table
               // if onlyNullValues is true, only update where column value is null
-              await DB.db.update(tableNameController.text.toLowerCase(), {column: value},
-                  where: onlyNullValues ? "$column IS NULL" : null);
+              await executeWithErrorDialog(DB.db.update(
+                  tableNameController.text.toLowerCase(), {column: value},
+                  where: onlyNullValues ? "$column IS NULL" : null));
               if (context.mounted) Navigator.pop(context);
             },
             child: const Text("Confirm"),
@@ -320,8 +359,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
     return TextButton(
       onPressed: () async {
         await _confirmDeletionDialog();
-        // ignore: use_build_context_synchronously
-        if (context.mounted) Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       },
       child: const Text("Clear"),
     );
@@ -338,7 +376,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             onPressed: () async {
-              await DB.db.delete(tableNameController.text.toLowerCase());
+              await executeWithErrorDialog(DB.db.delete(tableNameController.text.toLowerCase()));
               if (context.mounted) Navigator.pop(context);
             },
             child: const Text("Delete"),
@@ -352,9 +390,7 @@ class _TableEditorWidgetState extends State<TableEditorWidget> {
     List tables = await DB.db.query('sqlite_master', columns: ['type', 'name']);
     tables = tables.getRange(1, tables.length).toList();
     String tableNames = "";
-    for (var table in tables) {
-      tableNames += table["name"] + "\n";
-    }
+    for (var table in tables) tableNames += table["name"] + "\n";
     _tableNamesDialog(tableNames);
   }
 

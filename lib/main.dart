@@ -7,7 +7,7 @@ import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/theme/i_theme.dart';
-import 'package:sugar_tracker/presentation/w_homepage.dart';
+import 'package:sugar_tracker/presentation/s_homepage.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';

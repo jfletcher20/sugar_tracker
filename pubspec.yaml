@@ -16,6 +16,7 @@ dependencies:
   flutter_file_dialog: ^3.0.2
   flutter_launcher_icons: ^0.13.1
   flutter_riverpod: ^2.5.1
+  font_awesome_flutter: ^10.7.0
   image_picker: ^1.0.1
   path: ^1.8.3
   path_provider: ^2.0.15

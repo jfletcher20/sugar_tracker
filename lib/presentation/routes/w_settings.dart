@@ -1,13 +1,14 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sugar_tracker/data/dialogs/u_download_dialog.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
-import 'package:sugar_tracker/presentation/widgets/w_table_editor.dart';
+import 'package:sugar_tracker/presentation/widgets/s_table_editor.dart';
 import 'package:sugar_tracker/data/dialogs/u_backup_dialog.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/preferences.dart';
@@ -229,7 +230,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     return SettingsTile(
       title: const Text("Create backup"),
       description: const Text("Save a backup to Firebase"),
-      leading: const Icon(Icons.download),
+      leading: const Icon(Icons.cloud_upload),
       onPressed: (context) async {
         await _manageBackupCreation();
       },
@@ -240,7 +241,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     return SettingsTile(
       title: const Text("Backup photos"),
       description: const Text("Backup your photos to Firebase"),
-      leading: const Icon(Icons.download),
+      leading: const Icon(FontAwesomeIcons.photoFilm),
       onPressed: (context) async {
         await _managePhotosBackupCreation();
       },
@@ -251,7 +252,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     return SettingsTile(
       title: const Text("Load backup"),
       description: const Text("Load a backup to restore your data"),
-      leading: const Icon(Icons.upload),
+      leading: const Icon(Icons.cloud_download),
       onPressed: (context) async {
         await loadBackupDialog().then((value) async {
           if (value == true) {
@@ -395,13 +396,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       }
     }
 
-    // Dismiss the progress dialog
-    if (mounted) Navigator.of(context).pop();
-
-    // Show a success message
     if (mounted)
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("All cache files backed up to Firebase."),
+        content: Text("All photos backed up to Firebase."),
       ));
 
     return;
@@ -480,7 +477,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        print("DOWNLOAD PROGERS LOAIDNG DIALOG");
         return DownloadProgressDialog(
           progressNotifier: progressNotifier,
           currentFileName: currentFileName,
