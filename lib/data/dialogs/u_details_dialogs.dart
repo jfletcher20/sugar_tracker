@@ -34,7 +34,7 @@ class DetailsDialogs {
                 padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
                 child: ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(Colors.greenAccent),
+                    backgroundColor: WidgetStateProperty.all<Color>(Colors.greenAccent),
                   ),
                   onPressed: () {},
                   child: const Icon(Icons.create, size: 32),

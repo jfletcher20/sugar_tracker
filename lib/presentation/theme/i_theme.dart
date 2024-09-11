@@ -22,10 +22,10 @@ class ThemeManager {
     ),
     timePickerTheme: TimePickerThemeData(
       cancelButtonStyle: const ButtonStyle(
-        foregroundColor: MaterialStatePropertyAll<Color>(Colors.grey),
+        foregroundColor: WidgetStatePropertyAll<Color>(Colors.grey),
       ),
       confirmButtonStyle: const ButtonStyle(
-        foregroundColor: MaterialStatePropertyAll<Color>(Colors.red),
+        foregroundColor: WidgetStatePropertyAll<Color>(Colors.red),
       ),
       dialHandColor: Colors.red.withOpacity(0.5),
       dialTextColor: Colors.white,
@@ -36,10 +36,10 @@ class ThemeManager {
       hourMinuteTextColor: Colors.white,
     ),
     datePickerTheme: const DatePickerThemeData(
-      todayForegroundColor: MaterialStatePropertyAll<Color>(Colors.red),
-      dayOverlayColor: MaterialStatePropertyAll<Color>(Colors.red),
+      todayForegroundColor: WidgetStatePropertyAll<Color>(Colors.red),
+      dayOverlayColor: WidgetStatePropertyAll<Color>(Colors.red),
       // add white shadow to day text
-      dayForegroundColor: MaterialStatePropertyAll<Color>(Colors.white),
+      dayForegroundColor: WidgetStatePropertyAll<Color>(Colors.white),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),

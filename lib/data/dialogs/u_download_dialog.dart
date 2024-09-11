@@ -1,11 +1,16 @@
-import 'dart:io';
-
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-class BackupProgressDialog extends StatelessWidget {
-  final List<File> files;
+class DownloadProgressDialog extends StatelessWidget {
+  final ListResult files;
   final ValueNotifier<double> progressNotifier;
-  const BackupProgressDialog({super.key, required this.progressNotifier, required this.files});
+  final ValueNotifier<String> currentFileName;
+  const DownloadProgressDialog({
+    super.key,
+    required this.progressNotifier,
+    required this.files,
+    required this.currentFileName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,6 @@ class BackupProgressDialog extends StatelessWidget {
                     _progress(context),
                     const SizedBox(height: 16),
                     _fileProgress,
-                    _currentFile,
                     const SizedBox(height: 16),
                     _currentFileNameDisplay(context),
                   ],
@@ -78,17 +82,8 @@ class BackupProgressDialog extends StatelessWidget {
   }
 
   Widget get _fileProgress {
-    double totalBytes = files.fold(0, (prev, file) {
-      int fileSize = 0;
-      try {
-        fileSize = file.lengthSync();
-      } catch (e) {
-        print(e);
-      }
-      return prev + fileSize;
-    });
     return Text(
-      "${_formatBytes(progressNotifier.value * totalBytes)} / ${_formatBytes(totalBytes)}",
+      "File ${(progressNotifier.value * files.items.length).round()} of ${files.items.length}",
     );
   }
 
@@ -99,28 +94,8 @@ class BackupProgressDialog extends StatelessWidget {
     );
   }
 
-  Widget get _currentFile {
-    int currentFile = (progressNotifier.value * files.length).toInt();
-    if (currentFile >= files.length) currentFile = files.length - 1;
-    return Text(
-      "File ${currentFile + 1} of ${files.length}",
-    );
-  }
-
   String get _currentFileName {
-    int fileIndex = (progressNotifier.value * files.length).toInt();
-    if (fileIndex >= files.length) fileIndex = files.length - 1;
-    String fileName = files[fileIndex].path.split("/").last;
+    String fileName = currentFileName.value;
     return fileName.length > 19 ? "${fileName.substring(0, 16)}..." : fileName;
-  }
-
-  String _formatBytes(double bytes) {
-    if (bytes < 1024) {
-      return "${bytes.toStringAsFixed(0)} B";
-    } else if (bytes < 1024 * 1024) {
-      return "${(bytes / 1024).toStringAsFixed(2)} KB";
-    } else {
-      return "${(bytes / 1024 / 1024).toStringAsFixed(2)} MB";
-    }
   }
 }

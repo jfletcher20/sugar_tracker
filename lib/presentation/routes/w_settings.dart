@@ -1,16 +1,22 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sugar_tracker/data/dialogs/u_download_dialog.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/w_table_editor.dart';
 import 'package:sugar_tracker/data/dialogs/u_backup_dialog.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
 
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
@@ -201,7 +207,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 String mealCategories = offenders.join(", ");
                 String plural = offenders.length > 1 ? "s" : "";
                 String warningText = "$warning (set divider$plural for $mealCategories to 1)";
-                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(warningText),
@@ -249,7 +254,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       leading: const Icon(Icons.upload),
       onPressed: (context) async {
         await loadBackupDialog().then((value) async {
-          if (value is bool && value) {
+          if (value == true) {
             DB.db.isOpen ? await DB.db.close() : null;
             await DB.open();
             if (context.mounted) setState(() {});
@@ -270,7 +275,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
     // Show the progress dialog
     showDialog(
-      // ignore: use_build_context_synchronously
       context: context,
       barrierDismissible: false,
       builder: (context) {
@@ -302,7 +306,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
     // Upload the file
     uploadFile(databaseFile).then((_) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup created and uploaded.')),
       );
@@ -327,6 +330,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       int fileSize = 0;
       try {
         fileSize = File(file.path).lengthSync();
+        // ignore: empty_catches
       } catch (e) {}
       return prev + fileSize;
     });
@@ -348,7 +352,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     ValueNotifier<double> progressNotifier = ValueNotifier<double>(0.0);
 
     showDialog(
-      // ignore: use_build_context_synchronously
       context: context,
       barrierDismissible: false,
       builder: (context) {
@@ -393,12 +396,13 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     }
 
     // Dismiss the progress dialog
-    Navigator.of(context).pop();
+    if (mounted) Navigator.of(context).pop();
 
     // Show a success message
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text("All cache files backed up to Firebase."),
-    ));
+    if (mounted)
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("All cache files backed up to Firebase."),
+      ));
 
     return;
   }
@@ -417,10 +421,29 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           ),
         ),
         actions: [
-          TextButton(
-            // ignore: use_build_context_synchronously
-            onPressed: () async => Navigator.pop(context, await loadFile()),
-            child: const Text("Yes"),
+          Consumer(
+            builder: (context, ref, child) {
+              return TextButton(
+                // load the backup file from firebase on pressed
+                onPressed: () async {
+                  bool success = await loadFile(ref);
+                  if (mounted) Navigator.pop(context, success);
+                },
+                child: const Text("Database"),
+              );
+            },
+          ),
+          Consumer(
+            builder: (context, ref, child) {
+              return TextButton(
+                // load the backup file from firebase on pressed
+                onPressed: () async {
+                  bool success = await loadPhotosBackup();
+                  if (mounted) Navigator.pop(context, success);
+                },
+                child: const Text("Photos"),
+              );
+            },
           ),
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
         ],
@@ -428,54 +451,57 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     );
   }
 
-  Future<bool> loadFile() async {
-    // get the path of the database file
-    File databaseFile = File("${(await getDatabasesPath()).toString()}/${DB.dbName}");
-    // get the file that the user chose
-    return FilePicker.platform.pickFiles().catchError((e) async {
-      if (!(await FlutterFileDialog.isPickDirectorySupported())) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error loading backup: not supported for this platform.')),
+  Future<bool> loadFile(WidgetRef ref) async {
+    // load the file from firebase
+    // it's at the firebase storage route 'uploads/backup.db'
+    Reference storageReference = FirebaseStorage.instance.ref().child('uploads/backup.db');
+    await storageReference.writeToFile(File('backup.db'));
+    DB.db.isOpen ? await DB.db.close() : null;
+    await DB.open();
+    await ref.read(SugarManager.provider.notifier).load();
+    await ref.read(InsulinManager.provider.notifier).load();
+    await ref.read(FoodCategoryManager.provider.notifier).load();
+    await ref.read(FoodManager.provider.notifier).load();
+    await ref.read(MealManager.provider.notifier).load(ref: ref);
+    return true;
+  }
+
+  Future<bool> loadPhotosBackup() async {
+    // load the file from firebase
+    // it's at the firebase storage route 'uploads/cache'
+    Reference storageReference = FirebaseStorage.instance.ref().child('uploads/cache');
+    // at ./cache, there are folder and .pngs; all need to be downloaded and stored in the local cache, replacing existing images
+    Directory cacheDir = await getTemporaryDirectory();
+    ListResult files = await storageReference.listAll();
+
+    var progressNotifier = ValueNotifier<double>(0.0), currentFileName = ValueNotifier<String>("");
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        print("DOWNLOAD PROGERS LOAIDNG DIALOG");
+        return DownloadProgressDialog(
+          progressNotifier: progressNotifier,
+          currentFileName: currentFileName,
+          files: files,
         );
-        return null;
-      } else {
-        // copy the file to the database path
-        try {
-          XFile((await FlutterFileDialog.pickFile()).toString()).saveTo(databaseFile.path);
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Backup loaded.')),
-          );
-          return null;
-        } catch (e) {
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error loading backup: $e')),
-          );
-          return null;
-        }
-      }
-    }).then((value) async {
-      if (value == null) {
-        return false;
-      }
-      File file = File(value.files.single.path!);
+      },
+    );
+
+    Future<void> downloadFile(Reference file) async {
       try {
-        await file.copy(databaseFile.path);
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Backup loaded.')),
-        );
-        return true;
+        String relativePath = file.fullPath.replaceFirst('uploads/cache/', '');
+        File localFile = File('${cacheDir.path}/$relativePath');
+        await file.writeToFile(localFile);
+        progressNotifier.value = files.items.indexOf(file) / files.items.length;
       } catch (e) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading backup: $e')),
-        );
-        return false;
+        print('Error downloading file: $e');
       }
-    });
+    }
+
+    for (Reference file in files.items) await downloadFile(file);
+    return true;
   }
 
   List<TextInputFormatter> get limitDecimals {
