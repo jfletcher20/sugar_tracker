@@ -149,16 +149,17 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
             meal.food.last.amount = 0;
           }
         }
-        meal.food = await showModalBottomSheet(
+        await showModalBottomSheet(
           context: context,
           shape: _modalDecoration,
           showDragHandle: false,
-          builder: (context) => Container(
-            margin: const EdgeInsets.only(top: 32),
-            child: Card(child: FoodSelectorWidget(meal: meal)),
-          ),
+          builder: (context) => StatefulBuilder(builder: (context, setState) {
+            return Container(
+              margin: const EdgeInsets.only(top: 32),
+              child: Card(child: FoodSelectorWidget(meal: meal)),
+            );
+          }),
         );
-        meal.category;
         setState(() {});
       },
       child: Text(
@@ -177,7 +178,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
           _prepareCategory();
           await _saveData();
           Future.delayed(const Duration(milliseconds: 100), () {
-            if (context.mounted) Navigator.pop(context, meal);
+            if (mounted) Navigator.pop(context, meal);
           });
         }
       },
@@ -282,7 +283,9 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
               return newValue;
             }),
           ],
-          validator: (value) => value == null || value.isEmpty ? "Please enter a value" : null,
+          validator: (value) => value == null || value.isEmpty || double.tryParse(value) == 0.0
+              ? "Please enter a value"
+              : null,
           onChanged: (value) {
             meal.sugarLevel.level = double.tryParse(value) ?? 0;
             setState(() {});

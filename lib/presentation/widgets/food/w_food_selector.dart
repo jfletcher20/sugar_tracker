@@ -19,15 +19,16 @@ class FoodSelectorWidget extends ConsumerStatefulWidget {
 
 class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
   final GlobalKey<FoodCategoryGridViewState> foodCategoryKey = GlobalKey();
-  late List<Food> allFoods = List.empty(growable: true);
+  List<Food> get allFoods => ref.watch(FoodManager.provider.notifier).getFoods();
   bool loadCategories = true;
 
-  void initFoods({bool withSetState = false}) {
-    if (allFoods.isEmpty) allFoods = ref.read(FoodManager.provider.notifier).getFoods();
+  void initFoods() {
     widget.meal.food = widget.meal.food.where((element) => element.amount > 0).toList();
     for (Food food in allFoods)
-      if (!widget.meal.food.any((element) => element.id == food.id)) widget.meal.food.add(food);
-    if (foodCategoryKey.currentState!.allSelected.isNotEmpty)
+      if (!widget.meal.food.any((mealFoodItem) => mealFoodItem.id == food.id))
+        widget.meal.food.add(food.copyWith(amount: 0));
+    widget.meal.food.removeWhere((item) => !allFoods.any((food) => food.id == item.id));
+    if (foodCategoryKey.currentState?.allSelected.isNotEmpty == true)
       widget.meal.food.retainWhere(
         (food) => foodCategoryKey.currentState!.allSelected.any(
           (c) => c.id == food.foodCategory.id || food.amount > 0,
@@ -37,28 +38,10 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child;
-    if (widget.meal.food.isNotEmpty) {
-      child = listView();
-    } else {
-      child = FutureBuilder(
-        future: Future.delayed(Duration.zero, () => initFoods()),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done)
-            return listView();
-          else if (snapshot.hasError) return Text("${snapshot.error}");
-          return Card(
-            child: Container(
-              padding: const EdgeInsets.all(64),
-              height: 321,
-              child: const Text("No food in this category"),
-            ),
-          );
-        },
-      );
-    }
+    initFoods();
+
     return WillPopScope(
-      child: SingleChildScrollView(child: Column(children: [_foodCategoryFilter(), child])),
+      child: SingleChildScrollView(child: Column(children: [_foodCategoryFilter(), listView()])),
       onWillPop: () {
         Navigator.pop(context, widget.meal.food);
         return Future.value(false);
@@ -83,7 +66,7 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
     );
   }
 
-  Widget listView() {
+  void sortFood({bool refresh = false}) {
     widget.meal.food.sort((a, b) => a.name.compareTo(b.name));
     widget.meal.food.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
 
@@ -122,12 +105,35 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
       return aUsage == null || bUsage == null ? 0 : bUsage.compareTo(aUsage);
     });
 
+    for (Food food in unselected) food.amount = 0;
+
     widget.meal.food = selected + unselected;
+    if (refresh) setState(() {});
+  }
+
+  Widget listView() {
+    print("DEBUG: listView building");
+    sortFood();
+    print("Selector rebuilt");
     return SingleChildScrollView(
       child: Column(
         children: [
           for (int i = 0; i < widget.meal.food.length; i++)
-            FoodCounterWidget(food: widget.meal.food[i], modifiable: true),
+            FoodCounterWidget(
+              food: widget.meal.food[i],
+              modifiable: true,
+              onCreate: (foodItem) {
+                initFoods();
+                sortFood(refresh: true);
+              },
+              onDelete: (foodId) {
+                widget.meal.food.removeWhere((element) => element.id == foodId);
+                Food item = ref.read(FoodManager.provider.notifier).getFood(foodId);
+                ref.read(FoodManager.provider.notifier).removeFood(item);
+                print("DEBUG: Food removed");
+                setState(() {});
+              },
+            ),
           if (widget.meal.food.isEmpty) const Text("No food items found"),
         ],
       ),

@@ -1,16 +1,19 @@
 // api for CRUD on food table
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 
 class FoodAPI {
   // insert food entry into db
   static Future<int> insert(Food food) async {
-    return await DB.insert("food", food.toMap());
+    var data = food.toMap()..remove("id");
+    return await DB.insert("food", data);
   }
 
   // update food entry in db
@@ -19,12 +22,19 @@ class FoodAPI {
   }
 
   // delete food entry from db
-  static Future<int> delete(Food food) async {
-    List<Meal> meals = await MealAPI.selectAll();
+  static Future<int> delete(Food food, {WidgetRef? ref}) async {
+    List<Meal> meals = ref == null
+        ? await MealAPI.selectAll()
+        : ref.read(MealManager.provider.notifier).getMeals();
     meals = meals.where((meal) => meal.food.any((f) => f.id == food.id)).toList();
     for (Meal meal in meals) {
       meal.food.removeWhere((f) => f.id == food.id);
-      await MealAPI.update(meal);
+      if (meal.food.isEmpty && ref != null) {
+        await ref.read(MealManager.provider.notifier).removeMeal(meal);
+      } else if (ref == null && meal.food.isEmpty) {
+        throw Exception("Cannot delete food entry, because it is used in a meal");
+      } else
+        await MealAPI.update(meal);
     }
     return await DB.delete("food", food.id);
   }

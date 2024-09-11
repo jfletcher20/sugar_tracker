@@ -1,11 +1,3 @@
-/* 
-      String sugarTable = "CREATE TABLE sugar("
-          "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-          "sugar REAL,"
-          "date TEXT,"
-          "notes TEXT,"
-          ")"; */
-
 import 'package:sugar_tracker/data/preferences.dart';
 
 class Sugar {

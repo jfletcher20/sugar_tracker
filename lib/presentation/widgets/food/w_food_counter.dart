@@ -5,7 +5,15 @@ import 'package:sugar_tracker/presentation/widgets/food/w_food_card.dart';
 class FoodCounterWidget extends StatelessWidget {
   final Food food;
   final bool modifiable;
-  const FoodCounterWidget({super.key, required this.food, this.modifiable = false});
+  final void Function(dynamic)? onCreate, onDelete;
+
+  const FoodCounterWidget({
+    super.key,
+    required this.food,
+    this.modifiable = false,
+    this.onCreate,
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +26,8 @@ class FoodCounterWidget extends StatelessWidget {
             columns: const {2, 0, 1},
             modifiable: modifiable,
             showAdditionalOptions: true,
+            onCreate: onCreate,
+            onDelete: onDelete,
           ),
         ],
       ),

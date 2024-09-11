@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
           ),
         );
-        if (context.mounted) setState(() {});
+        if (mounted) setState(() {});
       },
       icon: const Icon(Icons.food_bank_outlined),
     );

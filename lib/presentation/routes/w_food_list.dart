@@ -10,12 +10,14 @@ import 'package:flutter/material.dart';
 class FoodListWidget extends ConsumerStatefulWidget {
   const FoodListWidget({super.key});
 
+  static FoodListWidgetState? of(BuildContext context) =>
+      context.findAncestorStateOfType<FoodListWidgetState>();
+
   @override
-  ConsumerState<FoodListWidget> createState() => _FoodListWidgetState();
+  ConsumerState<FoodListWidget> createState() => FoodListWidgetState();
 }
 
-class _FoodListWidgetState extends ConsumerState<FoodListWidget>
-    with AutomaticKeepAliveClientMixin {
+class FoodListWidgetState extends ConsumerState<FoodListWidget> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -24,6 +26,7 @@ class _FoodListWidgetState extends ConsumerState<FoodListWidget>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    ref.listen(FoodManager.provider.notifier, (_, __) => setState(() {}));
     return Stack(
       children: [
         SingleChildScrollView(
@@ -80,7 +83,11 @@ class _FoodListWidgetState extends ConsumerState<FoodListWidget>
         showAmount: false,
         columns: const {0, 2},
         showAdditionalOptions: true,
+        onCreate: refresh,
+        onDelete: refresh,
       ),
     );
   }
+
+  void refresh(_) => setState(() {});
 }

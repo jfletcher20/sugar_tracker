@@ -122,11 +122,12 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     return ElevatedButton(
       onPressed: () async {
         if (_formKey.currentState!.validate()) {
+          print(widget.useAsTemplate);
           _prepareFoodCategory();
           await _prepareImage();
           await _saveData();
           Future.delayed(const Duration(milliseconds: 100), () {
-            if (context.mounted) Navigator.pop(context, food);
+            if (mounted) Navigator.pop(context, food);
           });
         }
       },

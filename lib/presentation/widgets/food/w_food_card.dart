@@ -1,9 +1,9 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +12,7 @@ class FoodCard extends ConsumerStatefulWidget {
   final Food food;
   final Set<int> columns;
   final bool modifiable, showAmount, showAdditionalOptions;
+  final void Function(dynamic)? onCreate, onDelete;
   const FoodCard({
     super.key,
     required this.food,
@@ -19,6 +20,8 @@ class FoodCard extends ConsumerStatefulWidget {
     this.modifiable = false,
     this.showAmount = true,
     this.showAdditionalOptions = false,
+    this.onCreate,
+    this.onDelete,
   });
 
   @override
@@ -202,10 +205,23 @@ class _FoodCardState extends ConsumerState<FoodCard> {
           ),
         );
         if (result != null && result) {
-          ref.read(FoodManager.provider.notifier).removeFood(food);
-          if (context.mounted) setState(() {});
+          try {
+            await ref.read(FoodManager.provider.notifier).removeFood(food, ref: ref);
+          } catch (e) {
+            if (context.mounted)
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(e.toString()),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+          }
+          widget.onDelete?.call(food.id);
+          if (context.mounted) {
+            setState(() {});
+            Navigator.pop(context, true);
+          }
         }
-        if (context.mounted) Navigator.pop(context, true);
       },
     );
   }
@@ -251,7 +267,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
         Clipboard.setData(ClipboardData(text: food.toString()));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Food copied to clipboard"),
+            content: Text("Food data copied to clipboard"),
             duration: Duration(seconds: 2),
           ),
         );
@@ -269,12 +285,13 @@ class _FoodCardState extends ConsumerState<FoodCard> {
           MaterialPageRoute(
             builder: (context) => Scaffold(
               appBar: AppBar(title: const Text("Food from template")),
-              body: FoodFormWidget(food: food, useAsTemplate: true),
+              body: FoodFormWidget(food: food.copyWith(id: -1), useAsTemplate: true),
             ),
           ),
         );
-        if (result != null) {
+        if (result != null && mounted) {
           setState(() {});
+          widget.onCreate?.call(result);
         }
       },
     );
@@ -293,11 +310,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
             ),
           ),
         );
-        if (result != null) {
-          setState(() {
-            food = result;
-          });
-        }
+        if (result != null) setState(() => food = result);
       },
     );
   }

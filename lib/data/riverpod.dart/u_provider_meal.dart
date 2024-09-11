@@ -16,7 +16,7 @@ class MealModelState extends StateNotifier<Set<Meal>> {
 
   List<Meal> getMeals() {
     var sorted = state.where((element) => element.datetime != null).toList()
-      ..sort((a, b) => a.datetime!.compareTo(b.datetime!));
+      ..sort((a, b) => a.datetime?.compareTo(b.datetime ?? DateTime.now()) ?? 0);
     return sorted;
   }
 
