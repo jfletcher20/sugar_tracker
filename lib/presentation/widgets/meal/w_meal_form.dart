@@ -149,7 +149,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
             meal.food.last.amount = 0;
           }
         }
-        await showModalBottomSheet(
+        List<Food>? chosenFoodItems = await showModalBottomSheet<List<Food>?>(
           context: context,
           shape: _modalDecoration,
           showDragHandle: false,
@@ -160,6 +160,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
             );
           }),
         );
+        if (chosenFoodItems != null) meal.food = chosenFoodItems;
         setState(() {});
       },
       child: Text(

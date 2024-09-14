@@ -21,15 +21,21 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
   final GlobalKey<FoodCategoryGridViewState> foodCategoryKey = GlobalKey();
   List<Food> get allFoods => ref.watch(FoodManager.provider.notifier).getFoods();
   bool loadCategories = true;
+  List<Food> currentFoodItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    currentFoodItems = widget.meal.food;
+  }
 
   void initFoods() {
-    widget.meal.food = widget.meal.food.where((element) => element.amount > 0).toList();
     for (Food food in allFoods)
-      if (!widget.meal.food.any((mealFoodItem) => mealFoodItem.id == food.id))
-        widget.meal.food.add(food.copyWith(amount: 0));
-    widget.meal.food.removeWhere((item) => !allFoods.any((food) => food.id == item.id));
+      if (!currentFoodItems.any((mealFoodItem) => mealFoodItem.id == food.id))
+        currentFoodItems.add(food.copyWith(amount: 0));
+    currentFoodItems.removeWhere((item) => !allFoods.any((food) => food.id == item.id));
     if (foodCategoryKey.currentState?.allSelected.isNotEmpty == true)
-      widget.meal.food.retainWhere(
+      currentFoodItems.retainWhere(
         (food) => foodCategoryKey.currentState!.allSelected.any(
           (c) => c.id == food.foodCategory.id || food.amount > 0,
         ),
@@ -43,7 +49,7 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
     return WillPopScope(
       child: SingleChildScrollView(child: Column(children: [_foodCategoryFilter(), listView()])),
       onWillPop: () {
-        Navigator.pop(context, widget.meal.food);
+        Navigator.pop(context, currentFoodItems);
         return Future.value(false);
       },
     );
@@ -67,8 +73,8 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
   }
 
   void sortFood({bool refresh = false}) {
-    widget.meal.food.sort((a, b) => a.name.compareTo(b.name));
-    widget.meal.food.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
+    currentFoodItems.sort((a, b) => a.name.compareTo(b.name));
+    currentFoodItems.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
 
     List<Meal> allMeals = ref.read(MealManager.provider.notifier).getMeals();
     List<Food> foodUsage = [];
@@ -90,11 +96,11 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
 
     List<Food> selected = [];
     List<Food> unselected = [];
-    for (int i = 0; i < widget.meal.food.length; i++)
-      if (widget.meal.food[i].amount > 0)
-        selected.add(widget.meal.food[i]);
+    for (int i = 0; i < currentFoodItems.length; i++)
+      if (currentFoodItems[i].amount > 0)
+        selected.add(currentFoodItems[i]);
       else
-        unselected.add(widget.meal.food[i]);
+        unselected.add(currentFoodItems[i]);
     selected.sort((a, b) => b.amount.compareTo(a.amount));
     selected.sort((a, b) => a.name.compareTo(b.name));
     selected.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
@@ -107,7 +113,7 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
 
     for (Food food in unselected) food.amount = 0;
 
-    widget.meal.food = selected + unselected;
+    currentFoodItems = selected + unselected;
     if (refresh) setState(() {});
   }
 
@@ -118,23 +124,23 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          for (int i = 0; i < widget.meal.food.length; i++)
+          for (int i = 0; i < currentFoodItems.length; i++)
             FoodCounterWidget(
-              food: widget.meal.food[i],
+              food: currentFoodItems[i],
               modifiable: true,
               onCreate: (foodItem) {
                 initFoods();
                 sortFood(refresh: true);
               },
               onDelete: (foodId) {
-                widget.meal.food.removeWhere((element) => element.id == foodId);
+                currentFoodItems.removeWhere((element) => element.id == foodId);
                 Food item = ref.read(FoodManager.provider.notifier).getFood(foodId);
                 ref.read(FoodManager.provider.notifier).removeFood(item);
                 print("DEBUG: Food removed");
                 setState(() {});
               },
             ),
-          if (widget.meal.food.isEmpty) const Text("No food items found"),
+          if (currentFoodItems.isEmpty) const Text("No food items found"),
         ],
       ),
     );
