@@ -118,9 +118,7 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
   }
 
   Widget listView() {
-    print("DEBUG: listView building");
     sortFood();
-    print("Selector rebuilt");
     return SingleChildScrollView(
       child: Column(
         children: [
