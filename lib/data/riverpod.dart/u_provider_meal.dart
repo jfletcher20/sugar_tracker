@@ -2,9 +2,11 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/api/u_api_meal.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 
 class MealModelState extends StateNotifier<Set<Meal>> {
   MealModelState() : super(const {}) {
@@ -125,6 +127,33 @@ class MealModelState extends StateNotifier<Set<Meal>> {
     if (meal.id == -1) return -1;
     meal = meal.copyWith(insulin: insulin);
     return await updateMeal(meal);
+  }
+
+  List<Food> getFoodsByUsage(WidgetRef ref) {
+    List<Food> allFoods = ref.read(FoodManager.provider.notifier).getFoods();
+    List<Meal> allMeals = getMeals();
+    Map<int, int> foodAmounts = {};
+    for (Meal meal in allMeals) {
+      for (Food foodItem in meal.food) {
+        foodAmounts[foodItem.id] = (foodAmounts[foodItem.id] ?? 0) + 1;
+      }
+    }
+
+    List<Food> selected = [];
+    List<Food> unselected = [];
+    for (Food foodItem in allFoods) {
+      if (foodAmounts[foodItem.id] != null && foodAmounts[foodItem.id]! > 0)
+        selected.add(foodItem);
+      else
+        unselected.add(foodItem);
+    }
+
+    selected.sort((a, b) => foodAmounts[b.id]!.compareTo(foodAmounts[a.id]!));
+    print(selected);
+    unselected.sort((a, b) => a.name.compareTo(b.name));
+    unselected.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
+
+    return (selected + unselected).map((foodItem) => foodItem.copyWith(amount: 0)).toList();
   }
 }
 

@@ -40,7 +40,7 @@ class FoodListWidgetState extends ConsumerState<FoodListWidget> with AutomaticKe
                   children: ref
                       .watch(FoodManager.provider.notifier)
                       .getFilteredFoods(fc)
-                      .map((e) => foodCard(context, e))
+                      .map((foodItem) => foodCard(context, foodItem))
                       .toList(),
                 ),
               )
