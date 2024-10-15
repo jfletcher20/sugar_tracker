@@ -1,3 +1,8 @@
+import 'dart:io';
+import 'dart:ui';
+
+import 'package:flutter/rendering.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
@@ -36,27 +41,30 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     food = widget.food;
   }
 
+  final GlobalKey glob = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      shadowColor: Colors.grey.shade200,
-      child: InkWell(
-        onTap: () async => widget.showAdditionalOptions ? _modalWithOptions() : null,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                prefix(context),
-                const SizedBox(width: 16),
-                cardData(context),
-              ],
+    return RepaintBoundary(
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shadowColor: Colors.grey.shade200,
+        child: InkWell(
+          key: glob,
+          onTap: () async => widget.showAdditionalOptions ? _modalWithOptions() : null,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  prefix(context),
+                  const SizedBox(width: 16),
+                  cardData(context),
+                ],
+              ),
             ),
           ),
         ),
@@ -99,7 +107,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
       _delete(context, widget.food),
       _share(context, widget.food),
       _copy(context, widget.food),
-      _exportToCsv(context, widget.food),
+      _saveAsImage(context, widget.food),
     ];
   }
 
@@ -226,26 +234,27 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     );
   }
 
-  IconButton _exportToCsv(BuildContext context, Food food) {
+  // save widget as image
+  Future<Uint8List> getWidgetAsImageBytes(BuildContext context) async {
+    RenderRepaintBoundary boundary =
+        glob.currentContext!.findAncestorRenderObjectOfType<RenderRepaintBoundary>()!;
+    final image = await boundary.toImage(pixelRatio: 3.0);
+    final bytes = await image.toByteData(format: ImageByteFormat.png);
+    return bytes!.buffer.asUint8List();
+  }
+
+  IconButton _saveAsImage(BuildContext context, Food food) {
     return IconButton(
       icon: const Icon(Icons.download),
-      onPressed: () {
-        // export to csv to location user specifies (show file dialog)
-        // showSavePanel(
-        //   suggestedFileName: "food.csv",
-        //   allowedFileTypes: const [FileTypeFilterGroup.csv()],
-        //   confirmButtonText: "Export",
-        //   initialDirectory: "C:\\Users\\${Platform.environment["USERNAME"]}\\Documents",
-        // ).then((value) {
-        //   if (value != null) {
-        //     String path = value.path;
-        //     if (!path.endsWith(".csv")) {
-        //       path += ".csv";
-        //     }
-        //     MealAPI.exportToCsv(meal, path);
-        //   }
-        // });
-        Navigator.pop(context);
+      onPressed: () async {
+        Uint8List imageBytes = await getWidgetAsImageBytes(context);
+        SaveFileDialogParams params = SaveFileDialogParams(
+          data: imageBytes,
+          mimeTypesFilter: ["image/png"],
+          fileName: "$food.png",
+        );
+        await FlutterFileDialog.saveFile(params: params);
+        if (context.mounted) Navigator.pop(context);
       },
     );
   }
@@ -253,9 +262,26 @@ class _FoodCardState extends ConsumerState<FoodCard> {
   IconButton _share(BuildContext context, Food food) {
     return IconButton(
       icon: const Icon(Icons.share),
-      onPressed: () {
-        Share.share(food.toString());
-        Navigator.pop(context);
+      onPressed: () async {
+        String imgName = "${food.toString()}.png";
+        Uint8List imageBytes = await getWidgetAsImageBytes(context);
+
+        // save imageBytes as temp file in cache
+        String tempDir = Directory.systemTemp.path;
+        File file = File(
+          "$tempDir/$imgName",
+        )
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(imageBytes);
+        XFile xFile = XFile(file.path);
+
+        Share.shareXFiles(
+          [xFile],
+          text: food.toString(),
+          subject: food.name.toString(),
+        );
+
+        if (context.mounted) Navigator.pop(context);
       },
     );
   }

@@ -72,7 +72,7 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
     );
   }
 
-  void sortFood({bool refresh = false}) {
+  Future<void> sortFood({bool refresh = false}) async {
     currentFoodItems.sort((a, b) => a.name.compareTo(b.name));
     currentFoodItems.sort((a, b) => a.foodCategory.name.compareTo(b.foodCategory.name));
 
@@ -83,7 +83,7 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
       for (Food food in meal.food) {
         foodUsage.firstWhere((element) => element.id == food.id, orElse: () {
           foodUsage.add(food.copyWith(amount: 1));
-          return food;
+          return foodUsage.last;
         }).amount++;
       }
     }
@@ -118,29 +118,32 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
   }
 
   Widget listView() {
-    sortFood();
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          for (int i = 0; i < currentFoodItems.length; i++)
-            FoodCounterWidget(
-              food: currentFoodItems[i],
-              modifiable: true,
-              onCreate: (foodItem) {
-                initFoods();
-                sortFood(refresh: true);
-              },
-              onDelete: (foodId) {
-                currentFoodItems.removeWhere((element) => element.id == foodId);
-                Food item = ref.read(FoodManager.provider.notifier).getFood(foodId);
-                ref.read(FoodManager.provider.notifier).removeFood(item);
-                print("DEBUG: Food removed");
-                setState(() {});
-              },
-            ),
-          if (currentFoodItems.isEmpty) const Text("No food items found"),
-        ],
-      ),
+      child: FutureBuilder(
+          future: sortFood(),
+          builder: (context, snapshot) {
+            return Column(
+              children: [
+                for (int i = 0; i < currentFoodItems.length; i++)
+                  FoodCounterWidget(
+                    food: currentFoodItems[i],
+                    modifiable: true,
+                    onCreate: (foodItem) {
+                      initFoods();
+                      sortFood(refresh: true);
+                    },
+                    onDelete: (foodId) {
+                      currentFoodItems.removeWhere((element) => element.id == foodId);
+                      Food item = ref.read(FoodManager.provider.notifier).getFood(foodId);
+                      ref.read(FoodManager.provider.notifier).removeFood(item);
+                      print("DEBUG: Food removed");
+                      setState(() {});
+                    },
+                  ),
+                if (currentFoodItems.isEmpty) const Text("No food items found"),
+              ],
+            );
+          }),
     );
   }
 }

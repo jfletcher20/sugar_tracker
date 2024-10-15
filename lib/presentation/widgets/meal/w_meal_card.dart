@@ -1,3 +1,8 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_meal_data.dart';
@@ -14,11 +19,13 @@ import 'package:flutter/material.dart';
 
 class MealCard extends StatelessWidget {
   final Meal meal;
-  const MealCard({super.key, required this.meal});
+  MealCard({super.key, required this.meal});
 
+  final GlobalKey glob = GlobalKey();
   @override
   Widget build(BuildContext context) {
     return Card(
+      key: glob,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       borderOnForeground: true,
       child: Stack(
@@ -81,7 +88,7 @@ class MealCard extends StatelessWidget {
                           _delete(context, meal, ref),
                           _share(context, meal),
                           _copy(context, meal),
-                          _exportToCsv(context, meal),
+                          _saveAsImage(context, meal),
                         ],
                       ),
                     ),
@@ -167,26 +174,27 @@ class MealCard extends StatelessWidget {
     );
   }
 
-  IconButton _exportToCsv(BuildContext context, Meal meal) {
+  // save widget as image
+  Future<Uint8List> getWidgetAsImageBytes(BuildContext context) async {
+    RenderRepaintBoundary boundary =
+        context.findAncestorRenderObjectOfType<RenderRepaintBoundary>()!;
+    final image = await boundary.toImage(pixelRatio: 3.0);
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    return bytes!.buffer.asUint8List();
+  }
+
+  IconButton _saveAsImage(BuildContext context, Meal meal) {
     return IconButton(
       icon: const Icon(Icons.download),
-      onPressed: () {
-        // export to csv to location user specifies (show file dialog)
-        // showSavePanel(
-        //   suggestedFileName: "meal.csv",
-        //   allowedFileTypes: const [FileTypeFilterGroup.csv()],
-        //   confirmButtonText: "Export",
-        //   initialDirectory: "C:\\Users\\${Platform.environment["USERNAME"]}\\Documents",
-        // ).then((value) {
-        //   if (value != null) {
-        //     String path = value.path;
-        //     if (!path.endsWith(".csv")) {
-        //       path += ".csv";
-        //     }
-        //     MealAPI.exportToCsv(meal, path);
-        //   }
-        // });
-        Navigator.pop(context);
+      onPressed: () async {
+        Uint8List imageBytes = await getWidgetAsImageBytes(context);
+        SaveFileDialogParams params = SaveFileDialogParams(
+          data: imageBytes,
+          mimeTypesFilter: ["image/png"],
+          fileName: "$meal.png",
+        );
+        await FlutterFileDialog.saveFile(params: params);
+        if (context.mounted) Navigator.pop(context);
       },
     );
   }
@@ -194,9 +202,26 @@ class MealCard extends StatelessWidget {
   IconButton _share(BuildContext context, Meal meal) {
     return IconButton(
       icon: const Icon(Icons.share),
-      onPressed: () {
-        Share.share(meal.toString());
-        Navigator.pop(context);
+      onPressed: () async {
+        // Share.share(meal.toString(), subject: meal.category.toString());
+        String imgName = "${meal.toString()}.png";
+        Uint8List imageBytes = await getWidgetAsImageBytes(context);
+        // save imageBytes as temp file in cache
+        String tempDir = Directory.systemTemp.path;
+        File file = File(
+          "$tempDir/$imgName",
+        )
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(imageBytes);
+        XFile xFile = XFile(file.path);
+
+        Share.shareXFiles(
+          [xFile],
+          text: meal.toString(),
+          subject: meal.category.toString(),
+        );
+
+        if (context.mounted) Navigator.pop(context);
       },
     );
   }
