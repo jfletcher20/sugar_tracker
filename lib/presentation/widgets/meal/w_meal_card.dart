@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
@@ -177,9 +177,9 @@ class MealCard extends StatelessWidget {
   // save widget as image
   Future<Uint8List> getWidgetAsImageBytes(BuildContext context) async {
     RenderRepaintBoundary boundary =
-        context.findAncestorRenderObjectOfType<RenderRepaintBoundary>()!;
+        glob.currentContext!.findAncestorRenderObjectOfType<RenderRepaintBoundary>()!;
     final image = await boundary.toImage(pixelRatio: 3.0);
-    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    final bytes = await image.toByteData(format: ImageByteFormat.png);
     return bytes!.buffer.asUint8List();
   }
 
