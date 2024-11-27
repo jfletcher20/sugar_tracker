@@ -67,7 +67,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             ),
             _profileTile(),
             _backupTile(),
-            _backupPhotosTile(),
             _loadBackupTile(),
             SettingsTile(
               title: const Text("Table editor"),
@@ -228,20 +227,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   SettingsTile _backupTile() {
     return SettingsTile(
       title: const Text("Create backup"),
-      description: const Text("Save a backup to Firebase"),
+      description: const Text("Backup all your data to Firebase"),
       leading: const Icon(Icons.cloud_upload),
       onPressed: (context) async {
         await _manageBackupCreation();
-      },
-    );
-  }
-
-  SettingsTile _backupPhotosTile() {
-    return SettingsTile(
-      title: const Text("Backup photos"),
-      description: const Text("Backup your photos to Firebase"),
-      leading: const Icon(FontAwesomeIcons.photoFilm),
-      onPressed: (context) async {
         await _managePhotosBackupCreation();
       },
     );
@@ -250,7 +239,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   SettingsTile _loadBackupTile() {
     return SettingsTile(
       title: const Text("Load backup"),
-      description: const Text("Load a backup to restore your data"),
+      description: const Text("Load your backup from Firebase"),
       leading: const Icon(Icons.cloud_download),
       onPressed: (context) async {
         await loadBackupDialog().then((value) async {
@@ -303,9 +292,12 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
     // Upload the file
     uploadFile(databaseFile).then((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Backup created and uploaded.')),
-      );
+      if (mounted && Navigator.canPop(context)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Backup created and uploaded.')),
+        );
+        Navigator.pop(context);
+      }
     });
   }
 
@@ -394,12 +386,12 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
     await uploadFile(zipFile);
 
-    if (mounted)
+    if (mounted && Navigator.canPop(context)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("All photos backed up to Firebase."),
       ));
-
-    return;
+      Navigator.pop(context);
+    }
   }
 
   Future<dynamic> loadBackupDialog() {
@@ -422,31 +414,25 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 // load the backup file from firebase on pressed
                 onPressed: () async {
                   bool success = await loadFile(ref);
-                  if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
+                  // if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Backup loaded successfully.")),
                   );
-                },
-                child: const Text("Database"),
-              );
-            },
-          ),
-          Consumer(
-            builder: (context, ref, child) {
-              return TextButton(
-                // load the backup photos cache from firebase on pressed
-                onPressed: () async {
-                  bool success = await loadPhotosBackup();
+                  success = await loadPhotosBackup();
                   if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Photos loaded successfully.")),
                   );
                 },
-                child: const Text("Photos"),
+                style: ButtonStyle(
+                  overlayColor: WidgetStateProperty.all(Colors.greenAccent.withOpacity(0.2)),
+                  textStyle: WidgetStateProperty.all(const TextStyle(color: Colors.greenAccent)),
+                ),
+                child: const Text("Confirm", style: TextStyle(color: Colors.greenAccent)),
               );
             },
           ),
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("No")),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
         ],
       ),
     );
