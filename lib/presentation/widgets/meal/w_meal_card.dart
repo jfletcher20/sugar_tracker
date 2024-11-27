@@ -208,9 +208,7 @@ class MealCard extends StatelessWidget {
         Uint8List imageBytes = await getWidgetAsImageBytes(context);
         // save imageBytes as temp file in cache
         String tempDir = Directory.systemTemp.path;
-        File file = File(
-          "$tempDir/$imgName",
-        )
+        File file = File("$tempDir/$imgName")
           ..createSync(recursive: true)
           ..writeAsBytesSync(imageBytes);
         XFile xFile = XFile(file.path);

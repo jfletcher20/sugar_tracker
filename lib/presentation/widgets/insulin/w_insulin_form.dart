@@ -120,15 +120,18 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
     List<Insulin> insulinData = ref.watch(InsulinManager.provider).toList();
     InsulinCategory result = InsulinCategory.bolus;
     // if datetimeselectorkey's time is between 9:55pm and 10:35pm, set category to basal
-    if ((dateTimeSelectorKey.currentState!.datetime.hour >= 21 &&
-            dateTimeSelectorKey.currentState!.datetime.minute >= 55) &&
-        (dateTimeSelectorKey.currentState!.datetime.hour <= 22 &&
-            dateTimeSelectorKey.currentState!.datetime.minute <= 15)) {
-      result = InsulinCategory.basal;
-      insulin.category = result;
-      insulin.name = insulinData.firstWhere((i) => i.category == result).name;
-      return result;
-    }
+    try {
+      if ((dateTimeSelectorKey.currentState!.datetime.hour >= 21 &&
+              dateTimeSelectorKey.currentState!.datetime.minute >= 55) &&
+          (dateTimeSelectorKey.currentState!.datetime.hour <= 22 &&
+              dateTimeSelectorKey.currentState!.datetime.minute <= 15)) {
+        result = InsulinCategory.basal;
+        insulin.category = result;
+        insulin.name = insulinData.firstWhere((i) => i.category == result).name;
+        return result;
+      }
+      // ignore: empty_catches
+    } catch (e) {}
     if (insulinData.isEmpty) return result;
     insulinData.sort((a, b) => a.date.compareTo(b.date));
     insulinData = insulinData.reversed.toList();

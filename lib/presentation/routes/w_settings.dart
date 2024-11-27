@@ -1,15 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:sugar_tracker/data/dialogs/u_download_dialog.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/s_table_editor.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/dialogs/u_backup_dialog.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
@@ -20,6 +18,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:archive/archive.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'dart:io';
@@ -266,15 +265,12 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   }
 
   Future<void> _manageBackupCreation() async {
-    // Open the file picker to select a location to save the backup
     String databases = await getDatabasesPath();
-    String dbName = DB.dbName; // Replace with your database name
+    String dbName = DB.dbName;
     String databasePath = "$databases/$dbName";
     File databaseFile = File(databasePath);
-    // Create a ValueNotifier to track progress
     ValueNotifier<double> progressNotifier = ValueNotifier<double>(0.0);
 
-    // Show the progress dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -348,53 +344,55 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     Directory cacheDir = await getTemporaryDirectory();
     List<FileSystemEntity> files = cacheDir.listSync(recursive: true, followLinks: false);
 
-    int uploadedBytes = 0;
-
     ValueNotifier<double> progressNotifier = ValueNotifier<double>(0.0);
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return BackupProgressDialog(
-          progressNotifier: progressNotifier,
-          files: files.map((e) {
-            return File(e.path);
-          }).toList(),
-        );
-      },
-    );
-
-    Future<void> uploadFile(File file, String relativePath) async {
+    Future<void> uploadFile(File file) async {
       try {
         Reference storageReference =
-            FirebaseStorage.instance.ref().child('uploads/cache/$relativePath');
+            FirebaseStorage.instance.ref().child('uploads/${file.path.split('/').last}');
 
         UploadTask uploadTask = storageReference.putFile(file);
         uploadTask.snapshotEvents.listen((event) {
-          uploadedBytes = calcUploadedBytes(files, file, uploadedBytes, event, totalBytes(files));
-          progressNotifier.value = uploadedBytes / totalBytes(files);
+          double progress = event.bytesTransferred / event.totalBytes;
+          progressNotifier.value = progress;
+          print(progress);
+          print('Upload progress: ${event.bytesTransferred} / ${event.totalBytes}');
         });
-
         await uploadTask.whenComplete(() {
-          print('File uploaded successfully: ${file.path}');
+          print('File uploaded successfully!');
         });
+        String downloadUrl = await storageReference.getDownloadURL();
+        print('Download URL: $downloadUrl');
       } catch (e) {
         print('Error uploading file: $e');
       }
     }
 
-    // Upload all files in the cache directory
+    File zipFile = File('${cacheDir.path}/cache.zip');
+    Archive archive = Archive();
     for (var file in files) {
       if (file is File) {
-        // Get the relative path of the file within the cache directory
         String relativePath = file.path.replaceFirst(cacheDir.path, '');
-        if (relativePath.startsWith(Platform.pathSeparator)) {
+        if (relativePath.startsWith(Platform.pathSeparator))
           relativePath = relativePath.substring(1);
-        }
-        await uploadFile(file, relativePath);
+        ArchiveFile archiveFile =
+            ArchiveFile(relativePath, file.lengthSync(), file.readAsBytesSync());
+        archive.addFile(archiveFile);
       }
     }
+
+    ZipEncoder encoder = ZipEncoder();
+    List<int> zippedFile = encoder.encode(archive)!;
+    zipFile.writeAsBytesSync(zippedFile);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return BackupProgressDialog(progressNotifier: progressNotifier, files: [zipFile]);
+      },
+    );
+
+    await uploadFile(zipFile);
 
     if (mounted)
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -424,7 +422,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 // load the backup file from firebase on pressed
                 onPressed: () async {
                   bool success = await loadFile(ref);
-                  if (mounted) Navigator.pop(context, success);
+                  if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Backup loaded successfully.")),
+                  );
                 },
                 child: const Text("Database"),
               );
@@ -433,10 +434,13 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           Consumer(
             builder: (context, ref, child) {
               return TextButton(
-                // load the backup file from firebase on pressed
+                // load the backup photos cache from firebase on pressed
                 onPressed: () async {
                   bool success = await loadPhotosBackup();
-                  if (mounted) Navigator.pop(context, success);
+                  if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Photos loaded successfully.")),
+                  );
                 },
                 child: const Text("Photos"),
               );
@@ -449,10 +453,15 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   }
 
   Future<bool> loadFile(WidgetRef ref) async {
-    // load the file from firebase
-    // it's at the firebase storage route 'uploads/backup.db'
-    Reference storageReference = FirebaseStorage.instance.ref().child('uploads/backup.db');
-    await storageReference.writeToFile(File('backup.db'));
+    // it's at the firebase storage route 'uploads/st.db'
+    Reference storageReference = FirebaseStorage.instance.ref().child('uploads/st.db');
+    // at st.db
+    String databases = await getDatabasesPath();
+    String dbName = DB.dbName;
+    String databasePath = "$databases/$dbName";
+    File databaseFile = File(databasePath);
+    databaseFile.createSync();
+    await storageReference.writeToFile(databaseFile);
     DB.db.isOpen ? await DB.db.close() : null;
     await DB.open();
     await ref.read(SugarManager.provider.notifier).load();
@@ -466,37 +475,20 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   Future<bool> loadPhotosBackup() async {
     // load the file from firebase
     // it's at the firebase storage route 'uploads/cache'
-    Reference storageReference = FirebaseStorage.instance.ref().child('uploads/cache');
-    // at ./cache, there are folder and .pngs; all need to be downloaded and stored in the local cache, replacing existing images
+    Reference storageReference = FirebaseStorage.instance.ref().child('uploads/cache.zip');
+    // at cache.zip
     Directory cacheDir = await getTemporaryDirectory();
-    ListResult files = await storageReference.listAll();
+    File zipFile = File('${cacheDir.path}/cache.zip');
+    if (zipFile.existsSync()) zipFile.deleteSync();
+    await storageReference.writeToFile(zipFile);
 
-    var progressNotifier = ValueNotifier<double>(0.0), currentFileName = ValueNotifier<String>("");
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return DownloadProgressDialog(
-          progressNotifier: progressNotifier,
-          currentFileName: currentFileName,
-          files: files,
-        );
-      },
-    );
-
-    Future<void> downloadFile(Reference file) async {
-      try {
-        String relativePath = file.fullPath.replaceFirst('uploads/cache/', '');
-        File localFile = File('${cacheDir.path}/$relativePath');
-        await file.writeToFile(localFile);
-        progressNotifier.value = files.items.indexOf(file) / files.items.length;
-      } catch (e) {
-        print('Error downloading file: $e');
-      }
+    Archive archive = ZipDecoder().decodeBytes(zipFile.readAsBytesSync());
+    for (ArchiveFile file in archive) {
+      File localFile = File('${cacheDir.path}/${file.name}');
+      localFile.createSync(recursive: true);
+      localFile.writeAsBytesSync(file.content);
     }
 
-    for (Reference file in files.items) await downloadFile(file);
     return true;
   }
 

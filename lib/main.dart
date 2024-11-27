@@ -1,5 +1,7 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
@@ -17,6 +19,9 @@ import 'data/api/u_db.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb) {
+    sqfliteFfiInit();
+  }
   await DB.open();
   await Profile.futureWeight;
   await Profile.futureDividers;
