@@ -410,15 +410,29 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         actions: [
           Consumer(
             builder: (context, ref, child) {
-              return TextButton(
-                // load the backup file from firebase on pressed
+              return TextButton.icon(
                 onPressed: () async {
                   bool success = await loadFile(ref);
-                  // if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Backup loaded successfully.")),
                   );
-                  success = await loadPhotosBackup();
+                  if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
+                },
+                style: ButtonStyle(
+                  overlayColor: WidgetStateProperty.all(Colors.greenAccent.withOpacity(0.2)),
+                  textStyle: WidgetStateProperty.all(const TextStyle(color: Colors.greenAccent)),
+                  iconColor: WidgetStateProperty.all(Colors.greenAccent),
+                ),
+                icon: const Icon(FontAwesomeIcons.database, color: Colors.greenAccent),
+                label: const Text("Database", style: TextStyle(color: Colors.greenAccent)),
+              );
+            },
+          ),
+          Consumer(
+            builder: (context, ref, child) {
+              return TextButton.icon(
+                onPressed: () async {
+                  bool success = await loadPhotosBackup();
                   if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Photos loaded successfully.")),
@@ -427,8 +441,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 style: ButtonStyle(
                   overlayColor: WidgetStateProperty.all(Colors.greenAccent.withOpacity(0.2)),
                   textStyle: WidgetStateProperty.all(const TextStyle(color: Colors.greenAccent)),
+                  iconColor: WidgetStateProperty.all(Colors.greenAccent),
                 ),
-                child: const Text("Confirm", style: TextStyle(color: Colors.greenAccent)),
+                icon: const Icon(Icons.photo_library, color: Colors.greenAccent),
+                label: const Text("Photos", style: TextStyle(color: Colors.greenAccent)),
               );
             },
           ),

@@ -23,9 +23,13 @@ class Insulin {
   String get date {
     DateTime local = datetime ?? DateTime.now();
     if (!Profile.dateAsDayOfWeek) return "${local.day}.${local.month}.${local.year}";
-    if (local.day == DateTime.now().day)
+    if (local.day == DateTime.now().day &&
+        local.month == DateTime.now().month &&
+        local.year == DateTime.now().year)
       return "Today";
-    else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day)
+    else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day &&
+        local.month == DateTime.now().subtract(const Duration(days: 1)).month &&
+        local.year == DateTime.now().subtract(const Duration(days: 1)).year)
       return "Yesterday";
     /* else if in the past 7 days return the weekday name like Sunday, Monday, Tuesday...*/ else {
       // check that local day is within the past 7 days
