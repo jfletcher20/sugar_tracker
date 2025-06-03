@@ -136,12 +136,12 @@ class MealDataWidget extends StatelessWidget {
     );
   }
 
-  RichText wrapper(BuildContext context, List<TextSpan> children) {
+  RichText wrapper(BuildContext context, List<InlineSpan> children) {
     TextStyle? s = Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.25);
     return RichText(text: TextSpan(style: s, children: children));
   }
 
-  List<TextSpan> sugarAndInsulin() {
+  List<InlineSpan> sugarAndInsulin() {
     return [
       const TextSpan(text: "Sugar: "),
       TextSpan(text: meal.sugarLevel.toString()),

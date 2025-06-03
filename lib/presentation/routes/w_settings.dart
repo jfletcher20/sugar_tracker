@@ -238,7 +238,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
   SettingsTile _loadBackupTile() {
     return SettingsTile(
-      title: const Text("Load backup"),
+      title: const Text("Download backup"),
       description: const Text("Load your backup from Firebase"),
       leading: const Icon(Icons.cloud_download),
       onPressed: (context) async {
@@ -486,6 +486,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
     Archive archive = ZipDecoder().decodeBytes(zipFile.readAsBytesSync());
     for (ArchiveFile file in archive) {
+      if (!file.name.contains(".")) continue;
       File localFile = File('${cacheDir.path}/${file.name}');
       localFile.createSync(recursive: true);
       localFile.writeAsBytesSync(file.content);
