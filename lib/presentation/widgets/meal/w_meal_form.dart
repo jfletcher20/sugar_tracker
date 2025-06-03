@@ -1,4 +1,5 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
@@ -140,7 +141,12 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
   }
 
   ElevatedButton get _foodSelectionMenuButton {
-    return ElevatedButton(
+    return ElevatedButton.icon(
+      icon: const Icon(FontAwesomeIcons.utensils),
+      label: Text(
+        "Add food"
+        " (${meal.food.fold(0.0, (previousValue, element) => previousValue + (element.amount * (element.carbs / 100))).round()}g carbs)",
+      ),
       onPressed: () async {
         Set<Food> foods = ref.watch(FoodManager.provider);
         for (int i = 0; i < foods.length; i++) {
@@ -163,10 +169,6 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
         if (chosenFoodItems != null) meal.food = chosenFoodItems;
         setState(() {});
       },
-      child: Text(
-        "Food"
-        " (${meal.food.fold(0.0, (previousValue, element) => previousValue + (element.amount * (element.carbs / 100))).round()}g carbs)",
-      ),
     );
   }
 
@@ -298,7 +300,7 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
             child: IconButton(
-              icon: const Icon(Icons.notes),
+              icon: const Icon(Icons.water_drop_outlined),
               onPressed: () => showSugarLevelNotesEditor(),
             ),
           ),
