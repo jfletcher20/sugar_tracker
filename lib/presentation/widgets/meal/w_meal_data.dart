@@ -1,8 +1,9 @@
+import 'package:sugar_tracker/presentation/widgets/meal/w_icon_info.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 
 import 'package:flutter/material.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 
 class MealDataWidget extends StatelessWidget {
   final Meal meal;
@@ -126,13 +127,11 @@ class MealDataWidget extends StatelessWidget {
     );
   }
 
-  Row data(BuildContext context) {
+  Widget data(BuildContext context) {
     return Row(
-      children: [
-        wrapper(context, sugarAndInsulin()),
-        const SizedBox(width: 32),
-        wrapper(context, carbsAndDate()),
-      ],
+      // alignment: WrapAlignment.end,
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [sugar, insulin, carbs, date, const SizedBox(width: 48)],
     );
   }
 
@@ -141,22 +140,51 @@ class MealDataWidget extends StatelessWidget {
     return RichText(text: TextSpan(style: s, children: children));
   }
 
-  List<InlineSpan> sugarAndInsulin() {
-    return [
-      const TextSpan(text: "Sugar: "),
-      TextSpan(text: meal.sugarLevel.toString()),
-      const TextSpan(text: "\n"),
-      const TextSpan(text: "Insulin: "),
-      TextSpan(text: meal.insulin.units.toString()),
-    ];
+  Widget get sugar {
+    return IconWithInfo(
+      info: meal.sugarLevel.toString(),
+      icon: Icons.water_drop,
+      iconColor: Colors.redAccent,
+      width: 48 + 12,
+    );
   }
 
-  List<TextSpan> carbsAndDate() {
-    return [
-      const TextSpan(text: "Carbs: "),
-      TextSpan(text: meal.carbs.round().toString()),
-      const TextSpan(text: "\n"),
-      TextSpan(text: meal.date),
-    ];
+  Widget get insulin {
+    return IconWithInfo(
+      info: "${meal.insulin.units == 0 ? "–" : meal.insulin.units}",
+      icon: Icons.edit_outlined,
+      iconColor: meal.insulin.category.color,
+      width: 32 + 16,
+    );
+  }
+
+  Widget get carbs {
+    return IconWithInfo(
+      info: "${meal.carbs.round()}g",
+      icon: Icons.cookie,
+      iconColor: meal.category.color,
+      width: 48 + 24,
+    );
+  }
+
+  Widget get date {
+    // return IconWithInfo(
+    //   info: meal.date.abbreviated,
+    //   icon: Icons.calendar_month,
+    // );
+    return Text(meal.date);
   }
 }
+
+// extension on String {
+//   get abbreviated {
+//     // if the date contains 2 ".", // then it is in the format "dd.MM.yyyy"; it will be abbreviated to "dd.MM.'yy"
+//     if (contains(".")) {
+//       List<String> parts = this.split(".");
+//       if (parts.length == 3) {
+//         return "${parts[0]}.${parts[1]}.'${parts[2].substring(2)}";
+//       }
+//     } else
+//       return this; // if it does not contain 2 ".", return the original string
+//   }
+// }

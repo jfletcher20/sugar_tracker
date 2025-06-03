@@ -9,16 +9,19 @@ class FoodListView extends StatelessWidget {
   final List<Food> foods;
   final int crossAxisCount;
   final Axis scrollDirection;
-  final bool showCounter;
+  final bool showCounter, dynamicScale;
+  final double borderRadius;
   const FoodListView({
     super.key,
     required this.foods,
     this.crossAxisCount = 1,
     this.scrollDirection = Axis.vertical,
     this.showCounter = false,
+    this.dynamicScale = false,
+    this.borderRadius = 5.0,
   });
 
-  final double _maxWidth = 300;
+  double get _maxWidth => !dynamicScale ? 300 : double.maxFinite;
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +45,7 @@ class FoodListView extends StatelessWidget {
 
   Card wrapper({required Widget child}) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
       child: SizedBox(
         width: 64 + 8,
         height: 64 + 8,
@@ -79,7 +80,7 @@ class FoodListView extends StatelessWidget {
     }
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(color: Colors.redAccent),
       ),
       height: size,
@@ -90,7 +91,7 @@ class FoodListView extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(borderRadius),
                 border: Border.all(color: Colors.redAccent),
               ),
               child: image(food),

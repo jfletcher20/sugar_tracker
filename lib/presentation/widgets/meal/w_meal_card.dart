@@ -32,8 +32,16 @@ class MealCard extends StatelessWidget {
         children: [
           Consumer(builder: (context, ref, child) => category(meal, ref, context)),
           Row(children: [
-            FoodListView(foods: meal.food, crossAxisCount: 1),
-            MealDataWidget(meal: meal),
+            SizedBox(
+              width: 50,
+              height: 50,
+              child: FittedBox(
+                fit: BoxFit.fill,
+                child: FoodListView(
+                    foods: meal.food, crossAxisCount: 1, dynamicScale: true, borderRadius: 5),
+              ),
+            ),
+            Expanded(flex: 8, child: MealDataWidget(meal: meal)),
           ]),
         ],
       ),
@@ -69,7 +77,7 @@ class MealCard extends StatelessWidget {
         children: [
           categoryStrip(meal.category),
           Container(
-            margin: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.only(right: 8.0),
             child: Center(
               child: IconButton(
                 icon: _icon(meal.category.icon),
@@ -277,7 +285,7 @@ class MealCard extends StatelessWidget {
   Widget categoryStrip(MealCategory category) {
     return Container(
       width: 32,
-      height: 64 + 16,
+      height: 48 + 2,
       decoration: BoxDecoration(
         gradient: _gradient(category.color),
         borderRadius: const BorderRadius.only(
@@ -292,7 +300,7 @@ class MealCard extends StatelessWidget {
     return LinearGradient(
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
-      colors: [color, color.withOpacity(0.5)],
+      colors: [color, color.withValues(alpha: 0.5)],
     );
   }
 }
