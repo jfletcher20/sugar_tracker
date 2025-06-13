@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/dialogs/u_details_dialogs.dart';
 import 'package:flutter/material.dart';
+import 'package:sugar_tracker/presentation/widgets/food/w_bouncing_carousel.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_count.dart';
 
 class FoodListView extends StatelessWidget {
   final List<Food> foods;
   final int crossAxisCount;
   final Axis scrollDirection;
-  final bool showCounter, dynamicScale;
+  final bool showCounter, dynamicScale, carousel;
   final double borderRadius;
   const FoodListView({
     super.key,
@@ -19,12 +20,14 @@ class FoodListView extends StatelessWidget {
     this.showCounter = false,
     this.dynamicScale = false,
     this.borderRadius = 5.0,
+    this.carousel = false,
   });
 
   double get _maxWidth => !dynamicScale ? 300 : double.maxFinite;
 
   @override
   Widget build(BuildContext context) {
+    if (carousel) return BouncingCarousel(foods);
     if (foods.isEmpty) {
       return SizedBox(
         width: _maxWidth,

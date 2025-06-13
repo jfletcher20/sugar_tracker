@@ -1,8 +1,4 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
@@ -15,13 +11,14 @@ import 'package:sugar_tracker/data/preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+
 import 'data/api/u_db.dart';
+
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (!kIsWeb) {
-    sqfliteFfiInit();
-  }
+
   await DB.open();
   await Profile.futureWeight;
   await Profile.futureDividers;
@@ -59,10 +56,14 @@ class MainApp extends StatelessWidget {
           return FutureBuilder(
             future: loadDB(),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done)
-                return const HomePage();
-              else
-                return const Scaffold(body: Center(child: CircularProgressIndicator()));
+              if (snapshot.connectionState == ConnectionState.done) return const HomePage();
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                ),
+              );
             },
           );
         },
