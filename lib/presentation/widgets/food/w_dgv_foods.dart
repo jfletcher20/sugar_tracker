@@ -19,7 +19,7 @@ class FoodListView extends StatelessWidget {
     this.scrollDirection = Axis.vertical,
     this.showCounter = false,
     this.dynamicScale = false,
-    this.borderRadius = 5.0,
+    this.borderRadius = 16.0,
     this.carousel = false,
   });
 
@@ -50,8 +50,8 @@ class FoodListView extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
       child: SizedBox(
-        width: 64 + 8,
-        height: 64 + 8,
+        width: 40,
+        height: 40,
         child: child,
       ),
     );
@@ -76,42 +76,10 @@ class FoodListView extends StatelessWidget {
     );
   }
 
-  Widget img(Food food) {
-    double size = 48 + 4;
-    if (crossAxisCount > 1) {
-      size = (_maxWidth / crossAxisCount).floorToDouble();
-    }
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: Colors.redAccent),
-      ),
-      height: size,
-      width: size,
-      child: Center(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(color: Colors.redAccent),
-              ),
-              child: image(food),
-            ),
-            label(food),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
     return Image.asset(
       "assets/images/food/unknown.png",
       color: Colors.redAccent,
-      height: 32,
-      width: 32,
     );
   }
 
@@ -144,18 +112,18 @@ class FoodListView extends StatelessWidget {
   Image image(Food food) {
     return food.picture.contains("asset")
         ? Image.asset(
-            height: 32,
-            width: 32,
+            fit: BoxFit.fill,
             food.picture,
             color: food.picture == "" ? Colors.greenAccent : null,
             errorBuilder: imageNotFound,
           )
         : Image.file(
             File(food.picture),
-            height: 32,
-            width: 32,
+            // height: 32,
+            // width: 32,
             color: food.picture == "" ? Colors.greenAccent : null,
             errorBuilder: imageNotFound,
+            fit: BoxFit.fill,
           );
   }
 }

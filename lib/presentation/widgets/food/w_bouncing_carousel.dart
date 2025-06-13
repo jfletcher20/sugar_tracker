@@ -1,4 +1,3 @@
-import 'package:sugar_tracker/data/dialogs/u_details_dialogs.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 
 import 'package:flutter/material.dart';

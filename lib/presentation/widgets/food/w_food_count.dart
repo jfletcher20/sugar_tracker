@@ -7,12 +7,14 @@ import 'package:sugar_tracker/data/models/m_food.dart';
 class FoodCountWidget extends StatefulWidget {
   final Food food;
   final bool autoSize, modifiable, showAmount;
+  final double borderRadius;
   const FoodCountWidget({
     super.key,
     required this.food,
     this.autoSize = false,
     this.modifiable = false,
     this.showAmount = true,
+    this.borderRadius = 5.0,
   });
 
   @override
@@ -22,7 +24,13 @@ class FoodCountWidget extends StatefulWidget {
 class FoodCountWidgetState extends State<FoodCountWidget> {
   @override
   Widget build(BuildContext context) {
-    return imageWithCounter(widget.food, context);
+    return SizedBox(
+      height: imgSize + 24,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [img, if (widget.showAmount) amount(widget.food)],
+      ),
+    );
   }
 
   final double imgSize = 64 + 8;
@@ -33,16 +41,6 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
     super.initState();
     String amount = widget.food.amount > 0 ? widget.food.amount.toString() : "";
     _amountController = TextEditingController(text: amount);
-  }
-
-  Widget imageWithCounter(Food food, BuildContext context) {
-    return SizedBox(
-      height: imgSize + 24,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [img(), if (widget.showAmount) amount(food)],
-      ),
-    );
   }
 
   Widget amount(Food food) {
@@ -57,7 +55,7 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            color: Colors.redAccent.withOpacity(0.85),
+            color: Colors.redAccent.withValues(alpha: 0.85),
           ),
           padding: const EdgeInsets.all(4),
           child: Text(
@@ -123,28 +121,31 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
     };
   }
 
-  Widget img() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: Colors.redAccent),
-      ),
-      child: SizedBox(
-        height: widget.autoSize ? null : imgSize,
-        width: widget.autoSize ? null : imgSize,
-        child: Center(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: Colors.redAccent),
-                ),
-                child: image(widget.food),
-              )
-            ],
-          ),
+  Widget get img {
+    return SizedBox(
+      height: widget.autoSize ? null : imgSize,
+      width: widget.autoSize ? null : imgSize,
+      child: Center(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                border:
+                    Border.all(color: Colors.redAccent, strokeAlign: BorderSide.strokeAlignInside),
+              ),
+              child: image(widget.food),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                border:
+                    Border.all(color: Colors.redAccent, strokeAlign: BorderSide.strokeAlignCenter),
+              ),
+              child: Visibility(visible: false, child: image(widget.food)),
+            )
+          ],
         ),
       ),
     );

@@ -33,20 +33,16 @@ class MealCard extends StatelessWidget {
           Consumer(builder: (context, ref, child) => category(meal, ref, context)),
           Row(children: [
             SizedBox(
-              width: 50,
-              height: 50,
               child: FittedBox(
                 fit: BoxFit.fill,
                 child: FoodListView(
                   foods: meal.food,
                   crossAxisCount: 1,
-                  dynamicScale: true,
-                  borderRadius: 5,
-                  carousel: true,
+                  // dynamicScale: true,
                 ),
               ),
             ),
-            Expanded(flex: 8, child: MealDataWidget(meal: meal)),
+            Expanded(child: MealDataWidget(meal: meal)),
           ]),
         ],
       ),
