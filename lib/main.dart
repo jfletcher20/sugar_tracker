@@ -28,6 +28,8 @@ void main() async {
 
 late final FirebaseApp firebaseAppInstance;
 
+Future<void>? loadDBFuture;
+
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
@@ -53,8 +55,10 @@ class MainApp extends StatelessWidget {
             firebaseAppInstance = await Firebase.initializeApp();
           }
 
+          loadDBFuture ??= loadDB();
+
           return FutureBuilder(
-            future: loadDB(),
+            future: loadDBFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) return const HomePage();
               return const Scaffold(
