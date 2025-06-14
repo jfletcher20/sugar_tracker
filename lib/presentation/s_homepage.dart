@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           wrap(const SugarHistoryWidget()),
           wrap(const InsulinHistoryWidget()),
           wrap(const MealHistoryWidget()),
-          wrap(const FoodListWidget()),
+          wrap(const FoodListWidget(withCarbCalc: false)),
           wrap(const SettingsWidget()),
         ],
       ),

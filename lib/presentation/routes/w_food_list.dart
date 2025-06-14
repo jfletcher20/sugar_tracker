@@ -8,7 +8,8 @@ import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:flutter/material.dart';
 
 class FoodListWidget extends ConsumerStatefulWidget {
-  const FoodListWidget({super.key});
+  final bool withCarbCalc;
+  const FoodListWidget({super.key, this.withCarbCalc = true});
 
   static FoodListWidgetState? of(BuildContext context) =>
       context.findAncestorStateOfType<FoodListWidgetState>();
@@ -78,10 +79,10 @@ class FoodListWidgetState extends ConsumerState<FoodListWidget> with AutomaticKe
     return FractionallySizedBox(
       widthFactor: 1,
       child: FoodCard(
-        food: food,
+        food: food.copyWith(amount: widget.withCarbCalc ? food.amount : 0),
         modifiable: false,
         showAmount: false,
-        columns: const {0, 2},
+        columns: const {0},
         showAdditionalOptions: true,
         onCreate: refresh,
         onDelete: refresh,

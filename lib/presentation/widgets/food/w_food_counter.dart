@@ -23,7 +23,7 @@ class FoodCounterWidget extends StatelessWidget {
         children: [
           FoodCard(
             food: food,
-            columns: const {2, 0, 1},
+            columns: const {0, 1},
             modifiable: modifiable,
             showAdditionalOptions: true,
             onCreate: onCreate,

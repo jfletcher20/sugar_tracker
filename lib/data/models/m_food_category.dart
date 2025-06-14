@@ -6,6 +6,8 @@
           "picture TEXT,"
           ")"; */
 
+import 'dart:ui';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugar_tracker/data/api/u_api_food_category.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
@@ -37,6 +39,71 @@ class FoodCategory {
     name = map["name"];
     picture = map["picture"];
     notes = map["notes"];
+  }
+
+  Color get color {
+    /*
+      database.insert("food_category", {
+        "name": "Fruit",
+        "picture": "$foodCategoryPicturePath/fruit.png",
+        "notes": "Fruits are high in carbs",
+      });
+      database.insert("food_category", {
+        "name": "Veggies",
+        "picture": "$foodCategoryPicturePath/veggies.png",
+        "notes": "Vegetables are low in carbs",
+      });
+      database.insert("food_category", {
+        "name": "Grain",
+        "picture": "$foodCategoryPicturePath/grain.png",
+        "notes": "Grains are high in carbs",
+      });
+      database.insert("food_category", {
+        "name": "Dairy",
+        "picture": "$foodCategoryPicturePath/dairy.png",
+        "notes": "Dairy is high in carbs",
+      });
+      database.insert("food_category", {
+        "name": "Protein",
+        "picture": "$foodCategoryPicturePath/protein.png",
+        "notes": "Protein is low in carbs",
+      });
+      database.insert("food_category", {
+        "name": "Dessert",
+        "picture": "$foodCategoryPicturePath/dessert.png",
+        "notes": "Desserts are high in carbs",
+      });
+      database.insert("food_category", {
+        "name": "Drinks",
+        "picture": "$foodCategoryPicturePath/drinks.png",
+        "notes": "Beverages are high in carbs",
+      });
+      database.insert("food_category", {
+        "name": "Misc",
+        "picture": "$foodCategoryPicturePath/misc.png",
+        "notes": "Miscellaneous foods.",
+      });
+*/
+    switch (name.toLowerCase()) {
+      case "fruit":
+        return const Color.fromARGB(255, 59, 255, 180); // Amber
+      case "veggies":
+        return const Color.fromARGB(255, 5, 206, 11); // Green
+      case "grain":
+        return const Color.fromARGB(255, 255, 188, 62); // Brown
+      case "dairy":
+        return const Color.fromARGB(255, 44, 135, 255); // Grey
+      case "protein":
+        return const Color.fromARGB(255, 233, 36, 29); // Blue
+      case "dessert":
+        return const Color.fromARGB(255, 27, 255, 217); // Pink
+      case "drinks":
+        return const Color.fromARGB(255, 255, 34, 200); // Deep Orange
+      case "misc":
+        return const Color(0xFF9E9E9E); // Blue Grey
+      default:
+        return const Color(0xFF9E9E9E); // Default Grey
+    }
   }
 
   Future<void> fromId(int id, {WidgetRef? ref}) async {

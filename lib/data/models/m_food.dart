@@ -111,4 +111,6 @@ class Food {
     result += notes == null ? "" : "($notes)";
     return result;
   }
+
+  double get totalCarbs => (carbs / 100) * amount;
 }

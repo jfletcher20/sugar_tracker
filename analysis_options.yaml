@@ -3,6 +3,7 @@ analyzer:
   errors:
     curly_braces_in_flow_control_structures: ignore
     avoid_print: ignore
+    sort_child_properties_last: ignore
   plugins:
     - custom_lint
 

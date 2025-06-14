@@ -1,5 +1,5 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
+import 'package:sugar_tracker/presentation/widgets/food_category/w_food_category_selection.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
@@ -48,33 +48,35 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
   GlobalKey<ImagePickerWidgetState> imagePickerKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    title,
-                    ImagePickerWidget(key: imagePickerKey, path: food.picture, imgSize: 128),
-                    const SizedBox(height: 16),
-                    _nameInput,
-                    _carbsInput,
-                    _weightInput,
-                    _notesInput,
-                    const SizedBox(height: 16),
-                    _categories,
-                    const SizedBox(height: 8),
-                    _submitMealButton,
-                  ],
-                ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // title,
+              ImagePickerWidget(key: imagePickerKey, path: food.picture, imgSize: 128),
+              const SizedBox(height: 16),
+              _nameInput,
+              const SizedBox(height: 6),
+              _carbsInput,
+              const SizedBox(height: 6),
+              _weightInput,
+              const SizedBox(height: 6),
+              _notesInput,
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 300,
+                width: 300,
+                child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal, child: Row(children: [_categories])),
               ),
-            ),
+              const SizedBox(height: 8),
+              _submitMealButton,
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -107,9 +109,9 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     );
   }
 
-  final GlobalKey<FoodCategoryGridViewState> _categoryGridKey = GlobalKey();
+  final GlobalKey<FoodCategorySelectionState> _categoryGridKey = GlobalKey();
   Widget _categorySelection(List<FoodCategory> categories) {
-    return FoodCategoryGridView(
+    return FoodCategorySelection(
       key: _categoryGridKey,
       foodCategories: categories,
       initialCategory: food.foodCategory,
@@ -155,7 +157,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   TextFormField get _nameInput {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Food name"),
+      decoration: const InputDecoration(labelText: "Food name", icon: Icon(Icons.sell_outlined)),
       autofocus: true,
       controller: _nameController,
       keyboardType: TextInputType.name,
@@ -167,7 +169,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   TextFormField get _carbsInput {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Carbs per 100g"),
+      decoration: const InputDecoration(labelText: "Carbs per 100g", icon: Icon(Icons.percent)),
       controller: _carbsController,
       keyboardType: TextInputType.number,
       inputFormatters: limitDecimals,
@@ -178,7 +180,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   TextFormField get _weightInput {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Expected weight"),
+      decoration: const InputDecoration(labelText: "Expected weight", icon: Icon(Icons.scale)),
       controller: _weightController,
       keyboardType: TextInputType.number,
       inputFormatters: [
@@ -225,7 +227,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   TextFormField get _notesInput {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Notes"),
+      decoration: const InputDecoration(labelText: "Notes", icon: Icon(Icons.comment)),
       controller: _notesController,
       maxLines: 3,
       onChanged: (value) => food.notes = value,

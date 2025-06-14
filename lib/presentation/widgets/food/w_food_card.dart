@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_icon_info.dart';
 
 class FoodCard extends ConsumerStatefulWidget {
   final Food food;
@@ -21,7 +22,7 @@ class FoodCard extends ConsumerStatefulWidget {
   const FoodCard({
     super.key,
     required this.food,
-    this.columns = const {0, 1, 2},
+    this.columns = const {0, 1},
     this.modifiable = false,
     this.showAmount = true,
     this.showAdditionalOptions = false,
@@ -45,27 +46,40 @@ class _FoodCardState extends ConsumerState<FoodCard> {
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        shadowColor: Colors.grey.shade200,
-        child: InkWell(
-          key: glob,
-          onTap: () async => widget.showAdditionalOptions ? _modalWithOptions() : null,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  prefix(context),
-                  const SizedBox(width: 16),
-                  cardData(context),
-                ],
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shadowColor: Colors.grey.shade200,
+      child: InkWell(
+        key: glob,
+        onTap: () async => widget.showAdditionalOptions ? _modalWithOptions() : null,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(padding: const EdgeInsets.only(left: 4), child: title(context)),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 48,
+                      child: FittedBox(fit: BoxFit.scaleDown, child: prefix(context)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 2.0),
+                      child: cardData(context),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -111,25 +125,17 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     ];
   }
 
-  Column prefix(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 64 + 16,
-          child: FractionallySizedBox(
-            widthFactor: 1.25,
-            child: FittedBox(fit: BoxFit.scaleDown, child: title(context)),
-          ),
-        ),
-        const SizedBox(height: 16),
-        FoodCountWidget(
-          food: widget.food,
-          modifiable: widget.modifiable,
-          showAmount: widget.showAmount,
-        ),
-      ],
+  Widget prefix(BuildContext context) {
+    return SizedBox(
+      width: 36,
+      height: 36,
+      child: FoodCountWidget(
+        food: widget.food,
+        modifiable: widget.modifiable,
+        showAmount: widget.showAmount,
+        // autoSize: widget.food.amount <= 0,
+        // autoSize: true,
+      ),
     );
   }
 
@@ -138,7 +144,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         data(widget.food),
-        const SizedBox(height: 8),
+        // const SizedBox(height: 8),
         if (widget.food.notes != null) notes(widget.food.notes, context),
       ],
     );
@@ -147,11 +153,16 @@ class _FoodCardState extends ConsumerState<FoodCard> {
   Text title(BuildContext context) {
     String title = widget.food.name;
     // replace all " " with "\n"
-    title = title.replaceAll(" ", "\n");
-    TextStyle titleLarge = Theme.of(context).textTheme.titleLarge!;
+    // title = title.replaceAll(" ", "\n");
+    // break the title text with a newline only if it is longer tahn 20 characters; break it at the first space after the 20 character mark
+    // if (title.length >= 20) {
+    //   if (title.substring(16).contains(" ")) {
+    //     title = title.substring(0, 16) + title.substring(16).replaceFirst(" ", "\n");
+    //   }
+    // }
+    TextStyle titleLarge = Theme.of(context).textTheme.titleMedium!;
     titleLarge = titleLarge.copyWith(
-      fontWeight: FontWeight.w500,
-    );
+        fontWeight: FontWeight.w600, color: food.amount <= 0 ? null : Colors.redAccent);
     return Text(
       title,
       style: titleLarge,
@@ -170,23 +181,25 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     );
   }
 
-  DataTable data(Food food) {
-    List<DataColumn> columns = const <DataColumn>[
-      DataColumn(label: Center(child: Text("Carbs"))),
-      DataColumn(label: Center(child: Text("Σ Carbs"))),
-      DataColumn(label: Center(child: Text("Category"))),
-    ];
-    List<DataCell> cells = [
-      DataCell(Center(child: Text("${(food.carbs).round()}g"))),
-      DataCell(Center(child: Text("${((food.carbs / 100) * food.amount).round()}g"))),
-      DataCell(Center(child: Text(food.foodCategory.name))),
-    ];
-    return DataTable(
-      horizontalMargin: 10,
-      columnSpacing: 25,
-      showBottomBorder: true,
-      columns: widget.columns.map((e) => columns[e]).toList(),
-      rows: [DataRow(cells: widget.columns.map((e) => cells[e]).toList())],
+  Widget data(Food food) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconWithInfo(
+          info: "${food.carbs.round()}g / 100g",
+          icon: Icons.scale,
+          iconColor: food.foodCategory.color,
+          width: 116,
+        ),
+        const SizedBox(width: 12),
+        if (food.amount > 0)
+          IconWithInfo(
+            info: "${food.totalCarbs.round()}g",
+            icon: Icons.calculate,
+            iconColor: Colors.redAccent,
+            // width: 48 + 24,
+          ),
+      ],
     );
   }
 
