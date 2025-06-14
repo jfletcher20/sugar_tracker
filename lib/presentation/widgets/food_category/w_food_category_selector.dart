@@ -39,6 +39,7 @@ class FoodCategorySelectorWidgetState extends State<FoodCategorySelectorWidget> 
     return Card(
       color: selected ? Colors.red.withValues(alpha: 0.5) : Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(12),
         onTap: widget.selectable
             ? () {
                 select();

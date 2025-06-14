@@ -12,6 +12,7 @@ class FoodCategorySelection extends ConsumerStatefulWidget {
   final Color? color;
   final Function(FoodCategory)? onSelect;
   final double imgSize;
+  final int? maxPerRow;
   const FoodCategorySelection({
     super.key,
     this.imgSize = 64,
@@ -19,6 +20,7 @@ class FoodCategorySelection extends ConsumerStatefulWidget {
     this.initialCategory,
     this.foodCategories,
     this.onSelect,
+    this.maxPerRow,
   });
 
   @override
@@ -43,15 +45,18 @@ class FoodCategorySelectionState extends ConsumerState<FoodCategorySelection> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getFoodCategories(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          foodCategories = snapshot.data as List<FoodCategory>;
-          initCategories();
-        }
-        return gridView;
-      },
+    return SizedBox(
+      width: widget.imgSize * 3,
+      child: FutureBuilder(
+        future: getFoodCategories(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            foodCategories = snapshot.data as List<FoodCategory>;
+            initCategories();
+          }
+          return gridView;
+        },
+      ),
     );
   }
 
@@ -91,7 +96,11 @@ class FoodCategorySelectionState extends ConsumerState<FoodCategorySelection> {
       return children.first;
     } else {
       return Wrap(
-        children: (widget.foodCategories ?? []).map((category) => _categoryCard(category)).toList(),
+        crossAxisAlignment: WrapCrossAlignment.center,
+        alignment: WrapAlignment.center,
+        runAlignment: WrapAlignment.center,
+        // runSpacing: 20,
+        children: children,
       );
     }
   }
@@ -111,6 +120,7 @@ class FoodCategorySelectionState extends ConsumerState<FoodCategorySelection> {
             var k = (element.key as GlobalKey<FoodCategorySelectorWidgetState>);
             if (element.foodCategory != category) k.currentState!.setSelected(false);
           }
+          selected = !selected;
         });
       },
     );

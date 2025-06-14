@@ -36,7 +36,7 @@ class FoodModelState extends StateNotifier<Set<Food>> {
 
   Future<void> removeFood(Food food, {WidgetRef? ref}) async {
     if (state.where((element) => element.id == food.id).isEmpty) return;
-    state = state.where((element) => element != food).toSet();
+    state = state.where((element) => element.id != food.id).toSet();
     await FoodAPI.delete(food, ref: ref);
   }
 

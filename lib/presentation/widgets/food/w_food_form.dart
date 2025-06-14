@@ -1,4 +1,5 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/food_category/w_food_category_selection.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
@@ -48,35 +49,36 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
   GlobalKey<ImagePickerWidgetState> imagePickerKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // title,
-              ImagePickerWidget(key: imagePickerKey, path: food.picture, imgSize: 128),
-              const SizedBox(height: 16),
-              _nameInput,
-              const SizedBox(height: 6),
-              _carbsInput,
-              const SizedBox(height: 6),
-              _weightInput,
-              const SizedBox(height: 6),
-              _notesInput,
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 300,
-                width: 300,
-                child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal, child: Row(children: [_categories])),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    title,
+                    ImagePickerWidget(key: imagePickerKey, path: food.picture, imgSize: 128),
+                    const SizedBox(height: 16),
+                    SizedBox(child: _nameInput),
+                    const SizedBox(height: 6),
+                    _carbsInput,
+                    const SizedBox(height: 6),
+                    _weightInput,
+                    const SizedBox(height: 6),
+                    _notesInput,
+                    const SizedBox(height: 16),
+                    _categories,
+                    const SizedBox(height: 8),
+                    _submitMealButton,
+                  ],
+                ),
               ),
-              const SizedBox(height: 8),
-              _submitMealButton,
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -109,16 +111,14 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     );
   }
 
-  final GlobalKey<FoodCategorySelectionState> _categoryGridKey = GlobalKey();
+  final GlobalKey<FoodCategoryGridViewState> _categoryGridKey = GlobalKey();
   Widget _categorySelection(List<FoodCategory> categories) {
-    return FoodCategorySelection(
+    return FoodCategoryGridView(
       key: _categoryGridKey,
       foodCategories: categories,
       initialCategory: food.foodCategory,
     );
   }
-
-  final double imgSize = 64;
 
   ElevatedButton get _submitMealButton {
     return ElevatedButton(
