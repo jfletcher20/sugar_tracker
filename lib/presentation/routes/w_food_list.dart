@@ -34,7 +34,7 @@ class FoodListWidgetState extends ConsumerState<FoodListWidget> with AutomaticKe
           scrollDirection: Axis.vertical,
           child: Column(
             children: [
-              const SizedBox(height: 64 + 12),
+              const SizedBox(height: 48 + 12),
               SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Column(
@@ -60,16 +60,19 @@ class FoodListWidgetState extends ConsumerState<FoodListWidget> with AutomaticKe
 
   Widget _foodCategoryFilter() {
     return Card(
-      color: Colors.black,
+      color: Colors.black.withValues(alpha: 0.8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: FoodCategoryGridView(
           key: foodCategoryKey,
           multiSelect: true,
           crossAxisCount: 8,
           crossAxisSpacing: 0,
           mainAxisSpacing: 0,
-          onSelect: (category) => setState(() {}),
+          onSelect: (category) {
+            setState(() {});
+            return null;
+          },
         ),
       ),
     );

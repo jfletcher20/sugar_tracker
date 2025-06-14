@@ -56,28 +56,46 @@ class _FoodCardState extends ConsumerState<FoodCard> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           width: MediaQuery.of(context).size.width * 0.9,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Padding(padding: const EdgeInsets.only(left: 4), child: title(context)),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 48,
-                      child: FittedBox(fit: BoxFit.scaleDown, child: prefix(context)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 2.0),
-                      child: cardData(context),
-                    ),
-                  ],
+              Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  height: 28,
+                  width: 28,
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: widget.food.foodCategory.color),
+                  ),
+                  // margin: const EdgeInsets.only(right: 0),
+                  child: Image.asset(widget.food.foodCategory.picture, width: 32, height: 32),
                 ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(padding: const EdgeInsets.only(left: 4), child: title(context)),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 48,
+                          child: FittedBox(fit: BoxFit.scaleDown, child: prefix(context)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2.0),
+                          child: cardData(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -185,11 +203,18 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconWithInfo(
-          info: "${food.carbs.round()}g / 100g",
-          icon: Icons.scale,
-          iconColor: food.foodCategory.color,
-          width: 116,
+        RichText(
+          text: TextSpan(children: [
+            WidgetSpan(
+              child: IconWithInfo(
+                info: "${food.carbs.round()}g",
+                icon: Icons.cookie,
+                iconColor: food.foodCategory.color,
+                // width: 116,
+              ),
+            ),
+            TextSpan(text: " / 100g", style: Theme.of(context).textTheme.bodySmall),
+          ]),
         ),
         const SizedBox(width: 12),
         if (food.amount > 0)

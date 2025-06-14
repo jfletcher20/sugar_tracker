@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class FoodCategorySelectorWidget extends StatefulWidget {
   final FoodCategory foodCategory;
   final double imgSize;
-  final bool showLabel, selectable, initializeSelected;
+  final bool showLabel, selectable, initializeSelected, cancelDeselect;
   final Function()? onTap;
   const FoodCategorySelectorWidget({
     super.key,
@@ -14,6 +14,7 @@ class FoodCategorySelectorWidget extends StatefulWidget {
     this.showLabel = false,
     this.selectable = false,
     this.initializeSelected = false,
+    this.cancelDeselect = false,
     this.onTap,
   });
 
@@ -38,25 +39,39 @@ class FoodCategorySelectorWidgetState extends State<FoodCategorySelectorWidget> 
   Widget build(BuildContext context) {
     return Card(
       color: selected ? Colors.red.withValues(alpha: 0.5) : Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: widget.selectable
-            ? () {
-                select();
-                widget.onTap?.call();
-              }
-            : null,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image.asset(
-              widget.foodCategory.picture,
-              width: widget.imgSize,
-              height: widget.imgSize,
-              errorBuilder: imageNotFound,
-            ),
-            if (widget.showLabel) label(),
-          ],
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? widget.foodCategory.color : Colors.transparent,
+            width: 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: (widget.cancelDeselect && selected)
+              ? null
+              : widget.selectable
+                  ? () {
+                      select();
+                      widget.onTap?.call();
+                    }
+                  : null,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Image.asset(
+                  widget.foodCategory.picture,
+                  width: widget.imgSize,
+                  height: widget.imgSize,
+                  errorBuilder: imageNotFound,
+                ),
+              ),
+              if (widget.showLabel) label(),
+            ],
+          ),
         ),
       ),
     );

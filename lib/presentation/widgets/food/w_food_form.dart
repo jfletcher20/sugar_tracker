@@ -1,6 +1,5 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 import 'package:sugar_tracker/presentation/widgets/food_category/w_dgv_food_category.dart';
-import 'package:sugar_tracker/presentation/widgets/food_category/w_food_category_selection.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
@@ -117,6 +116,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
       key: _categoryGridKey,
       foodCategories: categories,
       initialCategory: food.foodCategory,
+      cancelDeselect: true,
     );
   }
 

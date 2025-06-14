@@ -9,11 +9,11 @@ import 'package:flutter/material.dart';
 class FoodCategoryGridView extends ConsumerStatefulWidget {
   final List<FoodCategory>? foodCategories;
   final FoodCategory? initialCategory;
-  final bool multiSelect;
+  final bool multiSelect, cancelDeselect;
   final Color? color;
   final int crossAxisCount;
   final double imgSize, mainAxisSpacing, crossAxisSpacing;
-  final Function(FoodCategory)? onSelect;
+  final bool? Function(FoodCategory)? onSelect;
   const FoodCategoryGridView({
     super.key,
     this.crossAxisCount = 4,
@@ -25,6 +25,7 @@ class FoodCategoryGridView extends ConsumerStatefulWidget {
     this.initialCategory,
     this.foodCategories,
     this.onSelect,
+    this.cancelDeselect = false,
   });
 
   @override
@@ -117,8 +118,9 @@ class FoodCategoryGridViewState extends ConsumerState<FoodCategoryGridView> {
       imgSize: widget.imgSize,
       selectable: true,
       initializeSelected: selected,
+      cancelDeselect: widget.cancelDeselect,
       onTap: () {
-        widget.onSelect?.call(category);
+        if (widget.onSelect?.call(category) ?? false) return;
         if (widget.multiSelect) return;
         setState(() {
           for (var element in _categoryCards) {

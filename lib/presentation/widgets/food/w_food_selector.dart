@@ -57,16 +57,19 @@ class _FoodSelectorWidgetState extends ConsumerState<FoodSelectorWidget> {
 
   Widget _foodCategoryFilter() {
     return Card(
-      color: Colors.black,
+      color: Colors.black.withValues(alpha: 0.8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 2),
         child: FoodCategoryGridView(
           key: foodCategoryKey,
           multiSelect: true,
           crossAxisCount: 8,
           crossAxisSpacing: 0,
           mainAxisSpacing: 0,
-          onSelect: (category) => setState(() => initFoods()),
+          onSelect: (category) {
+            setState(() => initFoods());
+            return null;
+          },
         ),
       ),
     );
