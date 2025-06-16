@@ -35,12 +35,10 @@ class FoodCard extends ConsumerStatefulWidget {
 }
 
 class _FoodCardState extends ConsumerState<FoodCard> {
-  late Food food;
   late TextEditingController _amountController;
   @override
   void initState() {
     super.initState();
-    food = widget.food;
     String amount = widget.food.amount > 0 ? widget.food.amount.toString() : "";
     _amountController = TextEditingController(text: amount);
   }
@@ -59,7 +57,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: widget.showAmount && widget.modifiable && food.amount > 0
+          color: widget.showAmount && widget.modifiable && widget.food.amount > 0
               ? Colors.greenAccent
               : Colors.transparent,
           width: 1.5,
@@ -68,7 +66,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
       shadowColor: Colors.grey.shade200,
       child: InkWell(
         key: glob,
-        onTap: () async => widget.showAdditionalOptions ? _modalWithOptions() : null,
+        onTap: widget.showAdditionalOptions ? _modalWithOptions : null,
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -96,7 +94,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(padding: const EdgeInsets.only(left: 4), child: title(context)),
+                  Padding(padding: const EdgeInsets.only(left: 4), child: title),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -119,6 +117,20 @@ class _FoodCardState extends ConsumerState<FoodCard> {
                     Padding(padding: const EdgeInsets.only(left: 4.0), child: notes),
                 ],
               ),
+              if (widget.showAmount && widget.modifiable && widget.food.amount > 0)
+                Positioned(
+                  bottom: -10,
+                  right: -10,
+                  // alignment: Alignment.bottomRight,
+                  child: IconButton(
+                    iconSize: 32,
+                    icon: const Icon(Icons.clear, color: Colors.redAccent),
+                    onPressed: () {
+                      widget.food.amount = 0;
+                      setState(() {});
+                    },
+                  ),
+                ),
             ],
           ),
         ),
@@ -193,7 +205,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     );
   }
 
-  Text title(BuildContext context) {
+  Text get title {
     String title = widget.food.name;
     // replace all " " with "\n"
     // title = title.replaceAll(" ", "\n");
@@ -207,7 +219,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     titleLarge = titleLarge.copyWith(
         fontWeight: FontWeight.w600,
         color: widget.modifiable && widget.showAmount
-            ? food.amount <= 0
+            ? widget.food.amount <= 0
                 ? Colors.redAccent
                 : Colors.greenAccent
             : null);
@@ -230,18 +242,20 @@ class _FoodCardState extends ConsumerState<FoodCard> {
       Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w300);
   Widget get _per100gWidget {
     return Container(
-      // width: 64 + 32,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        // border: Border.all(color: widget.food.foodCategory.color),
-        color: widget.food.foodCategory.color.withValues(alpha: 0.1),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      width: !widget.showAmount && !widget.modifiable ? 100 : null,
+      decoration: !widget.showAmount && !widget.modifiable
+          ? null
+          : BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              // border: Border.all(color: widget.food.foodCategory.color),
+              color: widget.food.foodCategory.color.withValues(alpha: 0.1),
+            ),
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
       child: RichText(
         text: TextSpan(children: [
           WidgetSpan(
             child: IconWithInfo(
-              info: "${food.carbs.round()}g",
+              info: "${widget.food.carbs.round()}g",
               icon: Icons.percent,
               iconColor: widget.food.foodCategory.color,
             ),
@@ -256,24 +270,27 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _WrapInInkwell(
-          child: IconWithInfo(
-            info: "${widget.food.amount.withCommaSeparatorsForHundreds()}g",
-            icon: Icons.scale,
-            // iconColor: widget.food.foodCategory.color,
-            iconColor: Colors.white,
-            width: widget.showAmount && widget.modifiable ? 48 + 12 : null,
-            alignment: MainAxisAlignment.spaceBetween,
-            shrink: widget.showAmount && widget.modifiable,
+        if (widget.modifiable && widget.showAmount)
+          _WrapInInkwell(
+            child: IconWithInfo(
+              info: "${widget.food.amount.withCommaSeparatorsForHundreds()}g",
+              icon: Icons.scale,
+              iconColor: widget.food.foodCategory.color,
+              // iconColor: Colors.white,
+              width: widget.showAmount && widget.modifiable ? 48 + 12 : null,
+              alignment: MainAxisAlignment.spaceBetween,
+              shrink: widget.showAmount && widget.modifiable,
+            ),
           ),
-        ),
+        if (!widget.modifiable || !widget.showAmount) _per100gWidget,
         const SizedBox(width: 6),
         if (widget.food.amount > 0)
           IconWithInfo(
             info: "${widget.food.totalCarbs.round().withCommaSeparatorsForHundreds()}g carbs",
             // "${widget.food.amount}g × ${widget.food.carbs.round()}% → ${widget.food.totalCarbs.round()}g",
             icon: Icons.restaurant_outlined,
-            iconColor: Colors.greenAccent,
+            iconColor:
+                widget.modifiable && widget.showAmount ? Colors.greenAccent : Colors.redAccent,
             // width: 48 + 24,
           ),
         if (widget.food.amount <= 0 && widget.modifiable)

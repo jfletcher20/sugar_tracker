@@ -158,35 +158,38 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Profile"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: weight,
-                // add label at end saying "kg" for kilograms, and hint text should be "Weight"
-                decoration: const InputDecoration(
-                  labelText: "Weight",
-                  suffixText: "kg",
-                  suffixStyle: TextStyle(color: Colors.white),
-                ),
-                inputFormatters: limitDecimals,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              ),
-              for (int i = 0; i < dividers.length; i++)
+        content: Scrollbar(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 4,
+              children: [
                 TextField(
-                  controller: dividers[i],
-                  decoration: InputDecoration(
-                    labelText: MealCategory.values[i].name.substring(0, 1).toUpperCase() +
-                        MealCategory.values[i].name.substring(1),
-                    hintText: "Divider for ${MealCategory.values[i].name}",
-                    labelStyle: TextStyle(color: MealCategory.values[i].color),
+                  controller: weight,
+                  // add label at end saying "kg" for kilograms, and hint text should be "Weight"
+                  decoration: const InputDecoration(
+                    labelText: "Weight",
+                    suffixText: "kg",
+                    suffixStyle: TextStyle(color: Colors.white),
                   ),
-                  // ensure input is a number of at least 1
                   inputFormatters: limitDecimals,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 ),
-            ],
+                for (int i = 0; i < dividers.length; i++)
+                  TextField(
+                    controller: dividers[i],
+                    decoration: InputDecoration(
+                      labelText: MealCategory.values[i].name.substring(0, 1).toUpperCase() +
+                          MealCategory.values[i].name.substring(1),
+                      hintText: "Divider for ${MealCategory.values[i].name}",
+                      labelStyle: TextStyle(color: MealCategory.values[i].color),
+                    ),
+                    // ensure input is a number of at least 1
+                    inputFormatters: limitDecimals,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+              ],
+            ),
           ),
         ),
         actions: [
