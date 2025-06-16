@@ -1,6 +1,7 @@
 // ignore_for_file: curly_braces_in_flow_control_structures, use_build_context_synchronously
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sugar_tracker/data/constants.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
@@ -289,7 +290,7 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
       decoration: InputDecoration(
         labelText: "Sugar level",
         suffixIcon: IconButton(
-          icon: const Icon(Icons.water_drop_outlined),
+          icon: Icon(IconConstants.sugar.outlined),
           onPressed: () => showSugarLevelNotesEditor(),
         ),
       ),
@@ -511,7 +512,7 @@ class _InsulinCategorySelectorState extends State<_InsulinCategorySelector> {
       value: category == InsulinCategory.basal,
       activeColor: category.color,
       inactiveThumbColor: category.color,
-      tileColor: Colors.redAccent.withOpacity(0.35),
+      tileColor: Colors.redAccent.withValues(alpha: 0.35),
       title: Text(
         category.index == 0 ? data.$1 : data.$2,
         style: Theme.of(context).textTheme.titleLarge,

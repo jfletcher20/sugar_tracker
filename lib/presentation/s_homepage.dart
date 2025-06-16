@@ -37,7 +37,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text("Sugar Tracker", style: TextStyle(fontFamily: "Boucherie")),
+          title: const Text("Sugar Tracker",
+              style: TextStyle(fontFamily: "Boucherie", fontWeight: FontWeight.w600)),
           actions: [
             _createMeasurementEntryButton(),
             _createMealButton(),
@@ -65,7 +66,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
-              appBar: AppBar(title: const Text("Create an entry")),
+              appBar: AppBar(title: const Text("Create a meal")),
               body: MealFormWidget(
                 meal: Meal(sugarLevel: Sugar(), insulin: Insulin(), food: <Food>[]),
               ),
@@ -73,7 +74,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
         );
       },
-      icon: const Icon(Icons.fastfood_outlined),
+      icon: Icon(IconConstants.meal.outlined),
     );
   }
 
@@ -90,7 +91,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
         );
       },
-      icon: const Icon(IconConstants.sugar),
+      icon: Icon(IconConstants.sugar.outlined),
     );
   }
 
@@ -117,29 +118,29 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       landscapeLayout: BottomNavigationBarLandscapeLayout.spread,
       type: BottomNavigationBarType.shifting,
       currentIndex: _tabController.index,
-      items: const [
+      items: [
         BottomNavigationBarItem(
-          icon: Icon(IconConstants.sugar),
+          icon: Icon(IconConstants.sugar.regular),
           label: "Sugars",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
-          icon: Icon(IconConstants.insulin),
+          icon: Icon(IconConstants.insulin.regular),
           label: "Insulin",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
-          icon: Icon(IconConstants.meal),
+          icon: Icon(IconConstants.meal.regular),
           label: "Meals",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
-          icon: Icon(IconConstants.food),
+          icon: Icon(IconConstants.food.regular),
           label: "Foods",
           backgroundColor: Colors.black,
         ),
         BottomNavigationBarItem(
-          icon: Icon(IconConstants.settings),
+          icon: Icon(IconConstants.settings.regular),
           label: "Settings",
           backgroundColor: Colors.black,
         ),

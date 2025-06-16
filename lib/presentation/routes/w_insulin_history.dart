@@ -240,7 +240,7 @@ class InsulinCard extends StatelessWidget {
     return LinearGradient(
       begin: Alignment.centerRight,
       end: Alignment.bottomLeft,
-      colors: [color.withOpacity(0.5), color],
+      colors: [color.withValues(alpha: 0.5), color],
     );
   }
 

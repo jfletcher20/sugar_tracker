@@ -138,7 +138,7 @@ class MealCard extends StatelessWidget {
               ),
               _optionTile(
                 label: "Meal and sugar",
-                icon: IconConstants.sugar,
+                icon: IconConstants.sugar.regular,
                 onTap: () async {
                   await ref.read(SugarManager.provider.notifier).removeSugar(meal.sugarLevel);
                   await ref.read(MealManager.provider.notifier).removeMeal(meal);

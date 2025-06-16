@@ -422,7 +422,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
                 },
                 style: ButtonStyle(
-                  overlayColor: WidgetStateProperty.all(Colors.greenAccent.withOpacity(0.2)),
+                  overlayColor: WidgetStateProperty.all(Colors.greenAccent.withValues(alpha: 0.2)),
                   textStyle: WidgetStateProperty.all(const TextStyle(color: Colors.greenAccent)),
                   iconColor: WidgetStateProperty.all(Colors.greenAccent),
                 ),
@@ -442,7 +442,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   );
                 },
                 style: ButtonStyle(
-                  overlayColor: WidgetStateProperty.all(Colors.greenAccent.withOpacity(0.2)),
+                  overlayColor: WidgetStateProperty.all(Colors.greenAccent.withValues(alpha: 0.2)),
                   textStyle: WidgetStateProperty.all(const TextStyle(color: Colors.greenAccent)),
                   iconColor: WidgetStateProperty.all(Colors.greenAccent),
                 ),

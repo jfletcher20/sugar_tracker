@@ -111,7 +111,7 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
       leading: const Icon(Icons.cancel, color: Colors.white),
       title: const Text('Clear photo', style: TextStyle(color: Colors.white)),
       enabled: (image) != null,
-      tileColor: (image) == null ? Colors.black.withOpacity(0.4) : null,
+      tileColor: (image) == null ? Colors.black.withValues(alpha: 0.4) : null,
       onTap: () {
         setState(() => image = null);
         Navigator.pop(context);

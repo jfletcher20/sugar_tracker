@@ -1,3 +1,4 @@
+import 'package:sugar_tracker/data/constants.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_icon_info.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +25,7 @@ class MealDataWidget extends StatelessWidget {
   IconButton notes(BuildContext context) {
     return IconButton(
       icon: Icon(Icons.notes,
-          color: (meal.notes?.isEmpty ?? true) ? Colors.white.withOpacity(0.5) : null),
+          color: (meal.notes?.isEmpty ?? true) ? Colors.white.withValues(alpha: 0.5) : null),
       onPressed: () {
         String category = MealCategory.values[meal.category.index].name;
         String appBarTitle = "Notes for $category at ${meal.time}, ${meal.date}";
@@ -143,7 +144,7 @@ class MealDataWidget extends StatelessWidget {
   Widget get sugar {
     return IconWithInfo(
       info: meal.sugarLevel.toString(),
-      icon: Icons.water_drop,
+      icon: IconConstants.sugar.regular,
       iconColor: Colors.redAccent,
       width: 48 + 12,
     );
@@ -152,7 +153,7 @@ class MealDataWidget extends StatelessWidget {
   Widget get insulin {
     return IconWithInfo(
       info: "${meal.insulin.units == 0 ? "–" : meal.insulin.units}",
-      icon: Icons.edit_outlined,
+      icon: IconConstants.insulin.regular,
       iconColor: meal.insulin.category.color,
       width: 32 + 16,
     );
@@ -161,7 +162,7 @@ class MealDataWidget extends StatelessWidget {
   Widget get carbs {
     return IconWithInfo(
       info: "${meal.carbs.round()}g",
-      icon: Icons.cookie,
+      icon: IconConstants.carbs.regular,
       iconColor: meal.category.color,
       width: 48 + 24,
     );

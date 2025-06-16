@@ -27,7 +27,7 @@ class ThemeManager {
       confirmButtonStyle: const ButtonStyle(
         foregroundColor: WidgetStatePropertyAll<Color>(Colors.red),
       ),
-      dialHandColor: Colors.red.withOpacity(0.5),
+      dialHandColor: Colors.red.withValues(alpha: 0.5),
       dialTextColor: Colors.white,
       dialTextStyle: const TextStyle(color: Colors.grey),
       dayPeriodTextStyle: const TextStyle(

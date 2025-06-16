@@ -250,7 +250,7 @@ class SugarLevelCard extends StatelessWidget {
         gradient: _gradient(val?.color ?? Colors.transparent),
         borderRadius: _categoryBorder,
       ),
-      child: val == null ? const Icon(IconConstants.sugar) : Icon(val.icon),
+      child: val == null ? Icon(IconConstants.sugar.regular) : Icon(val.icon),
     );
   }
 
@@ -258,7 +258,7 @@ class SugarLevelCard extends StatelessWidget {
     return LinearGradient(
       begin: Alignment.centerRight,
       end: Alignment.bottomLeft,
-      colors: [color.withOpacity(0.5), color],
+      colors: [color.withValues(alpha: 0.5), color],
     );
   }
 

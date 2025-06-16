@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 
 abstract class IconConstants {
-  static const IconData sugar = Icons.query_stats;
-  static const IconData insulin = Icons.edit_outlined;
-  static const IconData meal = Icons.fastfood;
-  static const IconData food = Icons.food_bank;
-  static const IconData settings = Icons.settings;
+  static const ({IconData regular, IconData outlined}) meal = (
+    regular: Icons.fastfood,
+    outlined: Icons.fastfood_outlined,
+  );
+  static const ({IconData regular, IconData outlined}) sugar = (
+    regular: Icons.water_drop,
+    outlined: Icons.water_drop_outlined,
+  );
+  static const ({IconData regular, IconData outlined}) insulin = (
+    regular: Icons.edit_outlined,
+    outlined: Icons.edit_outlined,
+  );
+  static const ({IconData regular, IconData outlined}) food = (
+    regular: Icons.food_bank,
+    outlined: Icons.food_bank_outlined,
+  );
+  static const ({IconData regular, IconData outlined}) settings = (
+    regular: Icons.settings,
+    outlined: Icons.settings_outlined,
+  );
+  static const ({IconData regular, IconData outlined}) carbs = (
+    regular: Icons.cookie,
+    outlined: Icons.cookie_outlined,
+  );
 }
 
 extension InsulinCategoryData on IconConstants {
