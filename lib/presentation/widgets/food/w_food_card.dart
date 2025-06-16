@@ -36,18 +36,35 @@ class FoodCard extends ConsumerStatefulWidget {
 
 class _FoodCardState extends ConsumerState<FoodCard> {
   late Food food;
+  late TextEditingController _amountController;
   @override
   void initState() {
     super.initState();
     food = widget.food;
+    String amount = widget.food.amount > 0 ? widget.food.amount.toString() : "";
+    _amountController = TextEditingController(text: amount);
   }
 
   final GlobalKey glob = GlobalKey();
 
   @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: widget.showAmount && widget.modifiable && food.amount > 0
+              ? Colors.greenAccent
+              : Colors.transparent,
+          width: 1.5,
+        ),
+      ),
       shadowColor: Colors.grey.shade200,
       child: InkWell(
         key: glob,
@@ -60,17 +77,19 @@ class _FoodCardState extends ConsumerState<FoodCard> {
             children: [
               Align(
                 alignment: Alignment.centerRight,
-                child: Container(
-                  height: 28,
-                  width: 28,
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: widget.food.foodCategory.color),
-                  ),
-                  // margin: const EdgeInsets.only(right: 0),
-                  child: Image.asset(widget.food.foodCategory.picture, width: 32, height: 32),
-                ),
+                child: widget.modifiable
+                    ? _per100gWidget
+                    : Container(
+                        height: 28,
+                        width: 28,
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: widget.food.foodCategory.color),
+                        ),
+                        // margin: const EdgeInsets.only(right: 0),
+                        child: Image.asset(widget.food.foodCategory.picture, width: 32, height: 32),
+                      ),
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
@@ -90,11 +109,14 @@ class _FoodCardState extends ConsumerState<FoodCard> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 2.0),
-                          child: cardData(context),
+                          child: data,
                         ),
+                        if (!widget.showAmount && widget.food.notes != null) notes,
                       ],
                     ),
                   ),
+                  if (widget.showAmount && widget.food.notes != null)
+                    Padding(padding: const EdgeInsets.only(left: 4.0), child: notes),
                 ],
               ),
             ],
@@ -151,6 +173,9 @@ class _FoodCardState extends ConsumerState<FoodCard> {
         food: widget.food,
         modifiable: widget.modifiable,
         showAmount: false,
+        imageBorderColor: widget.modifiable && widget.showAmount && widget.food.amount > 0
+            ? Colors.greenAccent
+            : Colors.redAccent,
         // autoSize: widget.food.amount <= 0,
         // autoSize: true,
       ),
@@ -161,9 +186,9 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        data(widget.food),
+        data,
         // const SizedBox(height: 8),
-        if (widget.food.notes != null) notes(widget.food.notes, context),
+        notes,
       ],
     );
   }
@@ -180,7 +205,12 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     // }
     TextStyle titleLarge = Theme.of(context).textTheme.titleMedium!;
     titleLarge = titleLarge.copyWith(
-        fontWeight: FontWeight.w600, color: food.amount <= 0 ? null : Colors.redAccent);
+        fontWeight: FontWeight.w600,
+        color: widget.modifiable && widget.showAmount
+            ? food.amount <= 0
+                ? Colors.redAccent
+                : Colors.greenAccent
+            : null);
     return Text(
       title,
       style: titleLarge,
@@ -189,42 +219,90 @@ class _FoodCardState extends ConsumerState<FoodCard> {
     );
   }
 
-  Widget notes(String? notes, BuildContext context) {
+  Widget get notes {
     return Text(
       "${widget.food.notes}",
-      style: const TextStyle(
-        fontSize: 12,
-        fontStyle: FontStyle.italic,
+      style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+    );
+  }
+
+  late final _per100g =
+      Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w300);
+  Widget get _per100gWidget {
+    return Container(
+      // width: 64 + 32,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        // border: Border.all(color: widget.food.foodCategory.color),
+        color: widget.food.foodCategory.color.withValues(alpha: 0.1),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      child: RichText(
+        text: TextSpan(children: [
+          WidgetSpan(
+            child: IconWithInfo(
+              info: "${food.carbs.round()}g",
+              icon: Icons.percent,
+              iconColor: widget.food.foodCategory.color,
+            ),
+          ),
+          TextSpan(text: "/100g", style: _per100g),
+        ]),
       ),
     );
   }
 
-  Widget data(Food food) {
+  Widget get data {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        RichText(
-          text: TextSpan(children: [
-            WidgetSpan(
-              child: IconWithInfo(
-                info: "${food.carbs.round()}g",
-                icon: Icons.cookie,
-                iconColor: food.foodCategory.color,
-                // width: 116,
-              ),
-            ),
-            TextSpan(text: " / 100g", style: Theme.of(context).textTheme.bodySmall),
-          ]),
+        _WrapInInkwell(
+          child: IconWithInfo(
+            info: "${widget.food.amount.withCommaSeparatorsForHundreds()}g",
+            icon: Icons.scale,
+            // iconColor: widget.food.foodCategory.color,
+            iconColor: Colors.white,
+            width: widget.showAmount && widget.modifiable ? 48 + 12 : null,
+            alignment: MainAxisAlignment.spaceBetween,
+            shrink: widget.showAmount && widget.modifiable,
+          ),
         ),
-        const SizedBox(width: 12),
-        if (food.amount > 0)
+        const SizedBox(width: 6),
+        if (widget.food.amount > 0)
           IconWithInfo(
-            info: "${food.totalCarbs.round()}g",
-            icon: Icons.calculate,
-            iconColor: Colors.redAccent,
+            info: "${widget.food.totalCarbs.round().withCommaSeparatorsForHundreds()}g carbs",
+            // "${widget.food.amount}g × ${widget.food.carbs.round()}% → ${widget.food.totalCarbs.round()}g",
+            icon: Icons.restaurant_outlined,
+            iconColor: Colors.greenAccent,
             // width: 48 + 24,
           ),
+        if (widget.food.amount <= 0 && widget.modifiable)
+          const IconWithInfo(
+            info: "0g",
+            icon: Icons.restaurant_outlined,
+            iconColor: Colors.redAccent,
+          ),
       ],
+    );
+  }
+
+  // ignore: non_constant_identifier_names
+  Widget _WrapInInkwell({required Widget child}) {
+    return InkWell(
+      onTap: widget.modifiable ? changeAmountDialog(widget.food) : null,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        decoration: widget.modifiable
+            ? BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: widget.food.amount > 0 ? Colors.greenAccent : Colors.redAccent),
+                color: (widget.food.amount > 0 ? Colors.greenAccent : Colors.redAccent)
+                    .withValues(alpha: 0.7))
+            : null,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: child,
+      ),
     );
   }
 
@@ -376,6 +454,65 @@ class _FoodCardState extends ConsumerState<FoodCard> {
         );
         if (result != null) setState(() => food = result);
       },
+    );
+  }
+
+  Future<void> Function() changeAmountDialog(Food food) {
+    return () async {
+      String? amount = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Change amount"),
+            content: TextField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                suffixText: "g",
+                suffixStyle: TextStyle(color: Colors.white),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, "cancel"),
+                child: const Text("Cancel"),
+              ),
+              if (food.weight > 0)
+                TextButton(
+                  onPressed: () {
+                    int current = int.tryParse(_amountController.text) ?? 0;
+                    current += food.weight.round();
+                    _amountController.text = current.toString();
+                    setState(() {});
+                  },
+                  child: Text("Add ${food.weight.round()}g"),
+                ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, _amountController.text),
+                child: const Text("Save"),
+              ),
+            ],
+          );
+        },
+      );
+      try {
+        if (amount == null || amount == "cancel") return;
+        food.amount = int.tryParse(amount) ?? 0;
+        if (context.mounted) setState(() {});
+      } catch (e) {
+        food.amount = 0;
+        if (context.mounted) setState(() {});
+      }
+    };
+  }
+}
+
+extension on int {
+  String withCommaSeparatorsForHundreds() {
+    return toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
     );
   }
 }

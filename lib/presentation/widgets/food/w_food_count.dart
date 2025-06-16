@@ -8,6 +8,7 @@ class FoodCountWidget extends StatefulWidget {
   final Food food;
   final bool autoSize, modifiable, showAmount;
   final double borderRadius;
+  final Color imageBorderColor;
   const FoodCountWidget({
     super.key,
     required this.food,
@@ -15,6 +16,7 @@ class FoodCountWidget extends StatefulWidget {
     this.modifiable = false,
     this.showAmount = true,
     this.borderRadius = 5.0,
+    this.imageBorderColor = Colors.redAccent,
   });
 
   @override
@@ -132,16 +134,16 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(widget.borderRadius),
-                border:
-                    Border.all(color: Colors.redAccent, strokeAlign: BorderSide.strokeAlignInside),
+                border: Border.all(
+                    color: widget.imageBorderColor, strokeAlign: BorderSide.strokeAlignInside),
               ),
               child: image(widget.food),
             ),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(widget.borderRadius),
-                border:
-                    Border.all(color: Colors.redAccent, strokeAlign: BorderSide.strokeAlignCenter),
+                border: Border.all(
+                    color: widget.imageBorderColor, strokeAlign: BorderSide.strokeAlignCenter),
               ),
               child: Visibility(visible: false, child: image(widget.food)),
             )
