@@ -157,7 +157,8 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   TextFormField get _nameInput {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Food name", icon: Icon(Icons.sell_outlined)),
+      decoration:
+          const InputDecoration(labelText: "Food name", suffixIcon: Icon(Icons.sell_outlined)),
       autofocus: true,
       controller: _nameController,
       keyboardType: TextInputType.name,
@@ -169,7 +170,8 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   TextFormField get _carbsInput {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Carbs per 100g", icon: Icon(Icons.percent)),
+      decoration:
+          const InputDecoration(labelText: "Carbs per 100g", suffixIcon: Icon(Icons.percent)),
       controller: _carbsController,
       keyboardType: TextInputType.number,
       inputFormatters: limitDecimals,
@@ -180,7 +182,8 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   TextFormField get _weightInput {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Expected weight", icon: Icon(Icons.scale)),
+      decoration:
+          const InputDecoration(labelText: "Expected weight", suffixIcon: Icon(Icons.scale)),
       controller: _weightController,
       keyboardType: TextInputType.number,
       inputFormatters: [
@@ -227,7 +230,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
 
   TextFormField get _notesInput {
     return TextFormField(
-      decoration: const InputDecoration(labelText: "Notes", icon: Icon(Icons.comment)),
+      decoration: const InputDecoration(labelText: "Notes", suffixIcon: Icon(Icons.comment)),
       controller: _notesController,
       minLines: 1,
       maxLines: 3,

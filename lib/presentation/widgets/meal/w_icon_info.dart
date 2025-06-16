@@ -34,8 +34,8 @@ class IconWithInfo extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: alignment ?? MainAxisAlignment.start,
                   children: [
-                    Icon(icon, size: iconSize, color: iconColor, shadows: _shadows),
-                    Text(info, style: style.copyWith(shadows: _shadows)),
+                    Icon(icon, size: iconSize, color: iconColor),
+                    Text(info, style: style),
                   ],
                 ),
               )
@@ -43,8 +43,8 @@ class IconWithInfo extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: alignment ?? MainAxisAlignment.start,
                 children: [
-                  Icon(icon, size: iconSize, color: iconColor, shadows: _shadows),
-                  Text(info, style: style.copyWith(shadows: _shadows)),
+                  Icon(icon, size: iconSize, color: iconColor),
+                  Text(info, style: style),
                 ],
               ),
       );
@@ -53,17 +53,9 @@ class IconWithInfo extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: alignment ?? MainAxisAlignment.start,
       children: [
-        Icon(icon, size: iconSize, color: iconColor, shadows: _shadows),
-        Text(info, style: style.copyWith(shadows: _shadows)),
+        Icon(icon, size: iconSize, color: iconColor),
+        Text(info, style: style),
       ],
     );
   }
 }
-
-const _shadows = [
-  BoxShadow(
-    color: Colors.black54,
-    offset: Offset(1, 1),
-    blurRadius: 2,
-  ),
-];

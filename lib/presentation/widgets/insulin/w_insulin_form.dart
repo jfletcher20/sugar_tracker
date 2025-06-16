@@ -284,51 +284,43 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
   }
 
   Widget _sugarLevelInput() {
-    return Stack(
-      children: [
-        TextFormField(
-          autofocus: true,
-          decoration: const InputDecoration(labelText: "Sugar level"),
-          controller: _sugarLevelController,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(4),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              if (newValue.text.contains(","))
-                return TextEditingValue(
-                  text: newValue.text.replaceAll(",", "."),
-                  selection: newValue.selection,
-                );
-              return newValue;
-            }),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              if (newValue.text.split(".").length > 2) return oldValue;
-              return newValue;
-            }),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              if (newValue.text.contains(".")) {
-                if (newValue.text.split(".")[0].length > 2) return oldValue;
-              } else if (newValue.text.length > 2) return oldValue;
-              return newValue;
-            }),
-          ],
-          onChanged: (value) {
-            sugarLevel.level = double.tryParse(value) ?? 0;
-            setState(() {});
-          },
-          onSaved: (value) => sugarLevel.level = double.tryParse(value ?? "0") ?? 0,
+    return TextFormField(
+      autofocus: true,
+      decoration: InputDecoration(
+        labelText: "Sugar level",
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.water_drop_outlined),
+          onPressed: () => showSugarLevelNotesEditor(),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-            child: IconButton(
-              icon: const Icon(Icons.notes),
-              onPressed: () => showSugarLevelNotesEditor(),
-            ),
-          ),
-        )
+      ),
+      controller: _sugarLevelController,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(4),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          if (newValue.text.contains(","))
+            return TextEditingValue(
+              text: newValue.text.replaceAll(",", "."),
+              selection: newValue.selection,
+            );
+          return newValue;
+        }),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          if (newValue.text.split(".").length > 2) return oldValue;
+          return newValue;
+        }),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          if (newValue.text.contains(".")) {
+            if (newValue.text.split(".")[0].length > 2) return oldValue;
+          } else if (newValue.text.length > 2) return oldValue;
+          return newValue;
+        }),
       ],
+      onChanged: (value) {
+        sugarLevel.level = double.tryParse(value) ?? 0;
+        setState(() {});
+      },
+      onSaved: (value) => sugarLevel.level = double.tryParse(value ?? "0") ?? 0,
     );
   }
 

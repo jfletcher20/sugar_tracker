@@ -249,63 +249,55 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
   }
 
   Widget get _sugarLevelInput {
-    return Stack(
-      children: [
-        TextFormField(
-          decoration: const InputDecoration(labelText: "Sugar level"),
-          autofocus: true,
-          controller: _sugarLevelController,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(4),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              if (newValue.text.contains(",")) {
-                return TextEditingValue(
-                  text: newValue.text.replaceAll(",", "."),
-                  selection: newValue.selection,
-                );
-              }
-              return newValue;
-            }),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              if (newValue.text.split(".").length > 2) {
-                return oldValue;
-              }
-              return newValue;
-            }),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              if (newValue.text.contains(".")) {
-                if (newValue.text.split(".")[0].length > 2) {
-                  return oldValue;
-                }
-              } else {
-                if (newValue.text.length > 2) {
-                  return oldValue;
-                }
-              }
-              return newValue;
-            }),
-          ],
-          validator: (value) => value == null || value.isEmpty || double.tryParse(value) == 0.0
-              ? "Please enter a value"
-              : null,
-          onChanged: (value) {
-            meal.sugarLevel.level = double.tryParse(value) ?? 0;
-            setState(() {});
-          },
-          onSaved: (value) => meal.sugarLevel.level = double.tryParse(value ?? "0") ?? 0,
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: "Sugar level",
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.water_drop_outlined),
+          onPressed: () => showSugarLevelNotesEditor(),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-            child: IconButton(
-              icon: const Icon(Icons.water_drop_outlined),
-              onPressed: () => showSugarLevelNotesEditor(),
-            ),
-          ),
-        )
+      ),
+      autofocus: true,
+      controller: _sugarLevelController,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(4),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          if (newValue.text.contains(",")) {
+            return TextEditingValue(
+              text: newValue.text.replaceAll(",", "."),
+              selection: newValue.selection,
+            );
+          }
+          return newValue;
+        }),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          if (newValue.text.split(".").length > 2) {
+            return oldValue;
+          }
+          return newValue;
+        }),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          if (newValue.text.contains(".")) {
+            if (newValue.text.split(".")[0].length > 2) {
+              return oldValue;
+            }
+          } else {
+            if (newValue.text.length > 2) {
+              return oldValue;
+            }
+          }
+          return newValue;
+        }),
       ],
+      validator: (value) => value == null || value.isEmpty || double.tryParse(value) == 0.0
+          ? "Please enter a value"
+          : null,
+      onChanged: (value) {
+        meal.sugarLevel.level = double.tryParse(value) ?? 0;
+        setState(() {});
+      },
+      onSaved: (value) => meal.sugarLevel.level = double.tryParse(value ?? "0") ?? 0,
     );
   }
 
@@ -337,40 +329,32 @@ class _MealFormWidgetState extends ConsumerState<MealFormWidget> {
     } else {
       recommended += " advised";
     }
-    return Stack(
-      children: [
-        TextFormField(
-          decoration: InputDecoration(labelText: "$recommended)"),
-          controller: _insulinController,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(2),
-          ],
-          onChanged: (value) => meal.insulin.units = int.tryParse(value) ?? 0,
-          onSaved: (value) => meal.insulin.units = int.tryParse(value ?? "0") ?? 0,
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: "$recommended)",
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.edit_outlined),
+          onPressed: () async {
+            String insulinName = meal.insulin.name;
+            if (insulinName == "Unknown") {
+              List<Insulin> insulins = ref.watch(InsulinManager.provider).toList();
+              if (insulins.isNotEmpty) {
+                insulins.sort((a, b) => a.datetime!.compareTo(b.datetime!));
+                insulinName = insulins.last.name;
+              }
+            }
+            showInsulinEditor(insulinName);
+          },
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-            child: IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: () async {
-                String insulinName = meal.insulin.name;
-                if (insulinName == "Unknown") {
-                  List<Insulin> insulins = ref.watch(InsulinManager.provider).toList();
-                  if (insulins.isNotEmpty) {
-                    insulins.sort((a, b) => a.datetime!.compareTo(b.datetime!));
-                    insulinName = insulins.last.name;
-                  }
-                }
-                showInsulinEditor(insulinName);
-              },
-            ),
-          ),
-        )
+      ),
+      controller: _insulinController,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(2),
       ],
+      onChanged: (value) => meal.insulin.units = int.tryParse(value) ?? 0,
+      onSaved: (value) => meal.insulin.units = int.tryParse(value ?? "0") ?? 0,
     );
   }
 
@@ -545,7 +529,16 @@ class MealCategorySelectionState extends State<MealCategorySelection> {
         Wrap(
           children: MealCategory.values.map((category) {
             return IconButton(
-              icon: Icon(category.icon, color: getColor(category)),
+              // icon: Icon(category.icon, color: getColor(category)),
+              splashRadius: 4,
+              icon: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.transparent),
+                ),
+                child: Icon(category.icon, color: getColor(category)),
+              ),
+              iconSize: 32,
               onPressed: () => setState(() => selectedCategory = category),
               isSelected: selectedCategory == category,
               selectedIcon: Container(

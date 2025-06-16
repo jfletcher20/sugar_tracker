@@ -272,14 +272,36 @@ class _FoodCardState extends ConsumerState<FoodCard> {
       children: [
         if (widget.modifiable && widget.showAmount)
           _WrapInInkwell(
-            child: IconWithInfo(
-              info: "${widget.food.amount.withCommaSeparatorsForHundreds()}g",
-              icon: Icons.scale,
-              iconColor: widget.food.foodCategory.color,
-              // iconColor: Colors.white,
-              width: widget.showAmount && widget.modifiable ? 48 + 12 : null,
-              alignment: MainAxisAlignment.spaceBetween,
-              shrink: widget.showAmount && widget.modifiable,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 1, top: 1),
+                  child: ColorFiltered(
+                    colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      child: IconWithInfo(
+                        info: "${widget.food.amount.withCommaSeparatorsForHundreds()}g",
+                        icon: Icons.scale,
+                        iconColor: widget.food.foodCategory.color,
+                        // iconColor: Colors.white,
+                        width: widget.showAmount && widget.modifiable ? 48 + 12 : null,
+                        alignment: MainAxisAlignment.spaceBetween,
+                        shrink: widget.showAmount && widget.modifiable,
+                      ),
+                    ),
+                  ),
+                ),
+                IconWithInfo(
+                  info: "${widget.food.amount.withCommaSeparatorsForHundreds()}g",
+                  icon: Icons.scale,
+                  iconColor: widget.food.foodCategory.color,
+                  // iconColor: Colors.white,
+                  width: widget.showAmount && widget.modifiable ? 48 + 12 : null,
+                  alignment: MainAxisAlignment.spaceBetween,
+                  shrink: widget.showAmount && widget.modifiable,
+                ),
+              ],
             ),
           ),
         if (!widget.modifiable || !widget.showAmount) _per100gWidget,

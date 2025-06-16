@@ -94,13 +94,13 @@ class FoodListView extends StatelessWidget {
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20,
-            shadows: [
-              Shadow(
-                color: Colors.black,
-                offset: Offset(1, 1),
-                blurRadius: 2,
-              ),
-            ],
+            // shadows: [
+            //   Shadow(
+            //     color: Colors.black,
+            //     offset: Offset(1, 1),
+            //     blurRadius: 2,
+            //   ),
+            // ],
           ),
         ),
       );
