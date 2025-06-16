@@ -229,6 +229,7 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
     return TextFormField(
       decoration: const InputDecoration(labelText: "Notes", icon: Icon(Icons.comment)),
       controller: _notesController,
+      minLines: 1,
       maxLines: 3,
       onChanged: (value) => food.notes = value,
     );

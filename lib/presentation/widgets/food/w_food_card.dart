@@ -150,7 +150,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
       child: FoodCountWidget(
         food: widget.food,
         modifiable: widget.modifiable,
-        showAmount: widget.showAmount,
+        showAmount: false,
         // autoSize: widget.food.amount <= 0,
         // autoSize: true,
       ),
