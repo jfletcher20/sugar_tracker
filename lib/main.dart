@@ -6,7 +6,7 @@ import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/theme/i_theme.dart';
 import 'package:sugar_tracker/presentation/s_homepage.dart';
-import 'package:sugar_tracker/data/preferences.dart';
+import 'package:sugar_tracker/data/profile.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -62,11 +62,7 @@ class MainApp extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) return const HomePage();
               return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                ),
+                body: Center(child: CircularProgressIndicator(color: Colors.white)),
               );
             },
           );

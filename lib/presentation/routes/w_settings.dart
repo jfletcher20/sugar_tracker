@@ -9,7 +9,7 @@ import 'package:sugar_tracker/data/models/enums/e_meal_category.dart';
 import 'package:sugar_tracker/data/dialogs/u_backup_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/preferences.dart';
+import 'package:sugar_tracker/data/profile.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';

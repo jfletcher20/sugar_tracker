@@ -1,4 +1,4 @@
-import 'package:sugar_tracker/data/preferences.dart';
+import 'package:sugar_tracker/data/profile.dart';
 
 mixin DateParserMixin {
   String? weekdayName(int weekday) {

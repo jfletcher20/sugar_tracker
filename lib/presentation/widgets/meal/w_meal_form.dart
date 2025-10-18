@@ -13,7 +13,7 @@ import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_meal.dart';
-import 'package:sugar_tracker/data/preferences.dart';
+import 'package:sugar_tracker/data/profile.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';

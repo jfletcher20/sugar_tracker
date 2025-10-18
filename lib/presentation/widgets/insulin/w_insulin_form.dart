@@ -1,16 +1,15 @@
-// ignore_for_file: curly_braces_in_flow_control_structures, use_build_context_synchronously
+import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
+import 'package:sugar_tracker/data/models/enums/e_insulin_category.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/models/m_insulin.dart';
+import 'package:sugar_tracker/data/models/m_sugar.dart';
+import 'package:sugar_tracker/data/models/m_meal.dart';
+import 'package:sugar_tracker/data/constants.dart';
+import 'package:sugar_tracker/data/profile.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/constants.dart';
-import 'package:sugar_tracker/data/models/enums/e_insulin_category.dart';
-import 'package:sugar_tracker/data/models/m_insulin.dart';
-import 'package:sugar_tracker/data/models/m_meal.dart';
-import 'package:sugar_tracker/data/models/m_sugar.dart';
-import 'package:sugar_tracker/data/preferences.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
-import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,9 +79,11 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
               ),
               const SizedBox(height: 24),
               const SizedBox(height: 24),
-              _sugarLevelInput(),
-              const SizedBox(height: 24),
-              _insulinInput(),
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Flexible(child: _sugarLevelInput()),
+                const SizedBox(width: 24),
+                Flexible(child: _insulinInput()),
+              ]),
               const SizedBox(height: 24),
               FutureBuilder(
                 future: loadInsulinData(),
@@ -156,7 +157,7 @@ class _InsulinFormWidgetState extends ConsumerState<InsulinFormWidget> {
           _prepareDateTime();
           _prepareInsulinCategory();
           await _saveData();
-          Navigator.pop(context, widget.useAsTemplate ? submittedData : null);
+          if (mounted) Navigator.pop(context, widget.useAsTemplate ? submittedData : null);
         }
       },
       child: const Text("Submit"),
@@ -511,7 +512,7 @@ class _InsulinCategorySelectorState extends State<_InsulinCategorySelector> {
         setState(() {});
       },
       value: category == InsulinCategory.basal,
-      activeColor: category.color,
+      activeThumbColor: category.color,
       inactiveThumbColor: category.color,
       tileColor: Colors.redAccent.withValues(alpha: 0.35),
       title: Text(
