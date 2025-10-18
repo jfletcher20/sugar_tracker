@@ -2,6 +2,8 @@
 Automated calculation of necessary insulin units for a given meal and sugar level.
 For tracking sugar levels and insulin given per meal.
 
+NOTE: This is for the mmol/L sugar measurements and U-100 insulin.
+
 ## Features
 
 ### Meals tab
