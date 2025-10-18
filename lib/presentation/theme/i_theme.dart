@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 class ThemeManager {
   static bool isDark = false;
-  static void toggleTheme() {
-    isDark = !isDark;
-  }
+  static void toggleTheme() => isDark = !isDark;
 
   static ThemeData darkTheme = ThemeData.dark().copyWith(
     appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 163, 0, 0)),

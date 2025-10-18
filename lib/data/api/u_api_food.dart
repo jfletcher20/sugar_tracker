@@ -10,18 +10,15 @@ import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 
 class FoodAPI {
-  // insert food entry into db
   static Future<int> insert(Food food) async {
     var data = food.toMap()..remove("id");
     return await DB.insert("food", data);
   }
 
-  // update food entry in db
   static Future<int> update(Food food) async {
     return await DB.db.update("food", food.toMap(), where: "id = ?", whereArgs: [food.id]);
   }
 
-  // delete food entry from db
   static Future<int> delete(Food food, {WidgetRef? ref}) async {
     List<Meal> meals = ref == null
         ? await MealAPI.selectAll()
@@ -39,7 +36,6 @@ class FoodAPI {
     return await DB.delete("food", food.id);
   }
 
-  // select all food entries from db
   static Future<List<Food>> selectAll() async {
     List<Map<String, dynamic>> results = await DB.select("food");
     List<Food> food = results.map((map) => Food.fromMap(map)).toList();
@@ -50,7 +46,6 @@ class FoodAPI {
     return food;
   }
 
-  // select food entry from db by id
   static Future<Food?> selectById(int id) async {
     List<Map<String, dynamic>> results =
         await DB.db.query("food", where: "id = ?", whereArgs: [id]);
@@ -75,7 +70,6 @@ class FoodAPI {
   }
 
   static Future<String> export() async {
-    // export table as list of insert commands and include the null-values
     List<Map<String, dynamic>> results = await DB.select("food");
     String output = "";
     for (Map<String, dynamic> map in results) {

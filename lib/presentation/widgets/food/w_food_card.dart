@@ -207,14 +207,6 @@ class _FoodCardState extends ConsumerState<FoodCard> {
 
   Text get title {
     String title = widget.food.name;
-    // replace all " " with "\n"
-    // title = title.replaceAll(" ", "\n");
-    // break the title text with a newline only if it is longer tahn 20 characters; break it at the first space after the 20 character mark
-    // if (title.length >= 20) {
-    //   if (title.substring(16).contains(" ")) {
-    //     title = title.substring(0, 16) + title.substring(16).replaceFirst(" ", "\n");
-    //   }
-    // }
     TextStyle titleLarge = Theme.of(context).textTheme.titleMedium!;
     titleLarge = titleLarge.copyWith(
         fontWeight: FontWeight.w600,
@@ -247,7 +239,6 @@ class _FoodCardState extends ConsumerState<FoodCard> {
           ? null
           : BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              // border: Border.all(color: widget.food.foodCategory.color),
               color: widget.food.foodCategory.color.withValues(alpha: 0.1),
             ),
       padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
@@ -284,7 +275,6 @@ class _FoodCardState extends ConsumerState<FoodCard> {
                         info: "${widget.food.amount.withCommaSeparatorsForHundreds()}g",
                         icon: Icons.scale,
                         iconColor: widget.food.foodCategory.color,
-                        // iconColor: Colors.white,
                         width: widget.showAmount && widget.modifiable ? 48 + 12 : null,
                         alignment: MainAxisAlignment.spaceBetween,
                         shrink: widget.showAmount && widget.modifiable,
@@ -296,7 +286,6 @@ class _FoodCardState extends ConsumerState<FoodCard> {
                   info: "${widget.food.amount.withCommaSeparatorsForHundreds()}g",
                   icon: Icons.scale,
                   iconColor: widget.food.foodCategory.color,
-                  // iconColor: Colors.white,
                   width: widget.showAmount && widget.modifiable ? 48 + 12 : null,
                   alignment: MainAxisAlignment.spaceBetween,
                   shrink: widget.showAmount && widget.modifiable,
@@ -313,7 +302,6 @@ class _FoodCardState extends ConsumerState<FoodCard> {
             icon: Icons.restaurant_outlined,
             iconColor:
                 widget.modifiable && widget.showAmount ? Colors.greenAccent : Colors.redAccent,
-            // width: 48 + 24,
           ),
         if (widget.food.amount <= 0 && widget.modifiable)
           const IconWithInfo(
@@ -423,9 +411,7 @@ class _FoodCardState extends ConsumerState<FoodCard> {
 
         // save imageBytes as temp file in cache
         String tempDir = Directory.systemTemp.path;
-        File file = File(
-          "$tempDir/$imgName",
-        )
+        File file = File("$tempDir/$imgName")
           ..createSync(recursive: true)
           ..writeAsBytesSync(imageBytes);
         XFile xFile = XFile(file.path);

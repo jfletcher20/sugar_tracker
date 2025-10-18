@@ -308,29 +308,24 @@ class DB {
     });
   }
 
-  // generate insert commands
   static Future<int> insert(String table, Map<String, dynamic> data) async {
     return await db.insert(table, data);
   }
 
-  // generate update commands
   static Future<int> update(String table, Map<String, dynamic> data) async {
     return await db.update(table, data, where: "id = ?", whereArgs: [data["id"]]);
   }
 
-  // generate delete commands
   static Future<int> delete(String table, int id) async {
     return await db.delete(table, where: "id = ?", whereArgs: [id]);
   }
 
-  // generate select commands
   static Future<List<Map<String, dynamic>>> select(String table) async {
     return await db.query(table);
   }
 
-  // generate select commands with where clause
   static Future<List<Map<String, dynamic>>> selectWhere(
-      String table, String where, List<dynamic> whereArgs) async {
-    return await db.query(table, where: where, whereArgs: whereArgs);
+      String table, String where, List<dynamic> args) async {
+    return await db.query(table, where: where, whereArgs: args);
   }
 }

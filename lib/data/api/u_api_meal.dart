@@ -1,33 +1,27 @@
-// api for inserting, updating, deleting, and selecting data from meal table in db
+import 'package:sugar_tracker/data/models/enums/e_meal_category.dart';
 
-// ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/api/u_api_food.dart';
-import 'package:sugar_tracker/data/api/u_api_insulin.dart';
-import 'package:sugar_tracker/data/api/u_api_sugar.dart';
-import 'package:sugar_tracker/data/api/u_db.dart';
-import 'package:sugar_tracker/data/models/m_food.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
-import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
-import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
+import 'package:sugar_tracker/data/models/m_meal.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
+
+import 'package:sugar_tracker/data/api/u_api_insulin.dart';
+import 'package:sugar_tracker/data/api/u_api_sugar.dart';
+import 'package:sugar_tracker/data/api/u_api_food.dart';
+import 'package:sugar_tracker/data/api/u_db.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MealAPI {
-  // insert meal entry into db
   static Future<int> insert(Meal meal) async => await DB.insert("meal", meal.toMap());
-
-  // update meal entry in db
   static Future<int> update(Meal meal) async => await DB.update("meal", meal.toMap());
-
-  // delete meal entry from db
   static Future<int> delete(Meal meal) async => await DB.delete("meal", meal.id);
-
-  // select all meal entries from db as meals
   static Future<List<Meal>> selectAll({WidgetRef? ref}) async {
     if (ref != null) if (ref.read(MealManager.provider).isNotEmpty)
       return ref.read(MealManager.provider.notifier).getMeals();
@@ -37,8 +31,6 @@ class MealAPI {
     List<Map<String, dynamic>> meals = await DB.select("meal");
 
     for (Map<String, dynamic> meal in meals) {
-      // Sugar sugar = await SugarAPI.selectById(meal["sugar_id"]) ?? Sugar(notes: "Unknown");
-      // Insulin insulin = await InsulinAPI.selectById(meal["insulin"]) ?? Insulin(notes: "Unknown");
       Sugar sugar;
       Insulin insulin;
       if (ref != null) {
@@ -90,7 +82,8 @@ class MealAPI {
 
   // attempt to predict meal category
   static Future<MealCategory> determineCategory() async {
-    // get the last 5 meals and cleverly determine if the new one, based on the time of day and the recent meal history, is supposed to be breakfast, lunch, dinner, or snack
+    // get the last 5 meals and determine if the new one, based on the time of day
+    // and recent meal history, is supposed to be breakfast, lunch, dinner, or snack
     List<Map<String, dynamic>> lastFiveResults =
         (await DB.db.rawQuery("SELECT * FROM meal ORDER BY id DESC LIMIT 5"));
     List<Meal> lastFive =
@@ -99,8 +92,10 @@ class MealAPI {
             .toList()
           ..sort((a, b) => a.datetime!.compareTo(b.datetime!));
 
+    final now = DateTime.now().hour;
+
     // check if the current time is between 6am and 2pm, and if the last 5 meals' breakfast entries are all before then
-    if (DateTime.now().hour >= 6 && DateTime.now().hour < 14) {
+    if (now >= 6 && now < 14) {
       Meal breakfastInstance = lastFive.lastWhere(
         (element) => element.category == MealCategory.breakfast,
         orElse: () => Meal.empty(),
@@ -109,7 +104,7 @@ class MealAPI {
       if (breakfastInstance.datetime!.day != DateTime.now().day) {
         return MealCategory.breakfast;
       } else {
-        int hoursPassed = DateTime.now().hour - breakfastInstance.datetime!.hour;
+        int hoursPassed = now - breakfastInstance.datetime!.hour;
         if (hoursPassed > 2)
           return MealCategory.lunch;
         else if (hoursPassed < 2) return MealCategory.snack;
@@ -117,7 +112,7 @@ class MealAPI {
     }
 
     // check for lunch
-    else if (DateTime.now().hour >= 12 && DateTime.now().hour < 18) {
+    else if (now >= 12 && now < 18) {
       Meal lunchInstance = lastFive.lastWhere(
         (element) => element.category == MealCategory.lunch,
         orElse: () => Meal.empty(),
@@ -126,7 +121,7 @@ class MealAPI {
       if (lunchInstance.datetime!.day != DateTime.now().day) {
         return MealCategory.lunch;
       } else {
-        int hoursPassed = DateTime.now().hour - lunchInstance.datetime!.hour;
+        int hoursPassed = now - lunchInstance.datetime!.hour;
         if (hoursPassed > 4)
           return MealCategory.dinner;
         else if (hoursPassed < 4) return MealCategory.snack;
@@ -134,7 +129,7 @@ class MealAPI {
     }
 
     // check for dinner
-    else if (DateTime.now().hour >= 18 && DateTime.now().hour < 23) {
+    else if (now >= 18 && now < 23) {
       Meal dinnerInstance = lastFive.lastWhere(
         (element) => element.category == MealCategory.dinner,
         orElse: () => Meal.empty(),
@@ -146,7 +141,6 @@ class MealAPI {
     return MealCategory.snack;
   }
 
-  // select meal entry from db by id
   static Future<Meal> selectByFoodId(int foodId, {WidgetRef? ref}) async {
     if (ref != null) {
       Meal meal = ref.read(MealManager.provider.notifier).getMealByFoodId(foodId);
@@ -192,17 +186,12 @@ class MealAPI {
       ..food = food;
   }
 
-  // select meal entries from db by sugar id
   static Future<Meal> selectBySugarId(Sugar sugar) async {
     Map<String, dynamic> result;
     try {
       result = (await DB.db.rawQuery("SELECT * FROM meal WHERE sugar_id = ?", [sugar.id])).first;
     } catch (e) {
-      return Meal(
-        sugarLevel: Sugar(notes: "Unknown"),
-        insulin: Insulin(notes: "Unknown"),
-        food: [],
-      );
+      return Meal.empty();
     }
 
     Insulin insulin = await InsulinAPI.selectById(result["insulin"]) ?? Insulin(notes: "Unknown");
@@ -242,11 +231,7 @@ class MealAPI {
     try {
       result = (await DB.db.rawQuery("SELECT * FROM meal WHERE insulin = ?", [insulin.id])).first;
     } catch (e) {
-      return Meal(
-        sugarLevel: Sugar(notes: "Unknown"),
-        insulin: Insulin(notes: "Unknown"),
-        food: [],
-      );
+      return Meal.empty();
     }
 
     Sugar sugar = await SugarAPI.selectById(result["sugar_id"]) ?? Sugar(notes: "Unknown");

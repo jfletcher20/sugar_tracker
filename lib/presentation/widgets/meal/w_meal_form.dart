@@ -1,6 +1,8 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sugar_tracker/data/constants.dart';
+import 'package:sugar_tracker/data/models/enums/e_insulin_category.dart';
+import 'package:sugar_tracker/data/models/enums/e_meal_category.dart';
 import 'package:sugar_tracker/presentation/widgets/food/w_food_selector.dart';
 import 'package:sugar_tracker/presentation/widgets/w_datetime_selector.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';

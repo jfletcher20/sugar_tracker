@@ -20,7 +20,6 @@ class FoodFormWidget extends ConsumerStatefulWidget {
 }
 
 class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
-  // text controllers for each text field
   late final TextEditingController _nameController;
   late final TextEditingController _carbsController;
   late final TextEditingController _weightController;
@@ -28,7 +27,6 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
   late Food food;
 
   GlobalKey<DateTimeSelectorWidgetState> dateTimeSelectorKey = GlobalKey();
-  // form key
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -208,21 +206,12 @@ class _FoodFormWidgetState extends ConsumerState<FoodFormWidget> {
         return newValue;
       }),
       TextInputFormatter.withFunction((oldValue, newValue) {
-        if (newValue.text.split(".").length > 2) {
-          return oldValue;
-        }
+        if (newValue.text.split(".").length > 2) return oldValue;
         return newValue;
       }),
       TextInputFormatter.withFunction((oldValue, newValue) {
-        if (newValue.text.contains(".")) {
-          if (newValue.text.split(".")[0].length > 2) {
-            return oldValue;
-          }
-        } else {
-          if (newValue.text.length > 2) {
-            return oldValue;
-          }
-        }
+        if (newValue.text.contains(".") && newValue.text.split(".")[0].length > 2) return oldValue;
+        if (newValue.text.length > 2) return oldValue;
         return newValue;
       }),
     ];

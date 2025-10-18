@@ -76,7 +76,7 @@ class FoodListView extends StatelessWidget {
     );
   }
 
-  Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
+  Widget unknownPicture(BuildContext context, Object error, StackTrace? stackTrace) {
     return Image.asset(
       "assets/images/food/unknown.png",
       color: Colors.redAccent,
@@ -90,17 +90,10 @@ class FoodListView extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         child: Text(
           "$index/${foods.length}",
-          style: /* drop shadow */ const TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20,
-            // shadows: [
-            //   Shadow(
-            //     color: Colors.black,
-            //     offset: Offset(1, 1),
-            //     blurRadius: 2,
-            //   ),
-            // ],
           ),
         ),
       );
@@ -110,20 +103,10 @@ class FoodListView extends StatelessWidget {
   }
 
   Image image(Food food) {
-    return food.picture.contains("asset")
-        ? Image.asset(
-            fit: BoxFit.fill,
-            food.picture,
-            color: food.picture == "" ? Colors.greenAccent : null,
-            errorBuilder: imageNotFound,
-          )
-        : Image.file(
-            File(food.picture),
-            // height: 32,
-            // width: 32,
-            color: food.picture == "" ? Colors.greenAccent : null,
-            errorBuilder: imageNotFound,
-            fit: BoxFit.fill,
-          );
+    final picture = food.picture;
+    final color = food.picture == "" ? Colors.greenAccent : null;
+    if (food.picture.contains("asset"))
+      return Image.asset(picture, fit: BoxFit.fill, color: color, errorBuilder: unknownPicture);
+    return Image.file(File(picture), fit: BoxFit.fill, color: color, errorBuilder: unknownPicture);
   }
 }

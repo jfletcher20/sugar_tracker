@@ -70,10 +70,6 @@ class _BouncingCarouselState extends State<BouncingCarousel> {
         enableSplash: false,
         children: [
           ...widget.foods.map(
-            // (food) => InkWell(
-            //   onTap: () => DetailsDialogs.mealDetails(context, widget.foods, withHandle: true),
-            //   child: Image.file(File(food.picture), fit: BoxFit.fill, errorBuilder: imageNotFound),
-            // ),
             (food) => Image.file(File(food.picture),
                 frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
               if (wasSynchronouslyLoaded) return child;

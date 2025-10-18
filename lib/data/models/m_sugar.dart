@@ -1,6 +1,6 @@
-import 'package:sugar_tracker/data/preferences.dart';
+import 'package:sugar_tracker/presentation/mixins/mx_date_parser.dart';
 
-class Sugar {
+class Sugar with DateParserMixin {
   int id = -1;
   double level = 0;
   DateTime? datetime;
@@ -27,45 +27,7 @@ class Sugar {
     return "$hour:$minute";
   }
 
-  String get date {
-    DateTime local = datetime ?? DateTime.now();
-    if (!Profile.dateAsDayOfWeek) {
-      return "${local.day}.${local.month}.${local.year}";
-    }
-    if (local.day == DateTime.now().day &&
-        local.month == DateTime.now().month &&
-        local.year == DateTime.now().year) {
-      return "Today";
-    } else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day &&
-        local.month == DateTime.now().subtract(const Duration(days: 1)).month &&
-        local.year == DateTime.now().subtract(const Duration(days: 1)).year) {
-      return "Yesterday";
-    } /* else if in the past 7 days return the weekday name like Sunday, Monday, Tuesday...*/ else {
-      // check that local day is within the past 7 days
-      if (local.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
-        switch (local.weekday) {
-          case 1:
-            return "Monday";
-          case 2:
-            return "Tuesday";
-          case 3:
-            return "Wednesday";
-          case 4:
-            return "Thursday";
-          case 5:
-            return "Friday";
-          case 6:
-            return "Saturday";
-          case 7:
-            return "Sunday";
-          default:
-            return "${local.day}.${local.month}.${local.year}";
-        }
-      } else {
-        return "${local.day}.${local.month}.${local.year}";
-      }
-    }
-  }
+  String get date => parseDate(datetime ?? DateTime.now());
 
   Sugar.fromMap(Map<String, dynamic> map) {
     id = map["id"];

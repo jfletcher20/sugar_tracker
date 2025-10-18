@@ -1,19 +1,19 @@
-// ignore_for_file: avoid_print
-import 'package:sugar_tracker/data/constants.dart';
-import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';
+import 'package:sugar_tracker/presentation/routes/w_insulin_history.dart';
+import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
+import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
+import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
+import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
+import 'package:sugar_tracker/presentation/routes/w_food_list.dart';
+import 'package:sugar_tracker/presentation/routes/w_settings.dart';
 import 'package:sugar_tracker/data/models/m_food_category.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
-import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
-import 'package:sugar_tracker/presentation/routes/w_food_list.dart';
-import 'package:sugar_tracker/presentation/routes/w_insulin_history.dart';
-import 'package:sugar_tracker/presentation/routes/w_meal_history.dart';
-import 'package:sugar_tracker/presentation/routes/w_settings.dart';
-import 'package:sugar_tracker/presentation/routes/w_sugar_history.dart';
-import 'package:sugar_tracker/presentation/widgets/food/w_food_form.dart';
-import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';
-import 'package:sugar_tracker/presentation/widgets/meal/w_meal_form.dart';
+import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/models/m_meal.dart';
+import 'package:sugar_tracker/data/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:sugar_tracker/presentation/widgets/w_bottomnav.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -37,13 +37,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text("Sugar Tracker",
-              style: TextStyle(fontFamily: "Boucherie", fontWeight: FontWeight.w600)),
-          actions: [
-            _createMeasurementEntryButton(),
-            _createMealButton(),
-            _createFoodItemButton(),
-          ]),
+        title: const Text(
+          "Sugar Tracker",
+          style: TextStyle(fontFamily: "Boucherie", fontWeight: FontWeight.w600),
+        ),
+        actions: [
+          _createMeasurementEntryButton(),
+          _createMealButton(),
+          _createFoodItemButton(),
+        ],
+      ),
       body: TabBarView(
         physics: const NeverScrollableScrollPhysics(),
         controller: _tabController,
@@ -119,31 +122,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       type: BottomNavigationBarType.shifting,
       currentIndex: _tabController.index,
       items: [
-        BottomNavigationBarItem(
-          icon: Icon(IconConstants.sugar.regular),
-          label: "Sugars",
-          backgroundColor: Colors.black,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(IconConstants.insulin.regular),
-          label: "Insulin",
-          backgroundColor: Colors.black,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(IconConstants.meal.regular),
-          label: "Meals",
-          backgroundColor: Colors.black,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(IconConstants.food.regular),
-          label: "Foods",
-          backgroundColor: Colors.black,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(IconConstants.settings.regular),
-          label: "Settings",
-          backgroundColor: Colors.black,
-        ),
+        HomepageBottomNavBarItem(Icon(IconConstants.sugar.regular), "Sugars"),
+        HomepageBottomNavBarItem(Icon(IconConstants.insulin.regular), "Insulin"),
+        HomepageBottomNavBarItem(Icon(IconConstants.meal.regular), "Meals"),
+        HomepageBottomNavBarItem(Icon(IconConstants.food.regular), "Foods"),
+        HomepageBottomNavBarItem(Icon(IconConstants.settings.regular), "Settings"),
       ],
       onTap: (index) => setState(() => _tabController.animateTo(index)),
     );

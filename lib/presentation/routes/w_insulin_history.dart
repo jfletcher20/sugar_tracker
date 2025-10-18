@@ -1,4 +1,6 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:sugar_tracker/data/models/enums/e_insulin_category.dart';
+import 'package:sugar_tracker/data/models/enums/e_meal_category.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_data.dart';
 import 'package:sugar_tracker/presentation/widgets/insulin/w_insulin_form.dart';

@@ -1,14 +1,14 @@
-// ignore_for_file: use_build_context_synchronously
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food_category.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_insulin.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_sugar.dart';
+import 'package:sugar_tracker/presentation/mixins/mx_date_parser.dart';
 import 'package:sugar_tracker/presentation/widgets/s_table_editor.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_food.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
+import 'package:sugar_tracker/data/models/enums/e_meal_category.dart';
 import 'package:sugar_tracker/data/dialogs/u_backup_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sugar_tracker/data/models/m_meal.dart';
 import 'package:sugar_tracker/data/preferences.dart';
 import 'package:sugar_tracker/data/api/u_db.dart';
 
@@ -30,7 +30,7 @@ class SettingsWidget extends StatefulWidget {
   State<SettingsWidget> createState() => _SettingsWidgetState();
 }
 
-class _SettingsWidgetState extends State<SettingsWidget> {
+class _SettingsWidgetState extends State<SettingsWidget> with DateParserMixin {
   bool dateAsDayOfWeek = true;
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               title: const Text("Date format"),
               description: Text(
                 dateAsDayOfWeek
-                    ? "Today, Yesterday, ${dayName(dayBeforeYesterday.weekday)}"
+                    ? "Today, Yesterday, ${weekdayName(dayBeforeYesterday.weekday)}"
                     : "${now.day}.${now.month}.${now.year}, ${yesterday.day}.${yesterday.month}.${yesterday.year}",
               ),
               leading: Icon(dateAsDayOfWeek ? Icons.calendar_month : Icons.calendar_month_outlined),
@@ -84,26 +84,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         )
       ],
     );
-  }
-
-  String dayName(int weekday) {
-    switch (weekday) {
-      case 1:
-        return "Monday";
-      case 2:
-        return "Tuesday";
-      case 3:
-        return "Wednesday";
-      case 4:
-        return "Thursday";
-      case 5:
-        return "Friday";
-      case 6:
-        return "Saturday";
-      case 7:
-        return "Sunday";
-    }
-    return "";
   }
 
   RichText settingsSectionTitle(String title, TextTheme textTheme) {
@@ -263,13 +243,14 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     File databaseFile = File(databasePath);
     ValueNotifier<double> progressNotifier = ValueNotifier<double>(0.0);
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return BackupProgressDialog(progressNotifier: progressNotifier, files: [databaseFile]);
-      },
-    );
+    if (mounted)
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return BackupProgressDialog(progressNotifier: progressNotifier, files: [databaseFile]);
+        },
+      );
 
     Future<void> uploadFile(File file) async {
       try {
@@ -379,13 +360,14 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     List<int> zippedFile = encoder.encode(archive)!;
     zipFile.writeAsBytesSync(zippedFile);
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return BackupProgressDialog(progressNotifier: progressNotifier, files: [zipFile]);
-      },
-    );
+    if (mounted)
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return BackupProgressDialog(progressNotifier: progressNotifier, files: [zipFile]);
+        },
+      );
 
     await uploadFile(zipFile);
 
@@ -416,10 +398,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               return TextButton.icon(
                 onPressed: () async {
                   bool success = await loadFile(ref);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Backup loaded successfully.")),
-                  );
-                  if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
+                  if (context.mounted)
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Backup loaded successfully.")),
+                    );
+                  if (context.mounted && Navigator.canPop(context)) Navigator.pop(context, success);
                 },
                 style: ButtonStyle(
                   overlayColor: WidgetStateProperty.all(Colors.greenAccent.withValues(alpha: 0.2)),
@@ -436,10 +419,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               return TextButton.icon(
                 onPressed: () async {
                   bool success = await loadPhotosBackup();
-                  if (mounted && Navigator.canPop(context)) Navigator.pop(context, success);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Photos loaded successfully.")),
-                  );
+                  if (context.mounted && Navigator.canPop(context)) Navigator.pop(context, success);
+                  if (context.mounted)
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Photos loaded successfully.")),
+                    );
                 },
                 style: ButtonStyle(
                   overlayColor: WidgetStateProperty.all(Colors.greenAccent.withValues(alpha: 0.2)),
@@ -511,23 +495,15 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         return newValue;
       }),
       TextInputFormatter.withFunction((oldValue, newValue) {
-        if (newValue.text.split(".").length > 2) {
-          return oldValue;
-        }
+        if (newValue.text.split(".").length > 2) return oldValue;
         return newValue;
       }),
       TextInputFormatter.withFunction((oldValue, newValue) {
         if (newValue.text.contains(".")) {
           if (newValue.text.split(".")[0].length > 3) {
             return oldValue;
-          } else if (newValue.text.split(".")[1].length > 1) {
-            return oldValue;
-          }
-        } else {
-          if (newValue.text.length > 3) {
-            return oldValue;
-          }
-        }
+          } else if (newValue.text.split(".")[1].length > 1) return oldValue;
+        } else if (newValue.text.length > 3) return oldValue;
         return newValue;
       }),
     ];

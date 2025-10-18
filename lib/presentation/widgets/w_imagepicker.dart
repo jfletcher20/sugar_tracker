@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'dart:io';
 
+import 'package:sugar_tracker/presentation/widgets/w_imagepicker_tiles.dart';
+
 class ImagePickerWidget extends StatefulWidget {
   final double? imgSize;
   final String path;
@@ -67,86 +69,75 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
     return (BuildContext context) {
       return Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          _title(),
-          _useCamera(),
-          _fromGallery(),
-          _clearPhoto(),
-        ],
+        children: [_title, _useCamera, _fromGallery, _clearPhoto],
       );
     };
   }
 
-  Text _title() {
+  Text get _title {
     return Text(
       "Add a picture of your product",
       style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.white),
     );
   }
 
-  ListTile _useCamera() {
-    return ListTile(
-      leading: const Icon(Icons.camera, color: Colors.white),
-      title: const Text('Take a photo', style: TextStyle(color: Colors.white)),
+  ListTile get _useCamera {
+    return ImagePickerTile(
+      icon: Icons.camera,
+      title: 'Take a photo',
       onTap: () {
         _getFromCamera();
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       },
     );
   }
 
-  ListTile _fromGallery() {
-    return ListTile(
-      leading: const Icon(Icons.photo_library, color: Colors.white),
-      title: const Text('Choose from gallery', style: TextStyle(color: Colors.white)),
+  ListTile get _fromGallery {
+    return ImagePickerTile(
+      icon: Icons.photo_library,
+      title: 'Choose from gallery',
       onTap: () {
         _getFromGallery();
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       },
     );
   }
 
-  ListTile _clearPhoto() {
-    return ListTile(
-      leading: const Icon(Icons.cancel, color: Colors.white),
-      title: const Text('Clear photo', style: TextStyle(color: Colors.white)),
-      enabled: (image) != null,
-      tileColor: (image) == null ? Colors.black.withValues(alpha: 0.4) : null,
+  ListTile get _clearPhoto {
+    return ImagePickerTile(
+      icon: Icons.cancel,
+      title: 'Clear photo',
+      enabled: image != null,
+      tileColorChange: image == null,
       onTap: () {
         setState(() => image = null);
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       },
     );
   }
 
-  Future<void> _getFromCamera() async {
+  Future<void> _pickImage({required ImageSource source}) async {
     XFile? pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.camera,
+      source: source,
       maxHeight: widget.imgSize,
       maxWidth: widget.imgSize,
     );
     if (pickedFile != null) setState(() => image = File(pickedFile.path));
   }
 
-  Future<void> _getFromGallery() async {
-    XFile? pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxHeight: widget.imgSize,
-      maxWidth: widget.imgSize,
-    );
-    if (pickedFile != null) setState(() => image = File(pickedFile.path));
-  }
+  Future<void> _getFromCamera() => _pickImage(source: ImageSource.camera);
+  Future<void> _getFromGallery() => _pickImage(source: ImageSource.gallery);
 
   Widget _buildImageInput() {
     return Container(
       decoration: outline,
       width: widget.imgSize,
       height: widget.imgSize,
-      child: InkWell(onTap: () => _showImagePicker(), child: _img()),
+      child: InkWell(onTap: _showImagePicker, child: _img),
     );
   }
 
-  Image _img() {
+  Image get _img {
     if (image == null) {
       return Image.asset(
         "assets/images/food/unknown.png",

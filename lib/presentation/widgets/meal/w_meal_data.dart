@@ -1,4 +1,5 @@
 import 'package:sugar_tracker/data/constants.dart';
+import 'package:sugar_tracker/data/models/enums/e_meal_category.dart';
 import 'package:sugar_tracker/presentation/widgets/meal/w_icon_info.dart';
 import 'package:sugar_tracker/data/riverpod.dart/u_provider_meal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

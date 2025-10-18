@@ -1,57 +1,7 @@
-// ignore_for_file: curly_braces_in_flow_control_structures
-
-/* 
-      String mealTable = "CREATE TABLE meal("
-          "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-          "sugar_id INTEGER,"
-          "insulin REAL,"
-          "food_ids TEXT,"
-          ")"; */
-
-import 'package:sugar_tracker/data/constants.dart';
-import 'package:sugar_tracker/data/models/m_food.dart';
+import 'package:sugar_tracker/data/models/enums/e_meal_category.dart';
 import 'package:sugar_tracker/data/models/m_insulin.dart';
 import 'package:sugar_tracker/data/models/m_sugar.dart';
-
-import 'package:flutter/material.dart';
-
-enum MealCategory {
-  breakfast,
-  lunch,
-  dinner,
-  snack,
-  other;
-
-  IconData get icon {
-    switch (this) {
-      case MealCategory.breakfast:
-        return MealCategoryData.mealCategory.breakfast.icon;
-      case MealCategory.lunch:
-        return MealCategoryData.mealCategory.lunch.icon;
-      case MealCategory.dinner:
-        return MealCategoryData.mealCategory.dinner.icon;
-      case MealCategory.snack:
-        return MealCategoryData.mealCategory.snack.icon;
-      case MealCategory.other:
-        return MealCategoryData.mealCategory.other.icon;
-    }
-  }
-
-  Color get color {
-    switch (this) {
-      case MealCategory.breakfast:
-        return MealCategoryData.mealCategory.breakfast.color;
-      case MealCategory.lunch:
-        return MealCategoryData.mealCategory.lunch.color;
-      case MealCategory.dinner:
-        return MealCategoryData.mealCategory.dinner.color;
-      case MealCategory.snack:
-        return MealCategoryData.mealCategory.snack.color;
-      case MealCategory.other:
-        return MealCategoryData.mealCategory.other.color;
-    }
-  }
-}
+import 'package:sugar_tracker/data/models/m_food.dart';
 
 final Sugar _defaultSugar = Sugar();
 final Insulin _defaultInsulin = Insulin();

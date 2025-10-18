@@ -50,9 +50,7 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
       bottom: 0,
       child: InkWell(
         onTap: widget.modifiable
-            ? () async {
-                changeAmountDialog(food).call().then((value) => setState(() {}));
-              }
+            ? () => changeAmountDialog(food).call().then((_) => mounted ? setState(() {}) : null)
             : null,
         child: Container(
           decoration: BoxDecoration(
@@ -94,7 +92,6 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text("Cancel"),
               ),
-              // if food.weight is > 0, then show TextButton to add food.weight to _amountController.value
               if (food.weight > 0)
                 TextButton(
                   onPressed: () {
@@ -156,9 +153,9 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
   Image image(Food food) {
     return food.picture.contains("asset")
         ? Image.asset(
+            food.picture,
             height: widget.autoSize ? null : 48,
             width: widget.autoSize ? null : 48,
-            food.picture,
             color: food.picture == "" ? Colors.greenAccent : null,
             errorBuilder: imageNotFound,
           )

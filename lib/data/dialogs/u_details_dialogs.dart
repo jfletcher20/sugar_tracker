@@ -8,7 +8,6 @@ class DetailsDialogs {
     await showModalBottomSheet(
       showDragHandle: withHandle,
       context: context,
-      // round border top decoration
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),

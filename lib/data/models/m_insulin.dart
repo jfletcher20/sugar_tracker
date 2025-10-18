@@ -1,18 +1,7 @@
-// insulin model has id, name, datetime, type (0=bolus, 1=basal), and notes
-// ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:sugar_tracker/presentation/mixins/mx_date_parser.dart';
+import 'package:sugar_tracker/data/models/enums/e_insulin_category.dart';
 
-import 'package:flutter/material.dart';
-import 'package:sugar_tracker/data/preferences.dart';
-
-enum InsulinCategory {
-  bolus,
-  basal;
-
-  Color get color => this == InsulinCategory.bolus ? Colors.deepOrange : Colors.lightGreen;
-  IconData get icon => this == InsulinCategory.bolus ? Icons.fast_forward : Icons.slow_motion_video;
-}
-
-class Insulin {
+class Insulin with DateParserMixin {
   int id = -1;
   String name = "Unknown";
   DateTime? datetime;
@@ -20,43 +9,7 @@ class Insulin {
   InsulinCategory category = InsulinCategory.bolus;
   String notes = "";
 
-  String get date {
-    DateTime local = datetime ?? DateTime.now();
-    if (!Profile.dateAsDayOfWeek) return "${local.day}.${local.month}.${local.year}";
-    if (local.day == DateTime.now().day &&
-        local.month == DateTime.now().month &&
-        local.year == DateTime.now().year)
-      return "Today";
-    else if (local.day == DateTime.now().subtract(const Duration(days: 1)).day &&
-        local.month == DateTime.now().subtract(const Duration(days: 1)).month &&
-        local.year == DateTime.now().subtract(const Duration(days: 1)).year)
-      return "Yesterday";
-    /* else if in the past 7 days return the weekday name like Sunday, Monday, Tuesday...*/ else {
-      // check that local day is within the past 7 days
-      if (local.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
-        switch (local.weekday) {
-          case 1:
-            return "Monday";
-          case 2:
-            return "Tuesday";
-          case 3:
-            return "Wednesday";
-          case 4:
-            return "Thursday";
-          case 5:
-            return "Friday";
-          case 6:
-            return "Saturday";
-          case 7:
-            return "Sunday";
-          default:
-            return "${local.day}.${local.month}.${local.year}";
-        }
-      } else {
-        return "${local.day}.${local.month}.${local.year}";
-      }
-    }
-  }
+  String get date => parseDate(datetime ?? DateTime.now());
 
   String get time {
     DateTime date = datetime ?? DateTime.now();
