@@ -83,6 +83,13 @@ class FoodCategorySelectorWidgetState extends State<FoodCategorySelectorWidget> 
       color: Colors.redAccent,
       height: widget.imgSize,
       width: widget.imgSize,
+      errorBuilder: (context, error, stackTrace) {
+        return Icon(
+          Icons.broken_image,
+          size: widget.imgSize,
+          color: Colors.redAccent,
+        );
+      },
     );
   }
 

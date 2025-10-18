@@ -76,10 +76,20 @@ class FoodListView extends StatelessWidget {
     );
   }
 
+  Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
+    return const Icon(
+      Icons.broken_image,
+      size: 72,
+      color: Colors.redAccent,
+    );
+  }
+
   Widget unknownPicture(BuildContext context, Object error, StackTrace? stackTrace) {
     return Image.asset(
       "assets/images/food/unknown.png",
       color: Colors.redAccent,
+      fit: BoxFit.fill,
+      errorBuilder: imageNotFound,
     );
   }
 

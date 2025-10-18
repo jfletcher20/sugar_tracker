@@ -1,4 +1,5 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 
 class DB {
@@ -8,6 +9,10 @@ class DB {
   static String foodCategoryPicturePath = "$rootPicturePath/food_category";
   static String dbName = "st.db";
   static Future open() async {
+    // if windows change the factory
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      databaseFactory = databaseFactoryFfi;
+    }
     db = await openDatabase(join(await getDatabasesPath(), dbName), version: 1,
         onCreate: (database, version) {
       String foodCategoryTable =

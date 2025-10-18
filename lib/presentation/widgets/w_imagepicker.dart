@@ -39,11 +39,10 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
   }
 
   Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
-    return Image.asset(
-      "assets/images/food/unknown.png",
+    return Icon(
+      Icons.broken_image,
+      size: widget.imgSize!,
       color: Colors.redAccent,
-      height: widget.imgSize,
-      width: widget.imgSize,
     );
   }
 

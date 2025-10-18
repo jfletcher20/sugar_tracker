@@ -174,6 +174,13 @@ class FoodCountWidgetState extends State<FoodCountWidget> {
       color: Colors.redAccent,
       height: widget.autoSize ? null : 48,
       width: widget.autoSize ? null : 48,
+      errorBuilder: (context, error, stackTrace) {
+        return const Icon(
+          Icons.broken_image,
+          size: 48,
+          color: Colors.redAccent,
+        );
+      },
     );
   }
 }

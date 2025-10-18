@@ -39,11 +39,10 @@ class _BouncingCarouselState extends State<BouncingCarousel> {
   }
 
   Widget imageNotFound(BuildContext context, Object error, StackTrace? stackTrace) {
-    return Image.asset(
-      "assets/images/food/unknown.png",
+    return const Icon(
+      Icons.broken_image,
+      size: 54,
       color: Colors.redAccent,
-      height: 54,
-      width: 54,
     );
   }
 
